@@ -1,0 +1,131 @@
+jQuery(function($) {
+	var validation_holder;
+
+	$("form#form_comanda_rapida input[name='submit']").click(function() {
+
+	var validation_holder = 0;
+
+		var nume_form 			= $("form#form_comanda_rapida input[name='nume_form']").val();
+		var telefon_form 		= $("form#form_comanda_rapida input[name='telefon_form']").val();
+		var phone_regex			= /^[0-9]{4,20}$/; // reg ex phone check
+		var email_form 			= $("form#form_comanda_rapida input[name='email_form']").val();
+		var email_regex     	= /^[\w%_\-.\d]+@[\w.\-]+.[A-Za-z]{2,6}$/; // reg ex email check
+		var captcha 			= $("form#form_comanda_rapida input[name='captcha']").val();
+		var checkbox_acord 		= $("form#form_comanda_rapida input[name='checkbox_acord']").is(':checked'); 
+		
+ 
+		/* validation start */
+		if(nume_form == "" || nume_form == 'nume si prenume') {
+			$('#nume_form').css({'background' : '#ffcccc'});
+			validation_holder = 1;
+		} else {
+			$('#nume_form').css({'background' : '#f5f5f5'});
+			}
+			
+		if(captcha == "" ) {
+			$('#captcha').css({'background' : '#ffcccc'});
+			validation_holder = 1;
+		} else {
+			$('#captcha').css({'background' : '#f5f5f5'});
+			}	
+        if(checkbox_acord == false ){
+                $('#checkbox_acord_error').css({'color' : '#ff3300'});
+                validation_holder = 1;
+            }else{
+				$('#checkbox_acord_error').css({'color' : 'inherit'});
+            } 
+ 
+
+		if(telefon_form == "") {
+			$('#telefon_form').css({'background' : '#ffcccc'});
+			validation_holder = 1;
+		} else {
+			if(!phone_regex.test(telefon_form)){ // if invalid phone
+				$('#telefon_form').css({'background' : '#ffcccc'});
+				validation_holder = 1;
+
+			} else {
+				$('#telefon_form').css({'background' : '#f5f5f5'});
+			}
+		}
+		
+		
+
+		if(email_form == "") {
+			$('#email_form').css({'background' : '#ffcccc'});
+			validation_holder = 1;
+		} else {
+			if(!email_regex.test(email_form)){ // if invalid email
+				$('#email_form').css({'background' : '#ffcccc'});
+				validation_holder = 1;
+			} else {
+				$('#email_form').css({'background' : '#f5f5f5'});
+			}
+		}
+		
+		if(validation_holder == 1) { // if have a field is blank, return false
+			$("p.validate_msg").slideDown("fast");
+			return false;
+		}  validation_holder = 0; // else return true
+		/* validation end */
+	}); // click end
+
+}); // jQuery End
+
+jQuery(function($) {
+	var validation_holder_comm;
+
+	$("form#form_comentarii input[name='submit']").click(function() {
+
+	var validation_holder_comm = 0;
+
+		var nume_comentariu 			= $("form#form_comentarii input[name='nume_comentariu']").val();
+		var email_comentariu 			= $("form#form_comentarii input[name='email_comentariu']").val();
+		var email_regex     	= /^[\w%_\-.\d]+@[\w.\-]+.[A-Za-z]{2,6}$/; // reg ex email check
+		var captcha_comm 			= $("form#form_comentarii input[name='captcha_comm']").val();
+		var checkbox_acord 		= $("form#form_comentarii input[name='checkbox_acord']").is(':checked'); 
+		
+ 
+		/* validation start */
+		if(nume_comentariu == "" || nume_comentariu == 'nume si prenume') {
+			$('#nume_comentariu').css({'background' : '#ffcccc'});
+			validation_holder_comm = 1;
+		} else {
+			$('#nume_comentariu').css({'background' : '#f5f5f5'});
+			}
+			
+		if(captcha_comm == "" ) {
+			$('#captcha_comm').css({'background' : '#ffcccc'});
+			validation_holder_comm = 1;
+		} else {
+			$('#captcha_comm').css({'background' : '#f5f5f5'});
+			}	
+ 
+ 	
+		if(email_comentariu == "") {
+			$('#email_comentariu').css({'background' : '#ffcccc'});
+			validation_holder_comm = 1;
+		} else {
+			if(!email_regex.test(email_comentariu)){ // if invalid email
+				$('#email_comentariu').css({'background' : '#ffcccc'});
+				validation_holder_comm = 1;
+			} else {
+				$('#email_comentariu').css({'background' : '#f5f5f5'});
+			}
+		}
+
+        if(checkbox_acord == false ){
+                $('#checkbox_acord_error').css({'color' : '#ff3300'});
+                validation_holder_comm = 1;
+            }else{
+				$('#checkbox_acord_error').css({'color' : 'inherit'});
+            }
+
+		if(validation_holder_comm == 1) { // if have a field is blank, return false
+			$("p.validate_comm").slideDown("fast");
+			return false;
+		}  validation_holder_comm = 0; // else return true
+		/* validation end */
+	}); // click end
+
+}); // jQuery End

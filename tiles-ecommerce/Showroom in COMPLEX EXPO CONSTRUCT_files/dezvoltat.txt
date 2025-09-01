@@ -1,0 +1,8 @@
+document.write("<div id=\"anadeea\" style=\"clear:both; width:100%; padding:18px 0px; text-align:center; font-family:arial; font-size:13px; color:#666666; background-color:#ffffff;\">");
+document.write("");
+document.write("  Site dezvoltat de ");
+document.write("  <img src=\"https:\/\/www.e-vo.ro\/permalink\/logoanadeea.png\" title=\"Anadeea Advertising\" alt=\"Anadeea Advertising\" align=\"absmiddle\" width=\"78px\" border=\"0\"\/>");
+document.write("  pe o platforma de magazin virtual <a target=\"_blank\" rel=\"nofollow\" style=\"display: inline-block;\" href=\"https:\/\/www.e-vo.ro\/magazin-online-dezvoltat-pe-platforma-e-vo\" title=\"Platforma de magazin online E-vo X\">");
+document.write("  <img src=\"https:\/\/www.e-vo.ro\/permalink\/logoevox.png\" title=\"Platforma de magazin online E-vo X\" alt=\"Platforma de magazin online E-vo X\" align=\"absmiddle\" width=\"85px\" border=\"0\"\/><\/a>");
+document.write("");
+document.write("<\/div>");

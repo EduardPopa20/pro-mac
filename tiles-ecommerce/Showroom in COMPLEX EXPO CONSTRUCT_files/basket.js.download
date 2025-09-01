@@ -1,0 +1,187 @@
+$(document).ready(function(){ 
+	var CosHover;	
+	var countItemsC = $("#basketItemsWrap ul").children().length;
+	if (countItemsC == 1) {
+		$("#cos_gol").html(' Cosul dvs. este gol');
+		$("#basketTitleWrap").hide();
+		$("#slidingTopFooter").hide();
+		ActiuneCookiePOE(0)
+	};
+
+	$('#cos').mouseover(function () {
+		clearTimeout(CosHover);
+		CosHover = setTimeout(function(){
+		  $('#cos_slide_container').fadeIn('fast');
+		},300);	  
+	});
+	
+	$('#user').mouseover(function () {
+	  clearTimeout(CosHover);
+	  $('#cos_slide_container').fadeOut('fast');
+	});
+	
+	$('#cos').mouseover(function () {
+	  $('#user_login_container').fadeOut('fast');
+	});
+	
+	$('#cos').mouseleave(function () {
+		clearTimeout(CosHover);
+	});
+	
+	$("#cos_slide_container").mouseleave(function(){
+		$("#cos_slide_container").fadeOut('fast');
+	}); 
+	
+	$("#basketItemsWrap li:first").hide();
+	
+	$("#slidingTopTrigger").live("click", function(event) {
+      	$("#cos_slide_container").fadeToggle("slow", function(){
+			if ($("#cos_slide_container").is(":visible")) {
+				$("#slidingTopFooterLeft").html(' <a href="no-js.htm" onclick="return false;" id="slidingTopTrigger">Ascunde cos</a>');
+				$("#cos_gol").hide();
+				$("#basketTitleWrap").show();
+				$("#slidingTopFooter").show();
+			} else {
+				$("#slidingTopFooterLeft").html('<a href="no-js.htm" onclick="return false;" id="slidingTopTrigger">Ascunde cos</a>');
+				$("#basketTitleWrap").show();
+				$("#slidingTopFooter").show();
+			}
+		});
+    }); 
+	
+
+	$(".productPriceWrapRight a").click(function() {
+	$("#cos_gol").hide();
+
+	//$("#produsAdaugat").fadeIn("fast");
+	
+	$("#basketTitleWrap").show();
+	$("#slidingTopFooter").show();
+		var productIDValSplitter 	= (this.id).split("_");
+		var productIDVal 			= productIDValSplitter[1];
+		var cantitate = parseInt($('#cant_' + productIDVal).val());
+		var extra = $('#extra_' + productIDVal).val();
+		  // alert (cantitate);
+		 // alert (extra);
+		 
+		 if(extra=='_') extra = '';
+		 
+		if ($("#cos_slide_container").is(":visible")) {
+
+			$("#notificationsLoader").html('<img src="images/loader.gif" width="15">');
+		
+			$.ajax({  
+			type: "POST",  
+			url: "basket_fn.php",  
+			data: { productID: productIDVal, cant: cantitate, extra: extra, action: "addToBasket"},  
+			success: function(theResponse) {
+				//alert(theResponse);
+			var aa1 	= (theResponse).split('">');
+		 	var aa3 	= (aa1[0]).split('_');
+			var basketID 			= aa3[1];
+			
+
+				if( $("#basketID_" + basketID).length > 0){
+					$("#basketID_" + basketID).animate({ opacity: 0 }, 500);
+					$("#basketID_" + basketID).before(theResponse).remove();
+					$("#basketID_" + basketID).animate({ opacity: 0 }, 500);
+					$("#basketID_" + basketID).animate({ opacity: 1 }, 500);
+					$("#notificationsLoader").empty();
+					load_total_items_cart();
+					load_total_cart();
+					ActiuneCookiePOE(1);
+
+				} else {
+					$("#basketItemsWrap li:first").before(theResponse);
+					$("#basketItemsWrap li:first").hide();
+					$("#basketItemsWrap li:first").show("slow");  
+					$("#notificationsLoader").empty();
+					load_total_items_cart();
+					load_total_cart();
+					ActiuneCookiePOE(1);
+				}
+			}
+			}); 
+
+		
+		} else {
+			
+			$("#cos_slide_container").fadeToggle("slow", function(){		
+																 
+				$("#notificationsLoader").html('<img src="images/loader.gif" width="15">');
+			
+				$.ajax({  
+				type: "POST",  
+				url: "basket_fn.php",  
+				data: { productID: productIDVal, cant: cantitate,  extra: extra, action: "addToBasket"},
+				success: function(theResponse) {
+					
+					var aa1 	= (theResponse).split('">');
+		 			var aa3 	= (aa1[0]).split('_');
+					var basketID 			= aa3[1];
+					
+					if( $("#basketID_" + basketID).length > 0){
+						$("#basketID_" + basketID).animate({ opacity: 0 }, 500);
+						$("#basketID_" + basketID).before(theResponse).remove();
+						$("#basketID_" + basketID).animate({ opacity: 0 }, 500);
+						$("#basketID_" + basketID).animate({ opacity: 1 }, 500);
+						$("#notificationsLoader").empty();
+						load_total_items_cart();
+						load_total_cart();
+						ActiuneCookiePOE(1);
+
+						
+					} else {
+						$("#basketItemsWrap li:first").before(theResponse);
+						$("#basketItemsWrap li:first").hide();
+						$("#basketItemsWrap li:first").show("slow");
+						$("#notificationsLoader").empty();
+						load_total_items_cart();
+						load_total_cart();
+						ActiuneCookiePOE(1);
+					};
+
+        		}
+				}); 
+				
+				$("#slidingTopTrigger").fadeTo(4000, 1, function(){
+					$("#cos_slide_container").fadeToggle("slow", function(){
+						$("#slidingTopFooterLeft").html(' <a href="aaa.htm" onclick="return false;" id="slidingTopTrigger">Ascunde cos</a>');												 
+					});
+					
+				});
+
+			});												 
+		}
+
+	});
+	
+	
+	$("#basketItemsWrap li img").live("click", function(event) { 
+		var basketIDValSplitter 	= (this.id).split("_");
+		var basketIDVal 			= basketIDValSplitter[1];	
+	 
+		$("#notificationsLoader").html('<img src="images/loader.gif" width="15">');
+	
+		$.ajax({  
+		type: "POST",  
+		url: "basket_fn.php",  
+		data: { basketID: basketIDVal, action: "deleteFromBasket"},  
+		success: function(theResponse) {
+			
+			$("#basketID_" + basketIDVal).hide("slow",  function() {
+				$(this).remove();
+			});
+			
+			$("#notificationsLoader").empty();
+			load_total_items_cart();
+			load_total_cart();
+			ActiuneCookiePOE(0);
+			
+		},
+
+
+	});  	
+	
+	});
+});

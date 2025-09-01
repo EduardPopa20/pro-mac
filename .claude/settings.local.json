@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "WebFetch(domain:www.promac.ro)",
+      "WebSearch",
+      "Bash(npm run dev:*)",
+      "Bash(npx vite:*)",
+      "Bash(npm run lint)",
+      "Bash(echo \"-- Check showrooms data\nSELECT \n  id, \n  name, \n  city,\n  is_active,\n  created_at\nFROM showrooms\nORDER BY sort_order;\n\n-- Check if RLS is enabled \nSELECT schemaname, tablename, rowsecurity \nFROM pg_tables \nWHERE tablename = ''showrooms'';\n\n-- Check current policies\nSELECT \n  schemaname, \n  tablename, \n  policyname,\n  permissive,\n  roles,\n  cmd,\n  qual\nFROM pg_policies \nWHERE tablename = ''showrooms'';\")",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout 30 npm run build)",
+      "Bash(supabase:*)",
+      "Bash(./supabase-docker.bat functions deploy send-newsletter)",
+      "Bash(curl:*)",
+      "Bash(tsc --noEmit)",
+      "Bash(npx playwright test:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

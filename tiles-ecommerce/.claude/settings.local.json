@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx playwright test:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run lint)",
+      "Bash(npx eslint:*)",
+      "Read(C:\\Users\\eduar\\OneDrive\\Desktop/**)",
+      "Bash(curl:*)",
+      "Read(c:\\Users\\eduar\\OneDrive\\Desktop/**)",
+      "WebFetch(domain:www.ceramall.ro)",
+      "Read(C:\\Users\\eduar\\OneDrive\\Desktop/**)",
+      "Bash(start http://localhost:5178)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
