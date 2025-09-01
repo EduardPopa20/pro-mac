@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Box,
   Typography,
@@ -23,6 +23,9 @@ import {
   IconButton,
   Paper,
   Badge,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
   type SelectChangeEvent,
 } from '@mui/material'
 import {
@@ -86,6 +89,19 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
   const [minPriceInput, setMinPriceInput] = useState<string>(filters.priceRange[0].toString())
   const [maxPriceInput, setMaxPriceInput] = useState<string>(filters.priceRange[1].toString())
   const [priceError, setPriceError] = useState<string | null>(null)
+  
+  // Refs to track current input values without causing re-renders
+  const minPriceRef = useRef<string>(minPriceInput)
+  const maxPriceRef = useRef<string>(maxPriceInput)
+  
+  // Update refs when state changes
+  useEffect(() => {
+    minPriceRef.current = minPriceInput
+  }, [minPriceInput])
+  
+  useEffect(() => {
+    maxPriceRef.current = maxPriceInput  
+  }, [maxPriceInput])
 
   // Calculate price bounds from ALL products
   const priceBounds = React.useMemo(() => {
@@ -116,81 +132,114 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
     }))
   }, [products, allProducts])
 
-  // Initialize price range when products change
+  // Initialize price range when products first load (only once)
   useEffect(() => {
-    if (products.length > 0 && filters.priceRange[0] === 0 && filters.priceRange[1] === 0) {
-      const newRange: [number, number] = [priceBounds.min, priceBounds.max]
-      const newFilters = { ...filters, priceRange: newRange }
-      setLocalFilters(newFilters)
-      setPendingFilters(newFilters)
-      setMinPriceInput(newRange[0].toString())
-      setMaxPriceInput(newRange[1].toString())
+    if (products.length > 0 && priceBounds.min < priceBounds.max) {
+      // Only set initial values once when both filters and inputs are at default [0, 0]
+      if (filters.priceRange[0] === 0 && filters.priceRange[1] === 0 && 
+          minPriceInput === '0' && maxPriceInput === '0') {
+        const newMin = priceBounds.min.toString()
+        const newMax = priceBounds.max.toString()
+        
+        setMinPriceInput(newMin)
+        setMaxPriceInput(newMax)
+        // Don't update filters here to prevent loops - let parent handle it
+      }
     }
   }, [products.length, priceBounds.min, priceBounds.max])
-
-  // Update local state when external filters change
+  
+  // Handle external filter changes (separate from initialization)
   useEffect(() => {
-    setLocalFilters(filters)
-    setPendingFilters(filters)
-    setMinPriceInput(filters.priceRange[0].toString())
-    setMaxPriceInput(filters.priceRange[1].toString())
+    // Avoid updating during user input to prevent focus loss
+    if (document.activeElement?.tagName !== 'INPUT') {
+      const filterMin = filters.priceRange[0].toString()
+      const filterMax = filters.priceRange[1].toString()
+      
+      if (minPriceInput !== filterMin || maxPriceInput !== filterMax) {
+        setMinPriceInput(filterMin)
+        setMaxPriceInput(filterMax)
+      }
+      
+      if (JSON.stringify(localFilters) !== JSON.stringify(filters)) {
+        setLocalFilters(filters)
+        setPendingFilters(filters)
+      }
+    }
   }, [filters])
+  
 
-  const handleMinPriceInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMinPriceInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
     setMinPriceInput(value)
     setPriceError(null)
 
     if (value.trim()) {
       const numValue = parseFloat(value)
-      const maxValue = parseFloat(maxPriceInput)
-
-      if (!isNaN(numValue) && !isNaN(maxValue) && numValue > maxValue) {
-        setPriceError('Prețul minim nu poate fi mai mare decât prețul maxim')
-      } else if (!isNaN(numValue)) {
-        setPendingFilters({ ...pendingFilters, priceRange: [numValue, parseFloat(maxPriceInput) || priceBounds.max] })
+      
+      if (!isNaN(numValue)) {
+        setPendingFilters(prev => {
+          const maxValue = parseFloat(maxPriceRef.current) || priceBounds.max
+          
+          if (maxValue && numValue > maxValue) {
+            setPriceError('Prețul minim nu poate fi mai mare decât prețul maxim')
+          }
+          
+          return { ...prev, priceRange: [numValue, maxValue] }
+        })
       }
     }
-  }
+  }, [priceBounds.max])
 
-  const handleMaxPriceInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMaxPriceInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
     setMaxPriceInput(value)
     setPriceError(null)
 
     if (value.trim()) {
       const numValue = parseFloat(value)
-      const minValue = parseFloat(minPriceInput)
-
-      if (!isNaN(minValue) && !isNaN(numValue) && minValue > numValue) {
-        setPriceError('Prețul minim nu poate fi mai mare decât prețul maxim')
-      } else if (!isNaN(numValue)) {
-        setPendingFilters({ ...pendingFilters, priceRange: [parseFloat(minPriceInput) || priceBounds.min, numValue] })
+      
+      if (!isNaN(numValue)) {
+        setPendingFilters(prev => {
+          const minValue = parseFloat(minPriceRef.current) || priceBounds.min
+          
+          if (minValue && minValue > numValue) {
+            setPriceError('Prețul minim nu poate fi mai mare decât prețul maxim')
+          }
+          
+          return { ...prev, priceRange: [minValue, numValue] }
+        })
       }
     }
-  }
+  }, [priceBounds.min])
 
-  const handleColorChange = (event: SelectChangeEvent<string[]>) => {
+  const handleColorChange = useCallback((event: SelectChangeEvent<string[]>) => {
     const colors = event.target.value as string[]
-    setPendingFilters({ ...pendingFilters, colors })
-  }
+    setPendingFilters(prev => ({ ...prev, colors }))
+  }, [])
 
-  const removeColor = (colorToRemove: string) => {
-    const newColors = pendingFilters.colors.filter(c => c !== colorToRemove)
-    setPendingFilters({ ...pendingFilters, colors: newColors })
-  }
+  const removeColor = useCallback((colorToRemove: string) => {
+    setPendingFilters(prev => ({
+      ...prev,
+      colors: prev.colors.filter(c => c !== colorToRemove)
+    }))
+  }, [])
 
-  const handleCustomFilterChange = (filterId: string, value: any) => {
-    setPendingFilters({ ...pendingFilters, [filterId]: value })
-  }
+  const handleCustomFilterChange = useCallback((filterId: string, value: any) => {
+    setPendingFilters(prev => ({ ...prev, [filterId]: value }))
+  }, [])
 
-  const removeCustomFilterValue = (filterId: string, valueToRemove: string) => {
-    const currentValues = pendingFilters[filterId] || []
-    if (Array.isArray(currentValues)) {
-      const newValues = currentValues.filter((v: string) => v !== valueToRemove)
-      handleCustomFilterChange(filterId, newValues)
-    }
-  }
+  const removeCustomFilterValue = useCallback((filterId: string, valueToRemove: string) => {
+    setPendingFilters(prev => {
+      const currentValues = prev[filterId] || []
+      if (Array.isArray(currentValues)) {
+        return {
+          ...prev,
+          [filterId]: currentValues.filter((v: string) => v !== valueToRemove)
+        }
+      }
+      return prev
+    })
+  }, [])
 
   // Apply filters function
   const applyFilters = () => {
@@ -289,18 +338,78 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
 
   // Helper component for rendering individual filters
   const renderFilter = (filter: FilterOption) => {
+    // Check if this is a Da/No boolean property - convert to radio group
+    const isDaNoProperty = filter.options?.every(opt => 
+      opt.value === 'true' || opt.value === 'false' || opt.value === '' || opt.value === 'toate'
+    ) && filter.options.some(opt => opt.label === 'Da' || opt.label === 'Nu')
+
+    if (isDaNoProperty && filter.options) {
+      return (
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+            {filter.label}
+          </Typography>
+          <RadioGroup
+            value={pendingFilters[filter.id] || ''}
+            onChange={(e) => handleCustomFilterChange(filter.id, e.target.value)}
+            row
+            onClick={(e) => e.stopPropagation()} // Prevent hamburger menu interference
+          >
+            <FormControlLabel 
+              value="" 
+              control={<Radio size="small" />} 
+              label="Nu" 
+              sx={{ mr: 2 }}
+            />
+            {filter.options.map((option) => (
+              option.value !== '' && option.value !== 'toate' && (
+                <FormControlLabel 
+                  key={option.value}
+                  value={option.value} 
+                  control={<Radio size="small" />} 
+                  label={option.label}
+                  sx={{ mr: 2 }}
+                />
+              )
+            ))}
+          </RadioGroup>
+        </Box>
+      )
+    }
+
     if (filter.type === 'select' && filter.options) {
       return (
         <FormControl fullWidth size="small" sx={{ mb: 1.5 }}>
           <InputLabel sx={{ fontSize: '0.875rem' }}>{filter.label}</InputLabel>
           <Select
             value={pendingFilters[filter.id] || ''}
-            onChange={(e) => handleCustomFilterChange(filter.id, e.target.value)}
+            onChange={(e) => {
+              e.stopPropagation() // Prevent hamburger menu interference
+              handleCustomFilterChange(filter.id, e.target.value)
+            }}
             label={filter.label}
             displayEmpty
+            onClick={(e) => e.stopPropagation()} // Prevent hamburger menu interference
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 300, // Limit dropdown height
+                },
+              },
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+              transformOrigin: {
+                vertical: 'top',
+                horizontal: 'left',
+              },
+              disableAutoFocusItem: true, // Prevent focus issues
+              keepMounted: false, // Remove from DOM when closed
+            }}
           >
             <MenuItem value="">
-              <em>Toate</em>
+              <em>Nu</em>
             </MenuItem>
             {filter.options.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -319,8 +428,29 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
           <Select
             multiple
             value={pendingFilters[filter.id] || []}
-            onChange={(e) => handleCustomFilterChange(filter.id, e.target.value)}
+            onChange={(e) => {
+              e.stopPropagation() // Prevent hamburger menu interference
+              handleCustomFilterChange(filter.id, e.target.value)
+            }}
             label={filter.label}
+            onClick={(e) => e.stopPropagation()} // Prevent hamburger menu interference
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 300, // Limit dropdown height
+                },
+              },
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+              transformOrigin: {
+                vertical: 'top',
+                horizontal: 'left',
+              },
+              disableAutoFocusItem: true, // Prevent focus issues
+              keepMounted: false, // Remove from DOM when closed
+            }}
             renderValue={(selected) => (
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                 {(selected as string[]).map((value) => {
@@ -333,7 +463,11 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                       onMouseDown={(event) => {
                         event.stopPropagation()
                       }}
-                      onDelete={() => removeCustomFilterValue(filter.id, value)}
+                      onDelete={(event) => {
+                        event.stopPropagation()
+                        event.preventDefault()
+                        removeCustomFilterValue(filter.id, value)
+                      }}
                       sx={{
                         height: 24,
                         '& .MuiChip-deleteIcon': {
@@ -367,31 +501,50 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
           Interval preț
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Stack spacing={1.5} sx={{ width: '100%' }}>
           <TextField
             label="Min"
             value={minPriceInput}
             onChange={handleMinPriceInputChange}
             type="number"
             size="small"
+            fullWidth
             InputProps={{
               endAdornment: <InputAdornment position="end">RON</InputAdornment>
             }}
-            sx={{ flex: 1 }}
+            sx={{
+              '& .MuiInputBase-root': {
+                fontSize: { xs: '0.875rem', md: '1rem' }
+              },
+              '& .MuiInputAdornment-root': {
+                '& .MuiTypography-root': {
+                  fontSize: { xs: '0.75rem', md: '0.875rem' }
+                }
+              }
+            }}
           />
-          <Typography>-</Typography>
           <TextField
             label="Max"
             value={maxPriceInput}
             onChange={handleMaxPriceInputChange}
             type="number"
             size="small"
+            fullWidth
             InputProps={{
               endAdornment: <InputAdornment position="end">RON</InputAdornment>
             }}
-            sx={{ flex: 1 }}
+            sx={{
+              '& .MuiInputBase-root': {
+                fontSize: { xs: '0.875rem', md: '1rem' }
+              },
+              '& .MuiInputAdornment-root': {
+                '& .MuiTypography-root': {
+                  fontSize: { xs: '0.75rem', md: '0.875rem' }
+                }
+              }
+            }}
           />
-        </Box>
+        </Stack>
         {priceError && (
           <Alert severity="error" sx={{ mt: 1, py: 0.5 }}>
             <Typography variant="caption">{priceError}</Typography>
@@ -412,6 +565,23 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
               value={pendingFilters.colors}
               onChange={handleColorChange}
               label="Selectează culorile"
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300, // Limit dropdown height
+                  },
+                },
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                disableAutoFocusItem: true, // Prevent focus issues
+                keepMounted: false, // Remove from DOM when closed
+              }}
               renderValue={(selected) => (
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                   {selected.map((value) => (
@@ -422,7 +592,11 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                       onMouseDown={(event) => {
                         event.stopPropagation()
                       }}
-                      onDelete={() => removeColor(value)}
+                      onDelete={(event) => {
+                        event.stopPropagation()
+                        event.preventDefault()
+                        removeColor(value)
+                      }}
                       sx={{
                         height: 24,
                         '& .MuiChip-deleteIcon': {
@@ -446,74 +620,98 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
 
       {/* Core Properties */}
       {filterGroups.core.length > 0 && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600, color: 'primary.main' }}>
             Proprietăți de bază
           </Typography>
-          {filterGroups.core.map(filter => (
-            <Box key={filter.id}>{renderFilter(filter)}</Box>
-          ))}
-        </Paper>
+          <Stack spacing={1} sx={{ pl: 1 }}>
+            {filterGroups.core.map(filter => (
+              <Box key={filter.id}>
+                {renderFilter(filter)}
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       )}
 
       {/* Brand & Quality */}
       {filterGroups.brand.length > 0 && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600, color: 'primary.main' }}>
             Brand și calitate
           </Typography>
-          {filterGroups.brand.map(filter => (
-            <Box key={filter.id}>{renderFilter(filter)}</Box>
-          ))}
-        </Paper>
+          <Stack spacing={1} sx={{ pl: 1 }}>
+            {filterGroups.brand.map(filter => (
+              <Box key={filter.id}>
+                {renderFilter(filter)}
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       )}
 
       {/* Technical Specifications */}
       {filterGroups.technical.length > 0 && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600, color: 'primary.main' }}>
             Specificații tehnice
           </Typography>
-          {filterGroups.technical.map(filter => (
-            <Box key={filter.id}>{renderFilter(filter)}</Box>
-          ))}
-        </Paper>
+          <Stack spacing={1} sx={{ pl: 1 }}>
+            {filterGroups.technical.map(filter => (
+              <Box key={filter.id}>
+                {renderFilter(filter)}
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       )}
 
       {/* Technical Capabilities */}
       {filterGroups.capabilities.length > 0 && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600, color: 'primary.main' }}>
             Capacități tehnice
           </Typography>
-          {filterGroups.capabilities.map(filter => (
-            <Box key={filter.id}>{renderFilter(filter)}</Box>
-          ))}
-        </Paper>
+          <Stack spacing={1} sx={{ pl: 1 }}>
+            {filterGroups.capabilities.map(filter => (
+              <Box key={filter.id}>
+                {renderFilter(filter)}
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       )}
 
       {/* Suitability */}
       {filterGroups.suitability.length > 0 && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600, color: 'primary.main' }}>
             Potrivire aplicații
           </Typography>
-          {filterGroups.suitability.map(filter => (
-            <Box key={filter.id}>{renderFilter(filter)}</Box>
-          ))}
-        </Paper>
+          <Stack spacing={1} sx={{ pl: 1 }}>
+            {filterGroups.suitability.map(filter => (
+              <Box key={filter.id}>
+                {renderFilter(filter)}
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       )}
 
       {/* Application Areas */}
       {filterGroups.application.length > 0 && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600, color: 'primary.main' }}>
             Zone de aplicare
           </Typography>
-          {filterGroups.application.map(filter => (
-            <Box key={filter.id}>{renderFilter(filter)}</Box>
-          ))}
-        </Paper>
+          <Stack spacing={1} sx={{ pl: 1 }}>
+            {filterGroups.application.map(filter => (
+              <Box key={filter.id}>
+                {renderFilter(filter)}
+              </Box>
+            ))}
+          </Stack>
+        </Box>
       )}
 
       {/* Action Buttons */}
@@ -564,9 +762,16 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
     <>
       {/* Desktop: Standard card layout */}
       {!isMobile ? (
-        <Card sx={{ mb: 3 }}>
+        <Card 
+          sx={{ mb: 3 }}
+        >
           <CardContent sx={{ p: 2 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Box 
+              display="flex" 
+              justifyContent="space-between" 
+              alignItems="center" 
+              mb={2}
+            >
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Filtrare produse
               </Typography>

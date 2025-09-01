@@ -29,6 +29,7 @@ import {
 } from '@mui/icons-material'
 import { useAuthStore } from '../../stores/auth'
 import { ConfirmationProvider } from '../common/ConfirmationDialog'
+import GlobalAlert from '../common/GlobalAlert'
 
 const drawerWidth = 280
 
@@ -119,7 +120,10 @@ const AdminLayout: React.FC = () => {
       {/* Navigation Items */}
       <List sx={{ flexGrow: 1, pt: 2 }}>
         {navigationItems.map((item) => {
-          const isActive = location.pathname.startsWith(item.path)
+          // Fix navigation highlighting - exact match for /admin, startsWith for others
+          const isActive = item.path === '/admin' 
+            ? location.pathname === '/admin' || location.pathname === '/admin/panou-control'
+            : location.pathname.startsWith(item.path)
           
           return (
             <ListItem key={item.text} disablePadding sx={{ px: 2, mb: 1 }}>
@@ -299,6 +303,9 @@ const AdminLayout: React.FC = () => {
         </Box>
       </Box>
       </Box>
+      
+      {/* Global Alert System */}
+      <GlobalAlert />
     </ConfirmationProvider>
   )
 }

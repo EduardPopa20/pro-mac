@@ -13,7 +13,9 @@ import {
   useTheme,
   useMediaQuery,
   InputAdornment,
-  IconButton
+  IconButton,
+  Breadcrumbs,
+  Link
 } from '@mui/material'
 import {
   Visibility,
@@ -262,35 +264,40 @@ const Auth: React.FC = () => {
   }
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        py: 2,
-        minHeight: 'calc(100vh - 64px)',
-        display: 'flex', 
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}
-    >
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Breadcrumbs>
+          <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>Acasă</Link>
+          <Typography color="text.primary">{activeTab === 0 ? 'Autentificare' : 'Cont nou'}</Typography>
+        </Breadcrumbs>
+      </Box>
+      
       <Box
         sx={{
-          width: '100%',
-          maxWidth: 420,
-          mx: 'auto',
-          p: { xs: 2, md: 3 },
-          backgroundColor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 3,
-          my: 2
+          minHeight: 'calc(100vh - 200px)',
+          display: 'flex', 
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 420,
+            mx: 'auto',
+            p: { xs: 2, md: 3 },
+            backgroundColor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 3
+          }}
+        >
         {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 2 }}>
           <Typography 
-            variant="h5"
+            variant="h4"
             component="h1" 
             color="primary.main"
-            sx={{ mb: 0, fontWeight: 600, fontSize: { xs: '1.25rem', md: '1.5rem' } }}
+            sx={{ mb: 0 }}
           >
             Pro-Mac
           </Typography>
@@ -298,11 +305,7 @@ const Auth: React.FC = () => {
             <Typography 
               variant="body2"
               color="text.secondary"
-              sx={{ 
-                fontSize: '0.8125rem',
-                lineHeight: 1.2,
-                mt: 0.5
-              }}
+              sx={{ mt: 0.5 }}
             >
               Magazinul tău de încredere pentru faianță și gresie
             </Typography>
@@ -316,7 +319,6 @@ const Auth: React.FC = () => {
           centered
           sx={{
             mb: 2,
-            minHeight: { xs: 36, md: 48 },
             '& .MuiTabs-indicator': {
               backgroundColor: theme.palette.primary.main,
               height: 3,
@@ -328,18 +330,16 @@ const Auth: React.FC = () => {
             label="Autentificare"
             sx={{
               fontWeight: 600,
-              minHeight: { xs: 40, md: 48 },
-              textTransform: 'none',
-              fontSize: { xs: '0.875rem', md: '1rem' }
+              minHeight: { xs: 44, md: 48 },
+              textTransform: 'none'
             }}
           />
           <Tab
             label="Cont nou"
             sx={{
               fontWeight: 600,
-              minHeight: { xs: 40, md: 48 },
-              textTransform: 'none',
-              fontSize: { xs: '0.875rem', md: '1rem' }
+              minHeight: { xs: 44, md: 48 },
+              textTransform: 'none'
             }}
           />
         </Tabs>
@@ -354,13 +354,9 @@ const Auth: React.FC = () => {
               startIcon={<GoogleIcon size={18} />}
               onClick={handleGoogleSignIn}
               disabled={loading}
+              size="medium"
               sx={{
-                mb: { xs: 0.125, md: 0.25 },
-                py: { xs: 0.375, md: 0.5 },
-                fontWeight: 600,
-                textTransform: 'none',
-                fontSize: { xs: '0.6875rem', md: '0.75rem' },
-                minHeight: { xs: 32, md: 36 },
+                mb: 1,
                 borderColor: '#db4437',
                 color: '#db4437',
                 '&:hover': {
@@ -377,7 +373,7 @@ const Auth: React.FC = () => {
                 }
               }}
             >
-              {activeTab === 0 ? 'Conectează-te cu Google' : 'Inscrie-te cu Google'}
+              {activeTab === 0 ? 'Conectează-te cu Google' : 'Înscrie-te cu Google'}
             </Button>
             <Button
               fullWidth
@@ -385,12 +381,8 @@ const Auth: React.FC = () => {
               startIcon={<FacebookIcon size={18} />}
               onClick={handleFacebookSignIn}
               disabled={loading}
+              size="medium"
               sx={{
-                py: { xs: 0.375, md: 0.5 },
-                fontWeight: 600,
-                textTransform: 'none',
-                fontSize: { xs: '0.6875rem', md: '0.75rem' },
-                minHeight: { xs: 32, md: 36 },
                 borderColor: '#1877F2',
                 color: '#1877F2',
                 '&:hover': {
@@ -407,13 +399,12 @@ const Auth: React.FC = () => {
                 }
               }}
             >
-              {activeTab === 0 ? 'Conectează-te cu Facebook' : 'Inscrie-te cu Facebook'}
+              {activeTab === 0 ? 'Conectează-te cu Facebook' : 'Înscrie-te cu Facebook'}
             </Button>
-            <Divider sx={{ my: { xs: 0.25, md: 0.5 } }}>
+            <Divider sx={{ my: 2 }}>
               <Typography 
-                variant="body2" 
+                variant="caption" 
                 color="text.secondary"
-                sx={{ fontSize: { xs: '0.5625rem', md: '0.625rem' } }}
               >
                 sau cu email
               </Typography>
@@ -422,14 +413,14 @@ const Auth: React.FC = () => {
 
         {/* Error Alert */}
         {error && (
-          <Alert severity="error" sx={{ mb: { xs: 0.75, md: 1 }, borderRadius: 2 }}>
+          <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
             {error}
           </Alert>
         )}
 
         {/* Success Alert */}
         {success && (
-          <Alert severity="success" sx={{ mb: { xs: 0.75, md: 1 }, borderRadius: 2 }}>
+          <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
             {success}
           </Alert>
         )}
@@ -449,7 +440,7 @@ const Auth: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Email sx={{ color: '#000', fontSize: '1.2rem' }} />
+                      <Email />
                     </InputAdornment>
                   )
                 }}
@@ -467,7 +458,7 @@ const Auth: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock sx={{ color: '#000', fontSize: '1.2rem' }} />
+                      <Lock />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -491,12 +482,7 @@ const Auth: React.FC = () => {
                 size="large"
                 disabled={loading}
                 sx={{
-                  py: { xs: 1, md: 1.25 },
-                  fontWeight: 600,
-                  fontSize: { xs: '0.9375rem', md: '1rem' },
-                  minHeight: { xs: 44, md: 48 },
                   borderRadius: 2,
-                  textTransform: 'none',
                   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
                   '&:hover': {
                     background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
@@ -530,7 +516,7 @@ const Auth: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Person sx={{ color: '#000', fontSize: '1.2rem' }} />
+                      <Person />
                     </InputAdornment>
                   )
                 }}
@@ -548,7 +534,7 @@ const Auth: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Email sx={{ color: '#000', fontSize: '1.2rem' }} />
+                      <Email />
                     </InputAdornment>
                   )
                 }}
@@ -567,7 +553,7 @@ const Auth: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock sx={{ color: '#000', fontSize: '1.2rem' }} />
+                      <Lock />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -596,7 +582,7 @@ const Auth: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <Lock sx={{ color: '#000', fontSize: '1.2rem' }} />
+                      <Lock />
                     </InputAdornment>
                   )
                 }}
@@ -609,12 +595,7 @@ const Auth: React.FC = () => {
                 size="large"
                 disabled={loading}
                 sx={{
-                  py: { xs: 1, md: 1.25 },
-                  fontWeight: 600,
-                  fontSize: { xs: '0.9375rem', md: '1rem' },
-                  minHeight: { xs: 44, md: 48 },
                   borderRadius: 2,
-                  textTransform: 'none',
                   background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
                   '&:hover': {
                     background: `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`,
@@ -632,6 +613,7 @@ const Auth: React.FC = () => {
               </Button>
             </Box>
         </TabPanel>
+        </Box>
       </Box>
     </Container>
   )

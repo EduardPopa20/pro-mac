@@ -731,6 +731,7 @@ const FilterContent = ({ filters, onFilterChange, compact = false }) => {
    - Apply **Section 8** sizes via theme or `sx`.  
    - Ensure **≥44px** touch targets on `xs/sm`.  
    - Add Tooltips for all admin buttons.
+   - **⚠️ CRITICAL: Always test TextField focus behavior** (see Section 14).
 
 4) **Accessibility**  
    - Use semantic roles; label all inputs/buttons; ensure keyboard focus order.  
@@ -739,6 +740,7 @@ const FilterContent = ({ filters, onFilterChange, compact = false }) => {
 5) **Tests & MCP validation**  
    - Create/extend Playwright specs to assert typography, button/icon sizes, and no horizontal scroll.  
    - **Run via Playwright MCP** at `xs`, `md`, `lg`. Fix & re-run until green.
+   - **Test TextField focus retention** during typing (add to all form tests).
 
 6) **Performance & polish**  
    - Avoid layout shift; optimize images; defer non-critical work.  
@@ -747,6 +749,56 @@ const FilterContent = ({ filters, onFilterChange, compact = false }) => {
 7) **Commit**  
    - Conventional commit with scope (e.g., `feat(products): responsive card sizes`)  
    - Sign with `- Claude`
+
+---
+
+## 14) CRITICAL: TextField Focus Loss Prevention ⚠️
+
+### Problem (CONFIRMED BUG in Admin Dashboard)
+TextFields lose focus after typing **one character** due to **improper state management patterns**. This makes forms completely unusable.
+
+### Root Cause
+```tsx
+// ❌ BAD: Creates new object reference on every keystroke
+onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+```
+
+**Why this breaks:**
+1. Every keystroke → new object reference → React re-render
+2. TextField gets unmounted/remounted → **immediate focus loss**
+3. User cannot type more than one character at a time
+
+### Solution Pattern (MANDATORY)
+```tsx
+// ✅ GOOD: Use stable callback with functional updates
+const handleFieldChange = useCallback((field: string) => 
+  (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, [field]: e.target.value }))
+  }, [setFormData])
+
+// Usage:
+<TextField
+  onChange={handleFieldChange('name')}
+  // ... other props
+/>
+```
+
+### Additional Requirements
+- **All form components** must use functional state updates (`prev => ({ ...prev, ... })`)
+- **Always use `useCallback`** for event handlers that update state
+- **Test focus retention** in Playwright specs: type multiple characters without losing focus
+- **Never** directly mutate state objects or create new references in render cycles
+
+### Testing Pattern
+```tsx
+// Add to all form tests
+await nameField.click();
+await nameField.type('Test', { delay: 100 });
+const isFocused = await nameField.evaluate(el => el === document.activeElement);
+expect(isFocused).toBe(true); // Must maintain focus
+```
+
+**Status**: ✅ **FIXED** - Critical bugs resolved in `EnhancedShowroomForm.tsx` and `WorkingHoursEditor.tsx`. All TextFields now use `useCallback` with functional state updates to prevent focus loss. Always follow this pattern for new forms.
 
 ---
 

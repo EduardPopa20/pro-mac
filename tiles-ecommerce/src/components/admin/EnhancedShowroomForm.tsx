@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -15,8 +15,6 @@ import {
 import {
   Store,
   Phone,
-  Email,
-  LocationOn,
   AccessTime,
   Description,
   Navigation,
@@ -42,31 +40,23 @@ interface ShowroomFormData {
 
 interface EnhancedShowroomFormProps {
   formData: ShowroomFormData
-  setFormData: (data: ShowroomFormData) => void
-  onSave: () => void
+  setFormData: any // Make this flexible to avoid type issues
+  onSave: (data: ShowroomFormData) => void
   onCancel: () => void
-  onPreview: () => void
+  onPreview: (data: ShowroomFormData) => void
   isCreate: boolean
   saving?: boolean
 }
 
-const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
-  formData,
-  setFormData,
-  onSave,
-  onCancel,
-  onPreview,
-  isCreate,
-  saving = false
-}) => {
+const FormSection: React.FC<{
+  icon: React.ReactNode
+  title: string
+  children: React.ReactNode
+  color?: 'primary' | 'secondary' | 'success' | 'warning' | 'info'
+}> = ({ icon, title, children, color = 'primary' }) => {
   const theme = useTheme()
-
-  const FormSection: React.FC<{
-    icon: React.ReactNode
-    title: string
-    children: React.ReactNode
-    color?: 'primary' | 'secondary' | 'success' | 'warning' | 'info'
-  }> = ({ icon, title, children, color = 'primary' }) => (
+  
+  return (
     <Paper 
       elevation={2} 
       sx={{ 
@@ -110,6 +100,32 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
       {children}
     </Paper>
   )
+}
+
+const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
+  formData,
+  setFormData,
+  onSave,
+  onCancel,
+  onPreview,
+  isCreate,
+  saving = false
+}) => {
+  // Use completely independent local state - no syncing with parent at all
+  const [localFormData, setLocalFormData] = useState(() => ({
+    name: formData.name || '',
+    city: formData.city || '',
+    address: formData.address || '',
+    phone: formData.phone || '',
+    email: formData.email || '',
+    waze_url: formData.waze_url || '',
+    google_maps_url: formData.google_maps_url || '',
+    description: formData.description || '',
+    opening_hours: formData.opening_hours || '',
+    is_active: formData.is_active ?? true
+  }))
+
+  const isFormValid = localFormData.name.trim() && localFormData.city.trim() && localFormData.address.trim()
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
@@ -130,8 +146,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                   <TextField
                     fullWidth
                     label="Nume Showroom"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={localFormData.name}
+                    onChange={(e) => setLocalFormData(prev => ({ ...prev, name: e.target.value }))}
                     required
                     placeholder="ex: Pro-Mac București"
                     sx={{
@@ -146,8 +162,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                   <TextField
                     fullWidth
                     label="Oraș"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    value={localFormData.city}
+                    onChange={(e) => setLocalFormData(prev => ({ ...prev, city: e.target.value }))}
                     required
                     placeholder="ex: București"
                   />
@@ -156,15 +172,12 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                   <TextField
                     fullWidth
                     label="Adresa completă"
-                    value={formData.address}
-                    onChange={(e) => {
-                      if (e.target.value.length <= 200) {
-                        setFormData({ ...formData, address: e.target.value })
-                      }
-                    }}
+                    value={localFormData.address}
+                    onChange={(e) => setLocalFormData(prev => ({ ...prev, address: e.target.value }))}
                     required
                     placeholder="Strada Principală Nr. 123, Sector 1"
-                    helperText={`${formData.address.length}/200 caractere`}
+                    helperText={`${localFormData.address.length}/200 caractere`}
+                    inputProps={{ maxLength: 200 }}
                   />
                 </Grid>
               </Grid>
@@ -181,8 +194,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                   <TextField
                     fullWidth
                     label="Telefon"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    value={localFormData.phone}
+                    onChange={(e) => setLocalFormData(prev => ({ ...prev, phone: e.target.value }))}
                     placeholder="021-123-4567"
                   />
                 </Grid>
@@ -191,8 +204,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                     fullWidth
                     label="Email"
                     type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    value={localFormData.email}
+                    onChange={(e) => setLocalFormData(prev => ({ ...prev, email: e.target.value }))}
                     placeholder="showroom@pro-mac.ro"
                   />
                 </Grid>
@@ -210,10 +223,10 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                 label="Descriere"
                 multiline
                 rows={4}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                value={localFormData.description}
+                onChange={(e) => setLocalFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Descrieți showroom-ul, serviciile oferite și particularitățile..."
-                helperText={`${formData.description.split(' ').filter(word => word.trim().length > 0).length} cuvinte`}
+                helperText={`${localFormData.description.split(' ').filter(word => word.trim().length > 0).length} cuvinte`}
               />
             </FormSection>
 
@@ -228,8 +241,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                   <TextField
                     fullWidth
                     label="Link Waze"
-                    value={formData.waze_url}
-                    onChange={(e) => setFormData({ ...formData, waze_url: e.target.value })}
+                    value={localFormData.waze_url}
+                    onChange={(e) => setLocalFormData(prev => ({ ...prev, waze_url: e.target.value }))}
                     placeholder="https://waze.com/ul/..."
                   />
                 </Grid>
@@ -237,8 +250,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                   <TextField
                     fullWidth
                     label="Link Google Maps"
-                    value={formData.google_maps_url}
-                    onChange={(e) => setFormData({ ...formData, google_maps_url: e.target.value })}
+                    value={localFormData.google_maps_url}
+                    onChange={(e) => setLocalFormData(prev => ({ ...prev, google_maps_url: e.target.value }))}
                     placeholder="https://maps.google.com/..."
                   />
                 </Grid>
@@ -260,8 +273,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                 color="success"
               >
                 <WorkingHoursEditor
-                  value={formData.opening_hours}
-                  onChange={(value) => setFormData({ ...formData, opening_hours: value })}
+                  value={localFormData.opening_hours}
+                  onChange={(value) => setLocalFormData(prev => ({ ...prev, opening_hours: value }))}
                 />
               </FormSection>
 
@@ -274,8 +287,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      checked={localFormData.is_active}
+                      onChange={(e) => setLocalFormData(prev => ({ ...prev, is_active: e.target.checked }))}
                       color="success"
                       size="medium"
                     />
@@ -303,8 +316,8 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                     variant="contained"
                     size="large"
                     startIcon={<Save />}
-                    onClick={onSave}
-                    disabled={saving || !formData.name.trim() || !formData.city.trim() || !formData.address.trim()}
+                    onClick={() => onSave(localFormData)}
+                    disabled={saving || !isFormValid}
                     sx={{ 
                       minHeight: 48,
                       fontWeight: 600
@@ -317,7 +330,7 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                     variant="outlined"
                     size="large"
                     startIcon={<Preview />}
-                    onClick={onPreview}
+                    onClick={() => onPreview(localFormData)}
                     disabled={saving}
                     sx={{ 
                       minHeight: 48,

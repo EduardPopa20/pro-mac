@@ -412,23 +412,21 @@ const Products: React.FC = () => {
         </Box>
       )}
 
-      {/* Main Content Grid with Sidebar */}
-      {!loading && products.length > 0 && (
+      {/* Main Content Grid with Sidebar - Always show when category exists */}
+      {!loading && currentCategory && (
         <Grid container spacing={3}>
-          {/* Filter Sidebar - Made larger */}
+          {/* Filter Sidebar - Always visible when category exists */}
           <Grid size={{ xs: 12, md: 4 }}>
-            {currentCategory && (
-              <ProductFilter
-                products={allCategoryProducts}
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
-                customFilters={customFilters}
-                loading={loading}
-              />
-            )}
+            <ProductFilter
+              products={allCategoryProducts}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              customFilters={customFilters}
+              loading={loading}
+            />
           </Grid>
 
-          {/* Products Grid - Made smaller to accommodate larger filter bar */}
+          {/* Products Grid - Show products or filtered empty state */}
           <Grid size={{ xs: 12, md: 8 }}>
             {sortedProducts.length > 0 ? (
               <>
@@ -487,10 +485,7 @@ const Products: React.FC = () => {
                   Nu au fost găsite produse
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 400 }}>
-                  {currentCategory 
-                    ? `Nu există produse în categoria "${currentCategory.name}" care să corespundă filtrelor selectate.`
-                    : 'Nu au fost găsite produse pentru această căutare.'
-                  }
+                  Nu există produse în categoria "{currentCategory.name}" care să corespundă filtrelor selectate.
                 </Typography>
                 <Button
                   variant="outlined"

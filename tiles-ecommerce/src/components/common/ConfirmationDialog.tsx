@@ -26,12 +26,12 @@ interface ConfirmationOptions {
   type?: ConfirmationType
   confirmText?: string
   cancelText?: string
-  onConfirm: () => void | Promise<void>
+  onConfirm?: () => void | Promise<void>
   onCancel?: () => void
 }
 
 interface ConfirmationContextType {
-  showConfirmation: (options: ConfirmationOptions) => void
+  showConfirmation: (options: ConfirmationOptions) => Promise<boolean>
 }
 
 const ConfirmationContext = createContext<ConfirmationContextType | null>(null)
@@ -49,32 +49,47 @@ interface ConfirmationProviderProps {
 }
 
 export const ConfirmationProvider: React.FC<ConfirmationProviderProps> = ({ children }) => {
-  const [dialog, setDialog] = useState<ConfirmationOptions & { open: boolean } | null>(null)
+  const [dialog, setDialog] = useState<ConfirmationOptions & { 
+    open: boolean
+    resolve?: (confirmed: boolean) => void 
+  } | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const showConfirmation = (options: ConfirmationOptions) => {
-    setDialog({
-      ...options,
-      open: true,
-      type: options.type || 'warning',
-      confirmText: options.confirmText || 'Confirmă',
-      cancelText: options.cancelText || 'Anulează'
+  const showConfirmation = (options: ConfirmationOptions): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setDialog({
+        ...options,
+        open: true,
+        type: options.type || 'warning',
+        confirmText: options.confirmText || 'Confirmă',
+        cancelText: options.cancelText || 'Anulează',
+        resolve
+      })
     })
   }
 
   const handleClose = () => {
     if (!loading) {
-      setDialog(null)
+      if (dialog?.resolve) {
+        dialog.resolve(false)
+      }
       dialog?.onCancel?.()
+      setDialog(null)
     }
   }
 
   const handleConfirm = async () => {
-    if (!dialog || !dialog.onConfirm || typeof dialog.onConfirm !== 'function') return
+    if (!dialog) return
     
     setLoading(true)
     try {
-      await dialog.onConfirm()
+      if (dialog.onConfirm && typeof dialog.onConfirm === 'function') {
+        await dialog.onConfirm()
+      }
+      
+      if (dialog.resolve) {
+        dialog.resolve(true)
+      }
       setDialog(null)
     } catch (error) {
       console.error('Confirmation action failed:', error)

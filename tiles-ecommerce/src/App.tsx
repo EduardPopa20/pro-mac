@@ -47,9 +47,13 @@ import AdminLayout from './components/admin/AdminLayout'
 import Dashboard from './pages/admin/Dashboard'
 import Settings from './pages/admin/Settings'
 import ShowroomManagement from './pages/admin/ShowroomManagement'
+import ShowroomEdit from './pages/admin/ShowroomEdit'
+import ShowroomCreate from './pages/admin/ShowroomCreate'
+import ShowroomPreview from './pages/admin/ShowroomPreview'
 import ProductManagement from './pages/admin/ProductManagement'
 import NewsletterManagement from './pages/admin/NewsletterManagement'
 import Contact from './pages/Contact'
+import HomePage from './pages/HomePage'
 import Unsubscribe from './pages/Unsubscribe'
 import AuthCallback from './pages/AuthCallback'
 import ErrorBoundary from './components/common/ErrorBoundary'
@@ -463,6 +467,10 @@ const AppContent: React.FC = () => {
               </Box>
             } />
             <Route path="showroom-uri" element={<ShowroomManagement />} />
+            <Route path="showroom-uri/create" element={<ShowroomCreate />} />
+            <Route path="showroom-uri/:id/edit" element={<ShowroomEdit />} />
+            <Route path="showroom-uri/:id/preview" element={<ShowroomPreview />} />
+            <Route path="showroom-uri/preview" element={<ShowroomPreview />} />
             <Route path="newsletter" element={<NewsletterManagement />} />
             <Route path="setari" element={<Settings />} />
           </Route>
@@ -556,28 +564,7 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
             }}
           >
             <Routes>
-                <Route path="/" element={
-                  <Box 
-                    textAlign="center" 
-                    sx={{ 
-                      py: 8,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      flexGrow: 1
-                    }}
-                  >
-                    <Typography variant="h2" component="h1" gutterBottom>
-                      Bine ai venit la magazinul de faianță și gresie!
-                    </Typography>
-                    <Typography variant="h5" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
-                      Descoperă cea mai variată colecție de faianță și gresie pentru casa ta.
-                    </Typography>
-                    <Button variant="contained" size="large">
-                      Explorează produsele
-                    </Button>
-                  </Box>
-                } />
+                <Route path="/" element={<HomePage />} />
                 
                 <Route path="/auth" element={
                   <ProtectedRoute requireAuth={false}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Typography,
@@ -31,49 +31,26 @@ interface WorkingHoursEditorProps {
   onChange: (value: string) => void
 }
 
+// Move defaultDays outside component to prevent re-creation
+const defaultDays: WorkingDay[] = [
+  { day: 'luni', dayName: 'Luni', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
+  { day: 'marti', dayName: 'Marți', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
+  { day: 'miercuri', dayName: 'Miercuri', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
+  { day: 'joi', dayName: 'Joi', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
+  { day: 'vineri', dayName: 'Vineri', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
+  { day: 'sambata', dayName: 'Sâmbătă', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 14, 0) },
+  { day: 'duminica', dayName: 'Duminică', isOpen: false, openTime: null, closeTime: null }
+]
+
 const WorkingHoursEditor: React.FC<WorkingHoursEditorProps> = ({ value, onChange }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  
-  const defaultDays: WorkingDay[] = [
-    { day: 'luni', dayName: 'Luni', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
-    { day: 'marti', dayName: 'Marți', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
-    { day: 'miercuri', dayName: 'Miercuri', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
-    { day: 'joi', dayName: 'Joi', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
-    { day: 'vineri', dayName: 'Vineri', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 18, 0) },
-    { day: 'sambata', dayName: 'Sâmbătă', isOpen: true, openTime: new Date(2024, 0, 1, 9, 0), closeTime: new Date(2024, 0, 1, 14, 0) },
-    { day: 'duminica', dayName: 'Duminică', isOpen: false, openTime: null, closeTime: null }
-  ]
 
   const [workingDays, setWorkingDays] = useState<WorkingDay[]>(defaultDays)
   const [initialized, setInitialized] = useState(false)
 
-  // Parse existing value on mount only
-  useEffect(() => {
-    if (value && value.trim() !== '' && !initialized) {
-      try {
-        parseWorkingHours(value)
-        setInitialized(true)
-      } catch (error) {
-        console.log('Could not parse existing working hours, using defaults')
-        setInitialized(true)
-      }
-    } else if (!value && !initialized) {
-      setInitialized(true)
-    }
-  }, [value, initialized])
-
-  // Update parent when working days change (but only after initialization)
-  useEffect(() => {
-    if (initialized) {
-      const hoursString = generateWorkingHoursString()
-      if (hoursString !== value) {
-        onChange(hoursString)
-      }
-    }
-  }, [workingDays, initialized, value, onChange])
-
-  const parseWorkingHours = (hoursStr: string) => {
+  // Define parseWorkingHours before using it
+  const parseWorkingHours = useCallback((hoursStr: string) => {
     // Simple parsing for common formats
     const updatedDays = [...defaultDays]
     
@@ -90,7 +67,30 @@ const WorkingHoursEditor: React.FC<WorkingHoursEditorProps> = ({ value, onChange
     }
     
     setWorkingDays(updatedDays)
-  }
+  }, []) // No dependencies needed since defaultDays is constant
+
+  // Parse existing value on mount only
+  useEffect(() => {
+    if (value && value.trim() !== '' && !initialized) {
+      try {
+        parseWorkingHours(value)
+        setInitialized(true)
+      } catch (error) {
+        console.log('Could not parse existing working hours, using defaults')
+        setInitialized(true)
+      }
+    } else if (!value && !initialized) {
+      setInitialized(true)
+    }
+  }, [value, initialized, parseWorkingHours])
+
+  // Update parent when working days change (but only after initialization)
+  useEffect(() => {
+    if (initialized) {
+      const hoursString = generateWorkingHoursString()
+      onChange(hoursString)
+    }
+  }, [workingDays, initialized]) // Remove onChange dependency to prevent infinite loop
 
   const generateWorkingHoursString = (): string => {
     const openDays = workingDays.filter(day => day.isOpen && day.openTime && day.closeTime)
@@ -138,14 +138,14 @@ const WorkingHoursEditor: React.FC<WorkingHoursEditorProps> = ({ value, onChange
     return true
   }
 
-  const updateDay = (index: number, updates: Partial<WorkingDay>) => {
+  const updateDay = useCallback((index: number, updates: Partial<WorkingDay>) => {
     setWorkingDays(prev => {
       const newDays = prev.map((day, i) => 
         i === index ? { ...day, ...updates } : day
       )
       return newDays
     })
-  }
+  }, [])
 
 
   return (
