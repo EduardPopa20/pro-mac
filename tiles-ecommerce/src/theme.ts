@@ -1,14 +1,14 @@
 import { createTheme } from '@mui/material/styles'
 
 // Utility: consistent focus ring
-const focusRing = (color = '#1976d2') => ({
+const focusRing = (color = '#2B3990') => ({
   outline: `2px solid ${color}`,
   outlineOffset: 2,
 })
 
 export const theme = createTheme({
   palette: {
-    primary: { main: '#1976d2' },
+    primary: { main: '#2B3990' }, // Pro-Mac brand blue from logo
     secondary: { main: '#dc004e' },
     success: { main: '#2e7d32' },
     warning: { main: '#ed6c02' },
@@ -22,7 +22,19 @@ export const theme = createTheme({
   },
   shape: { borderRadius: 10 },
   spacing: 8,
-  zIndex: { appBar: 1100, drawer: 1200, modal: 1300, snackbar: 1400, tooltip: 1500 },
+  zIndex: { 
+    appBar: 1100, 
+    drawer: 1200, 
+    modal: 1300, 
+    snackbar: 1400, 
+    tooltip: 1500,
+    // Custom z-index values for consistent layering
+    sticky: 100,        // Sticky sidebars and summaries
+    overlay: 200,       // Overlay elements like breadcrumbs
+    dropdown: 300,      // Dropdowns and selects
+    fab: 1050,          // Floating action buttons (below appBar)
+    globalAlert: 9999   // Global alerts and notifications
+  },
   typography: {
     htmlFontSize: 16,
     fontSize: 16, // Base 16px
@@ -66,7 +78,7 @@ export const theme = createTheme({
           scrollbarGutter: 'stable',
         },
         ':focus-visible': {
-          outline: '2px solid #1976d2',
+          outline: '2px solid #2B3990',
           outlineOffset: 2,
         },
         '@media (prefers-reduced-motion: reduce)': {

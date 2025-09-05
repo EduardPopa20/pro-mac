@@ -231,7 +231,7 @@ const NewsletterManagement: React.FC = () => {
     switch (source) {
       case 'modal': return 'Modal popup'
       case 'footer': return 'Footer'
-      case 'checkout': return 'Checkout'
+      case 'checkout': return 'Finalizare comandă'
       case 'manual': return 'Manual'
       default: return source
     }
@@ -241,98 +241,177 @@ const NewsletterManagement: React.FC = () => {
     <Box>
       {/* Breadcrumbs */}
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
-        <Link color="inherit" href="/admin" sx={{ display: 'flex', alignItems: 'center' }}>
-          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-          Dashboard
+        <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
+          Admin
         </Link>
-        <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-          <EmailIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-          Newsletter Management
+        <Typography color="text.primary">
+          Newsletter
         </Typography>
       </Breadcrumbs>
 
       {/* Page Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
-          Newsletter Management
-        </Typography>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }} gutterBottom>
+            Newsletter
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Gestionați abonamentele la newsletter, statistici și email-uri în masă
+          </Typography>
+        </Box>
         <Button
           variant="outlined"
           startIcon={<RefreshIcon />}
           onClick={() => fetchSubscriptions()}
           disabled={loading}
         >
-          Refresh
+          Actualizează
         </Button>
       </Box>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} mb={3}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Total Subscribers
-                  </Typography>
-                  <Typography variant="h4" component="h2">
-                    {stats.total.toLocaleString()}
-                  </Typography>
-                </Box>
-                <PeopleIcon color="primary" sx={{ fontSize: 40 }} />
-              </Box>
+      <Grid container spacing={3} mb={3} sx={{
+        '& .MuiGrid-item': {
+          display: 'flex'
+        }
+      }}>
+        <Grid item xs={6} sm={3} md={3}>
+          <Card sx={{ 
+            position: 'relative',
+            minHeight: 160,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <CardContent sx={{ 
+              flex: 1,
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              p: 3,
+              '&:last-child': { pb: 3 }
+            }}>
+              <PeopleIcon sx={{ 
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                fontSize: 24,
+                color: 'primary.main',
+                opacity: 0.6
+              }} />
+              <Typography color="text.secondary" variant="body2" gutterBottom>
+                Total Abonați
+              </Typography>
+              <Typography variant="h4" fontWeight={600}>
+                {stats.total.toLocaleString()}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Active
-                  </Typography>
-                  <Typography variant="h4" component="h2" color="success.main">
-                    {stats.active.toLocaleString()}
-                  </Typography>
-                </Box>
-                <TrendingUpIcon color="success" sx={{ fontSize: 40 }} />
-              </Box>
+        <Grid item xs={6} sm={3} md={3}>
+          <Card sx={{ 
+            position: 'relative',
+            minHeight: 160,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <CardContent sx={{ 
+              flex: 1,
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              p: 3,
+              '&:last-child': { pb: 3 }
+            }}>
+              <TrendingUpIcon sx={{ 
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                fontSize: 24,
+                color: 'success.main',
+                opacity: 0.6
+              }} />
+              <Typography color="text.secondary" variant="body2" gutterBottom>
+                Activi
+              </Typography>
+              <Typography variant="h4" fontWeight={600} color="success.main">
+                {stats.active.toLocaleString()}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Unsubscribed
-                  </Typography>
-                  <Typography variant="h4" component="h2">
-                    {stats.unsubscribed.toLocaleString()}
-                  </Typography>
-                </Box>
-                <UnsubscribeIcon color="action" sx={{ fontSize: 40 }} />
-              </Box>
+        <Grid item xs={6} sm={3} md={3}>
+          <Card sx={{ 
+            position: 'relative',
+            minHeight: 160,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <CardContent sx={{ 
+              flex: 1,
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              p: 3,
+              '&:last-child': { pb: 3 }
+            }}>
+              <UnsubscribeIcon sx={{ 
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                fontSize: 24,
+                color: 'action.active',
+                opacity: 0.6
+              }} />
+              <Typography color="text.secondary" variant="body2" gutterBottom>
+                Dezabonați
+              </Typography>
+              <Typography variant="h4" fontWeight={600}>
+                {stats.unsubscribed.toLocaleString()}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Box display="flex" alignItems="center" justifyContent="space-between">
-                <Box>
-                  <Typography color="textSecondary" gutterBottom>
-                    Bounced
-                  </Typography>
-                  <Typography variant="h4" component="h2" color="error.main">
-                    {stats.bounced.toLocaleString()}
-                  </Typography>
-                </Box>
-                <EmailIcon color="error" sx={{ fontSize: 40 }} />
-              </Box>
+        <Grid item xs={6} sm={3} md={3}>
+          <Card sx={{ 
+            position: 'relative',
+            minHeight: 160,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <CardContent sx={{ 
+              flex: 1,
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+              p: 3,
+              '&:last-child': { pb: 3 }
+            }}>
+              <EmailIcon sx={{ 
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                fontSize: 24,
+                color: 'error.main',
+                opacity: 0.6
+              }} />
+              <Typography color="text.secondary" variant="body2" gutterBottom>
+                Respinse
+              </Typography>
+              <Typography variant="h4" fontWeight={600} color="error.main">
+                {stats.bounced.toLocaleString()}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -342,7 +421,7 @@ const NewsletterManagement: React.FC = () => {
       <Paper sx={{ p: 2, mb: 3 }}>
         <Box display="flex" gap={2} alignItems="center" flexWrap="wrap">
           <TextField
-            placeholder="Search by email..."
+            placeholder="Caută după email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             InputProps={{
@@ -361,33 +440,57 @@ const NewsletterManagement: React.FC = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             sx={{ minWidth: 120 }}
+            SelectProps={{
+              MenuProps: {
+                disableScrollLock: true,
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'left',
+                },
+                PaperProps: {
+                  sx: {
+                    maxHeight: 200,
+                    zIndex: (theme) => theme.zIndex.modal + 100,
+                    boxShadow: (theme) => theme.shadows[8],
+                    '& .MuiMenuItem-root': {
+                      fontSize: '0.875rem',
+                      minHeight: 36,
+                    }
+                  }
+                }
+              }
+            }}
           >
-            <MenuItem value="all">All Status</MenuItem>
-            <MenuItem value="active">Active</MenuItem>
-            <MenuItem value="unsubscribed">Unsubscribed</MenuItem>
-            <MenuItem value="bounced">Bounced</MenuItem>
+            <MenuItem value="all">Toate Statusurile</MenuItem>
+            <MenuItem value="active">Activ</MenuItem>
+            <MenuItem value="unsubscribed">Dezabonat</MenuItem>
+            <MenuItem value="bounced">Respins</MenuItem>
           </TextField>
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Tooltip title="Export to CSV">
+          <Tooltip title="Exportă în CSV">
             <Button
               variant="outlined"
               startIcon={<DownloadIcon />}
               onClick={handleExportCSV}
             >
-              Export CSV
+              Exportă CSV
             </Button>
           </Tooltip>
 
-          <Tooltip title="Send bulk email to active subscribers">
+          <Tooltip title="Trimite email în masă către abonații activi">
             <Button
               variant="contained"
               startIcon={<EmailIcon />}
               onClick={handleBulkEmail}
               disabled={stats.active === 0}
             >
-              Bulk Email ({stats.active})
+              Email în Masă ({stats.active})
             </Button>
           </Tooltip>
         </Box>
@@ -399,12 +502,12 @@ const NewsletterManagement: React.FC = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Email</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Source</TableCell>
-                <TableCell>Subscribed At</TableCell>
-                <TableCell>Last Email</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                <TableCell align="center">Email</TableCell>
+                <TableCell align="center">Status</TableCell>
+                <TableCell align="center">Sursă</TableCell>
+                <TableCell align="center">Abonat La</TableCell>
+                <TableCell align="center">Ultimul Email</TableCell>
+                <TableCell align="center">Acțiuni</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -412,30 +515,30 @@ const NewsletterManagement: React.FC = () => {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((subscription) => (
                   <TableRow key={subscription.id} hover>
-                    <TableCell>
+                    <TableCell align="center">
                       <Typography variant="body2" sx={{ fontWeight: 500 }}>
                         {subscription.email}
                       </Typography>
                       {subscription.user_id && (
                         <Typography variant="caption" color="text.secondary">
-                          Authenticated user
+                          Utilizator autentificat
                         </Typography>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell align="center">
                       <Chip
-                        label={subscription.status}
+                        label={subscription.status === 'active' ? 'Activ' : subscription.status === 'unsubscribed' ? 'Dezabonat' : subscription.status === 'bounced' ? 'Respins' : subscription.status}
                         size="small"
                         color={getStatusColor(subscription.status)}
                         variant="outlined"
                       />
                     </TableCell>
-                    <TableCell>
+                    <TableCell align="center">
                       <Typography variant="body2">
                         {getSourceDisplay(subscription.source)}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell align="center">
                       <Typography variant="body2">
                         {new Date(subscription.subscribed_at).toLocaleDateString('ro-RO')}
                       </Typography>
@@ -443,15 +546,15 @@ const NewsletterManagement: React.FC = () => {
                         {new Date(subscription.subscribed_at).toLocaleTimeString('ro-RO')}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    <TableCell align="center">
                       <Typography variant="body2">
                         {subscription.last_email_sent_at 
                           ? new Date(subscription.last_email_sent_at).toLocaleDateString('ro-RO')
-                          : 'Never'
+                          : 'Niciodată'
                         }
                       </Typography>
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="center">
                       <IconButton
                         onClick={(e) => handleMenuOpen(e, subscription)}
                         size="small"
@@ -487,7 +590,7 @@ const NewsletterManagement: React.FC = () => {
             <ListItemIcon>
               <TrendingUpIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Mark as Active</ListItemText>
+            <ListItemText>Marchează ca Activ</ListItemText>
           </MenuItem>
         )}
         {selectedRow?.status !== 'unsubscribed' && (
@@ -495,7 +598,7 @@ const NewsletterManagement: React.FC = () => {
             <ListItemIcon>
               <UnsubscribeIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Mark as Unsubscribed</ListItemText>
+            <ListItemText>Marchează ca Dezabonat</ListItemText>
           </MenuItem>
         )}
         {selectedRow?.status !== 'bounced' && (
@@ -503,50 +606,50 @@ const NewsletterManagement: React.FC = () => {
             <ListItemIcon>
               <EmailIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Mark as Bounced</ListItemText>
+            <ListItemText>Marchează ca Respins</ListItemText>
           </MenuItem>
         )}
         <MenuItem onClick={() => handleDeleteSubscription(selectedRow!)}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText>Delete Subscription</ListItemText>
+          <ListItemText>Șterge Abonamentul</ListItemText>
         </MenuItem>
       </Menu>
 
       {/* Bulk Email Dialog */}
       <Dialog open={bulkEmailDialog} onClose={() => setBulkEmailDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Send Bulk Email</DialogTitle>
+        <DialogTitle>Trimite Email în Masă</DialogTitle>
         <DialogContent>
           <Alert severity="info" sx={{ mb: 3 }}>
-            This email will be sent to {stats.active} active subscribers.
+            Acest email va fi trimis către {stats.active} abonați activi.
           </Alert>
           <TextField
             fullWidth
-            label="Subject"
+            label="Subiect"
             value={emailSubject}
             onChange={(e) => setEmailSubject(e.target.value)}
             margin="normal"
           />
           <TextField
             fullWidth
-            label="Content"
+            label="Conținut"
             multiline
             rows={8}
             value={emailContent}
             onChange={(e) => setEmailContent(e.target.value)}
             margin="normal"
-            placeholder="Write your newsletter content here..."
+            placeholder="Scrie conținutul newsletter-ului aici..."
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setBulkEmailDialog(false)}>Cancel</Button>
+          <Button onClick={() => setBulkEmailDialog(false)}>Anulează</Button>
           <Button
             onClick={handleSendBulkEmail}
             variant="contained"
             disabled={!emailSubject.trim() || !emailContent.trim()}
           >
-            Send Email
+            Trimite Email
           </Button>
         </DialogActions>
       </Dialog>

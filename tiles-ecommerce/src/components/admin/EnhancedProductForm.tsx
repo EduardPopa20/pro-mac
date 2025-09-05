@@ -26,7 +26,8 @@ import {
   LocalOffer,
   Description,
   Settings,
-  CheckCircle
+  CheckCircle,
+  PhotoCamera
 } from '@mui/icons-material'
 import ImageUpload from '../common/ImageUpload'
 import type { Category } from '../../types'
@@ -38,23 +39,27 @@ interface ProductFormData {
 interface EnhancedProductFormProps {
   productForm: ProductFormData
   setProductForm: (updater: (prev: ProductFormData) => ProductFormData) => void
-  categories: Category[]
-  currentImagePath: string
-  onImageUpload: (imagePath: string) => void
-  saving: boolean
-  onSave: () => void
-  onCancel: () => void
+  categories?: Category[]
+  currentImagePath?: string
+  onImageUpload?: (imagePath: string) => void
+  saving?: boolean
+  onSave?: () => void
+  onCancel?: () => void
+  hideCategories?: boolean
+  categoryType?: 'faianta' | 'gresie' | 'parchet' | 'riflaje'
 }
 
 const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
   productForm,
   setProductForm,
-  categories,
-  currentImagePath,
-  onImageUpload,
-  saving,
-  onSave,
-  onCancel
+  categories = [],
+  currentImagePath = '',
+  onImageUpload = () => {},
+  saving = false,
+  onSave = () => {},
+  onCancel = () => {},
+  hideCategories = false,
+  categoryType
 }) => {
   const theme = useTheme()
 
@@ -142,17 +147,38 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
 
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
-      <Grid container spacing={4}>
-        {/* Form Sections */}
-        <Grid size={{ xs: 12, lg: 8 }}>
-          <Stack spacing={4}>
-            
-            {/* 1. Basic Information */}
-            <FormSection
-              icon={<Info />}
-              title="Informații de bază"
-              color="primary"
-            >
+      <Stack spacing={4}>
+        
+        {/* Image Upload Section - Full Width */}
+        <FormSection
+          icon={<PhotoCamera />}
+          title="Imagine Produs"
+          color="warning"
+        >
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            minHeight: 200,
+            py: 2
+          }}>
+            <ImageUpload
+              currentImagePath={currentImagePath}
+              onImageUpload={onImageUpload}
+              bucketName="product-images"
+              folder="products"
+              maxSizeInMB={10}
+              acceptedFormats={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
+            />
+          </Box>
+        </FormSection>
+
+        {/* 1. Basic Information */}
+        <FormSection
+          icon={<Info />}
+          title="Informații de bază"
+          color="primary"
+        >
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12 }}>
                   <FormField label="Nume Produs" required>
@@ -184,24 +210,28 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
                   </FormField>
                 </Grid>
 
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormField label="Categorie" required>
-                    <FormControl fullWidth>
-                      <Select
-                        value={productForm.category_id || ''}
-                        onChange={(e) => setProductForm(prev => ({ ...prev, category_id: e.target.value as number }))}
-                        displayEmpty
-                      >
-                        <MenuItem value="">Selectați categoria</MenuItem>
-                        {categories.map((cat) => (
-                          <MenuItem key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </FormField>
-                </Grid>
+                {!hideCategories && (
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormField label="Categorie" required>
+                      <FormControl fullWidth>
+                        <Select
+                          value={productForm.category_id || ''}
+                          onChange={(e) => setProductForm(prev => ({ ...prev, category_id: e.target.value as number }))}
+                          displayEmpty
+                        >
+                          <MenuItem value="">Selectați categoria</MenuItem>
+                          {categories.map((cat) => (
+                            <MenuItem key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </FormField>
+                  </Grid>
+                )}
+                
+                {/* Category indicator removed from basic info card - now shown in page header */}
               </Grid>
             </FormSection>
 
@@ -234,16 +264,7 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
                   </FormField>
                 </Grid>
                 
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormField label="SKU" helper="Stock Keeping Unit - cod intern">
-                    <TextField
-                      value={productForm.sku}
-                      onChange={(e) => setProductForm(prev => ({ ...prev, sku: e.target.value }))}
-                      fullWidth
-                      placeholder="Cod SKU intern"
-                    />
-                  </FormField>
-                </Grid>
+{/* SKU field removed - not used in business logic */}
                 
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <FormField label="Grad Calitate" helper="Calitatea produsului (1=Premium, 3=Economic)">
@@ -409,6 +430,22 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
                       fullWidth
                       placeholder="8"
                       inputProps={{ min: 0 }}
+                    />
+                  </FormField>
+                </Grid>
+                
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FormField label="Suprafață per cutie (m²)" helperText="Pentru calculator">
+                    <TextField
+                      type="number"
+                      value={productForm.area_per_box}
+                      onChange={(e) => setProductForm(prev => ({ ...prev, area_per_box: e.target.value }))}
+                      fullWidth
+                      placeholder="1.44"
+                      inputProps={{ min: 0, step: 0.01 }}
+                      InputProps={{
+                        endAdornment: <Typography variant="caption" color="text.secondary">m²</Typography>
+                      }}
                     />
                   </FormField>
                 </Grid>
@@ -673,100 +710,7 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
               </Stack>
             </FormSection>
 
-            {/* 8. Status */}
-            <FormSection
-              icon={<Settings />}
-              title="Status Produs"
-              color="secondary"
-            >
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={productForm.is_active}
-                    onChange={(e) => setProductForm(prev => ({ ...prev, is_active: e.target.checked }))}
-                    color="success"
-                    size="medium"
-                  />
-                }
-                label={
-                  <Box>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                      Produs activ
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Produsul va fi vizibil în catalogul public
-                    </Typography>
-                  </Box>
-                }
-              />
-            </FormSection>
-
-          </Stack>
-        </Grid>
-
-        {/* Sidebar with image and actions */}
-        <Grid size={{ xs: 12, lg: 4 }}>
-          <Box sx={{ position: 'sticky', top: 24 }}>
-            <Stack spacing={3}>
-              
-              {/* Image Upload Section */}
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
-                  Imagine Produs
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Încărcați o imagine reprezentativă pentru produs
-                </Typography>
-                <ImageUpload
-                  currentImagePath={currentImagePath}
-                  onImageUpload={onImageUpload}
-                  bucketName="product-images"
-                  folder="products"
-                  maxSizeInMB={10}
-                  acceptedFormats={['image/jpeg', 'image/jpg', 'image/png', 'image/webp']}
-                />
-              </Paper>
-
-              {/* Action Buttons */}
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
-                  Acțiuni
-                </Typography>
-                <Stack spacing={2}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    onClick={onSave}
-                    disabled={saving || !productForm.name.trim()}
-                    startIcon={saving ? <CircularProgress size={20} /> : undefined}
-                    sx={{ 
-                      minHeight: 48,
-                      fontWeight: 600
-                    }}
-                  >
-                    {saving ? 'Se salvează...' : 'Salvează'} Produs
-                  </Button>
-                  
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    onClick={onCancel}
-                    disabled={saving}
-                    sx={{ 
-                      minHeight: 48,
-                      fontWeight: 600
-                    }}
-                  >
-                    Anulează
-                  </Button>
-                </Stack>
-              </Paper>
-
-
-            </Stack>
-          </Box>
-        </Grid>
-      </Grid>
+      </Stack>
     </Box>
   )
 }

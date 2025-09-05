@@ -52,6 +52,8 @@ import { useConfirmation } from '../../components/common/ConfirmationDialog'
 import ImageUpload from '../../components/common/ImageUpload'
 import type { Category, Product } from '../../types'
 import EnhancedProductForm from '../../components/admin/EnhancedProductForm'
+import EnhancedParchetForm from '../../components/admin/EnhancedParchetForm'
+import EnhancedRiflajForm from '../../components/admin/EnhancedRiflajForm'
 
 type ViewMode = 'categories' | 'category-products' | 'add-category' | 'edit-product' | 'add-product'
 
@@ -139,8 +141,56 @@ const ProductManagement: React.FC = () => {
     installation_notes: '',
     care_instructions: '',
     
+    // Parchet-specific fields
+    thickness_mm: '',
+    width_mm: '',
+    length_mm: '',
+    traffic_class: '',
+    floor_type: '',
+    installation_type: '',
+    wood_essence: '',
+    collection_name: '',
+    core_material: '',
+    surface_texture: '',
+    surface_per_package: '',
+    pieces_per_package: '',
+    installation_location: '',
+    is_antistatic: false,
+    underfloor_heating_compatible: '',
+    supplier_code: '',
+    suitable_areas: '',
+    physical_warranty_years: '',
+    juridical_warranty_years: '',
+    
+    // Riflaje-specific fields
+    panel_type: '',
+    panel_thickness_mm: '',
+    panel_width_mm: '',
+    panel_length_mm: '',
+    acoustic_properties: '',
+    surface_finish_type: '',
+    mounting_system: '',
+    panel_orientation: '',
+    wood_species: '',
+    base_material: '',
+    acoustic_rating: '',
+    installation_area: '',
+    panel_profile: '',
+    coverage_per_panel: '',
+    panel_weight_kg: '',
+    groove_spacing_mm: '',
+    groove_depth_mm: '',
+    fire_resistance_class: '',
+    environmental_rating: '',
+    maintenance_type: '',
+    color_variants: '',
+    acoustic_backing: '',
+    uv_resistance: false,
+    moisture_resistance: '',
+    installation_difficulty: '',
+    
     // Status
-    is_active: true
+    stock_status: 'available' as const
   })
 
   useEffect(() => {
@@ -172,7 +222,7 @@ const ProductManagement: React.FC = () => {
   }, [categories, products])
 
   const handleViewCategoryProducts = async (category: Category) => {
-    navigate(`/admin/produse/${category.slug}`)
+    navigate(`/admin/categorii_produse/${category.slug}`)
   }
 
   const handleAddCategory = () => {
@@ -192,7 +242,7 @@ const ProductManagement: React.FC = () => {
       finish: '',
       color: '',
       usage_area: '',
-      is_active: true
+      stock_status: 'available' as const
     })
     setCurrentImagePath('')
     setViewMode('add-product')
@@ -251,72 +301,86 @@ const ProductManagement: React.FC = () => {
       installation_notes: '',
       care_instructions: '',
       
+      // Parchet-specific fields
+      thickness_mm: '',
+      width_mm: '',
+      length_mm: '',
+      traffic_class: '',
+      floor_type: '',
+      installation_type: '',
+      wood_essence: '',
+      collection_name: '',
+      core_material: '',
+      surface_texture: '',
+      surface_per_package: '',
+      pieces_per_package: '',
+      installation_location: '',
+      is_antistatic: false,
+      underfloor_heating_compatible: '',
+      supplier_code: '',
+      suitable_areas: '',
+      physical_warranty_years: '',
+      juridical_warranty_years: '',
+      
       // Status
-      is_active: true
+      stock_status: 'available' as const
     })
     setCurrentImagePath('')
     setEditingProduct(null)
   }
 
   const handleEditProduct = (product: Product) => {
-    setEditingProduct(product)
-    setProductForm({
-      // Basic info
-      name: product.name,
-      description: product.description || '',
-      price: product.price.toString(),
-      category_id: product.category_id,
-      
-      // Basic tile properties
-      dimensions: product.dimensions || '',
-      material: product.material || '',
-      finish: product.finish || '',
-      color: product.color || '',
-      usage_area: product.usage_area || '',
-      
-      // Enhanced properties
-      brand: product.brand || '',
-      product_code: product.product_code || '',
-      sku: product.sku || '',
-      thickness: product.thickness ? product.thickness.toString() : '',
-      surface_finish: product.surface_finish || '',
-      texture: product.texture || '',
-      quality_grade: product.quality_grade ? product.quality_grade.toString() : '',
-      weight_per_box: product.weight_per_box ? product.weight_per_box.toString() : '',
-      area_per_box: product.area_per_box ? product.area_per_box.toString() : '',
-      tiles_per_box: product.tiles_per_box ? product.tiles_per_box.toString() : '',
-      origin_country: product.origin_country || '',
-      
-      // Technical capabilities
-      is_rectified: product.is_rectified || false,
-      is_frost_resistant: product.is_frost_resistant || false,
-      is_floor_heating_compatible: product.is_floor_heating_compatible || false,
-      
-      // Application areas (convert array to comma-separated string)
-      application_areas: product.application_areas ? product.application_areas.join(', ') : '',
-      
-      // Suitability
-      suitable_for_walls: product.suitable_for_walls !== undefined ? product.suitable_for_walls : true,
-      suitable_for_floors: product.suitable_for_floors !== undefined ? product.suitable_for_floors : true,
-      suitable_for_exterior: product.suitable_for_exterior || false,
-      suitable_for_commercial: product.suitable_for_commercial || false,
-      
-      // Pricing and inventory
-      stock_quantity: product.stock_quantity ? product.stock_quantity.toString() : '',
-      standard_price: product.standard_price ? product.standard_price.toString() : '',
-      special_price: product.special_price ? product.special_price.toString() : '',
-      price_unit: product.price_unit || 'mp',
-      
-      // Additional details
-      estimated_delivery_days: product.estimated_delivery_days ? product.estimated_delivery_days.toString() : '',
-      installation_notes: product.installation_notes || '',
-      care_instructions: product.care_instructions || '',
-      
-      // Status
-      is_active: product.is_active
-    })
-    setCurrentImagePath(product.image_path || '')
-    setViewMode('edit-product')
+    // Get the category to determine which specialized route to use
+    const category = categories.find(cat => cat.id === product.category_id)
+    if (!category) {
+      console.error('Category not found for product:', product)
+      return
+    }
+
+    // Navigate to the appropriate specialized editing route
+    const categorySlug = category.slug
+    let route = ''
+    
+    switch (categorySlug) {
+      case 'faianta':
+        route = `/admin/produse/faianta/${product.slug}/editare`
+        break
+      case 'gresie':
+        route = `/admin/produse/gresie/${product.slug}/editare`
+        break
+      case 'parchet':
+        route = `/admin/produse/parchet/${product.slug}/editare`
+        break
+      case 'riflaje':
+        route = `/admin/produse/riflaje/${product.slug}/editare`
+        break
+      default:
+        // Fallback to old editing method for unknown categories
+        console.warn('Unknown category slug:', categorySlug, 'falling back to inline editing')
+        setEditingProduct(product)
+        setProductForm({
+          // Basic info
+          name: product.name,
+          description: product.description || '',
+          price: product.price.toString(),
+          category_id: product.category_id,
+          
+          // Basic tile properties
+          dimensions: product.dimensions || '',
+          material: product.material || '',
+          finish: product.finish || '',
+          color: product.color || '',
+          usage_area: product.usage_area || '',
+          
+          // Status
+          stock_status: product.stock_status
+        })
+        setCurrentImagePath(product.image_path || '')
+        setViewMode('edit-product')
+        return
+    }
+    
+    navigate(route)
   }
 
   const handleImageUpload = (imagePath: string) => {
@@ -344,10 +408,10 @@ const ProductManagement: React.FC = () => {
     }
 
     try {
-      await createCategory({ name: categoryForm.name, is_active: true, sort_order: 0 })
+      await createCategory({ name: categoryForm.name, sort_order: 0 })
       setSuccess('Categoria a fost creată cu succes!')
       setTimeout(() => {
-        navigate('/admin/produse')
+        navigate('/admin/categorii_produse')
         setSuccess('')
       }, 1500)
     } catch (err) {
@@ -446,8 +510,29 @@ const ProductManagement: React.FC = () => {
         installation_notes: productForm.installation_notes || null,
         care_instructions: productForm.care_instructions || null,
         
+        // Parchet-specific fields
+        thickness_mm: productForm.thickness_mm ? parseFloat(productForm.thickness_mm) : null,
+        width_mm: productForm.width_mm ? parseFloat(productForm.width_mm) : null,
+        length_mm: productForm.length_mm ? parseFloat(productForm.length_mm) : null,
+        traffic_class: productForm.traffic_class || null,
+        floor_type: productForm.floor_type || null,
+        installation_type: productForm.installation_type || null,
+        wood_essence: productForm.wood_essence || null,
+        collection_name: productForm.collection_name || null,
+        core_material: productForm.core_material || null,
+        surface_texture: productForm.surface_texture || null,
+        surface_per_package: productForm.surface_per_package ? parseFloat(productForm.surface_per_package) : null,
+        pieces_per_package: productForm.pieces_per_package ? parseInt(productForm.pieces_per_package) : null,
+        installation_location: productForm.installation_location || null,
+        is_antistatic: productForm.is_antistatic,
+        underfloor_heating_compatible: productForm.underfloor_heating_compatible || null,
+        supplier_code: productForm.supplier_code || null,
+        suitable_areas: productForm.suitable_areas || null,
+        physical_warranty_years: productForm.physical_warranty_years ? parseInt(productForm.physical_warranty_years) : null,
+        juridical_warranty_years: productForm.juridical_warranty_years ? parseInt(productForm.juridical_warranty_years) : null,
+        
         // Status
-        is_active: productForm.is_active
+        stock_status: productForm.stock_status
       }
 
       if (editingProduct) {
@@ -460,7 +545,7 @@ const ProductManagement: React.FC = () => {
       
       setTimeout(() => {
         if (selectedCategory) {
-          navigate(`/admin/produse/${selectedCategory.slug}`)
+          navigate(`/admin/categorii_produse/${selectedCategory.slug}`)
         }
         setSuccess('')
       }, 1500)
@@ -538,7 +623,7 @@ const ProductManagement: React.FC = () => {
       <Breadcrumbs sx={{ mb: 3 }}>
         <Link 
           color="inherit" 
-          onClick={() => navigate('/admin/produse')} 
+          onClick={() => navigate('/admin')} 
           sx={{ 
             cursor: 'pointer',
             textDecoration: 'none',
@@ -548,12 +633,26 @@ const ProductManagement: React.FC = () => {
             }
           }}
         >
-          Categorii
+          Admin
+        </Link>
+        <Link 
+          color="inherit" 
+          onClick={() => navigate('/admin/categorii_produse')} 
+          sx={{ 
+            cursor: 'pointer',
+            textDecoration: 'none',
+            '&:hover': {
+              textDecoration: 'none',
+              color: 'primary.main'
+            }
+          }}
+        >
+          Categorii Produse
         </Link>
         {selectedCategory && viewMode !== 'categories' && (
           <Link 
             color="inherit" 
-            onClick={() => navigate(`/admin/produse/${selectedCategory.slug}`)} 
+            onClick={() => navigate(`/admin/categorii_produse/${selectedCategory.slug}`)} 
             sx={{ 
               cursor: 'pointer',
               textDecoration: 'none',
@@ -650,35 +749,38 @@ const ProductManagement: React.FC = () => {
                           label={category.products_count || 0}
                           size="small"
                           color="primary"
-                          variant="outlined"
+                          variant="filled"
+                          sx={{
+                            fontWeight: 600,
+                            borderRadius: 2,
+                            minWidth: 40,
+                            background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                            color: 'white',
+                            boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
+                            '&:hover': {
+                              boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)',
+                              transform: 'translateY(-1px)'
+                            },
+                            transition: 'all 0.3s ease'
+                          }}
                         />
                       </TableCell>
                       <TableCell align="center">
                         <Chip 
-                          label={category.is_active ? 'Activ' : 'Inactiv'}
+                          label="Activ"
                           size="small"
-                          color={category.is_active ? 'success' : 'default'}
+                          color="success"
                         />
                       </TableCell>
                       <TableCell align="center">
                         <Stack direction="row" spacing={1} justifyContent="center">
-                          <Tooltip title="Vezi Produse">
+                          <Tooltip title={`Vezi ${category.name.toLowerCase()}`}>
                             <IconButton 
                               size="medium"
                               onClick={() => handleViewCategoryProducts(category)}
                               color="primary"
                             >
                               <Visibility />
-                            </IconButton>
-                          </Tooltip>
-                          
-                          <Tooltip title="Șterge Categoria">
-                            <IconButton 
-                              size="medium"
-                              onClick={() => handleDeleteCategory(category)}
-                              color="error"
-                            >
-                              <Delete />
                             </IconButton>
                           </Tooltip>
                         </Stack>
@@ -703,7 +805,7 @@ const ProductManagement: React.FC = () => {
                 onChange={(e) => setCategoryForm({ name: e.target.value })}
                 fullWidth
                 required
-                placeholder="ex: Faianță, Gresie, Mozaic"
+                placeholder="ex: Faianță, Gresie, Parchet"
               />
 
               <Stack direction="row" spacing={2} justifyContent="flex-end">
@@ -804,9 +906,13 @@ const ProductManagement: React.FC = () => {
                       </TableCell>
                       <TableCell align="center">
                         <Chip 
-                          label={product.is_active ? 'Activ' : 'Inactiv'}
+                          label={product.stock_status === 'available' ? 'Disponibil' : 
+                                 product.stock_status === 'out_of_stock' ? 'Epuizat' :
+                                 product.stock_status === 'coming_soon' ? 'În curând' : 'Discontinued'}
                           size="small"
-                          color={product.is_active ? 'success' : 'default'}
+                          color={product.stock_status === 'available' ? 'success' : 
+                                product.stock_status === 'out_of_stock' ? 'warning' :
+                                product.stock_status === 'coming_soon' ? 'info' : 'default'}
                         />
                       </TableCell>
                       <TableCell align="center">
@@ -815,6 +921,7 @@ const ProductManagement: React.FC = () => {
                             <IconButton 
                               size="medium"
                               onClick={() => handleEditProduct(product)}
+                              sx={{ color: '#FFB300' }}
                             >
                               <Edit />
                             </IconButton>
@@ -841,18 +948,56 @@ const ProductManagement: React.FC = () => {
       )}
 
       {/* Add/Edit Product Form */}
-      {(viewMode === 'add-product' || viewMode === 'edit-product') && (
-        <EnhancedProductForm
-          productForm={productForm}
-          setProductForm={setProductForm}
-          categories={categories}
-          currentImagePath={currentImagePath}
-          onImageUpload={handleImageUpload}
-          saving={saving}
-          onSave={handleSaveProduct}
-          onCancel={() => setViewMode('category-products')}
-        />
-      )}
+      {(viewMode === 'add-product' || viewMode === 'edit-product') && (() => {
+        // Check if the selected category is parchet
+        const selectedCat = categories.find(cat => cat.id === productForm.category_id) || selectedCategory
+        const isParchetCategory = selectedCat?.slug === 'parchet'
+        const isRiflajCategory = selectedCat?.slug === 'riflaje'
+        
+        if (isParchetCategory) {
+          return (
+            <EnhancedParchetForm
+              productForm={productForm}
+              setProductForm={setProductForm}
+              categories={categories}
+              currentImagePath={currentImagePath}
+              onImageUpload={handleImageUpload}
+              saving={saving}
+              onSave={handleSaveProduct}
+              onCancel={() => setViewMode('category-products')}
+            />
+          )
+        } else if (isRiflajCategory) {
+          return (
+            <EnhancedRiflajForm
+              productForm={productForm}
+              setProductForm={setProductForm}
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSave={handleSaveProduct}
+              onCancel={() => setViewMode('category-products')}
+              onPreview={() => {
+                // Optional: Implement preview functionality
+                console.log('Preview riflaj product:', productForm)
+              }}
+              loading={saving}
+            />
+          )
+        } else {
+          return (
+            <EnhancedProductForm
+              productForm={productForm}
+              setProductForm={setProductForm}
+              categories={categories}
+              currentImagePath={currentImagePath}
+              onImageUpload={handleImageUpload}
+              saving={saving}
+              onSave={handleSaveProduct}
+              onCancel={() => setViewMode('category-products')}
+            />
+          )
+        }
+      })()}
     </Box>
   )
 }

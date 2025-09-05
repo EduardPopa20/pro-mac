@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -6,7 +6,6 @@ import {
   Button,
   Paper,
   Container,
-  Grid,
   Alert,
   CircularProgress,
   Breadcrumbs,
@@ -17,7 +16,8 @@ import {
   Divider,
   Tooltip,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
+  Grid,
 } from '@mui/material'
 import {
   Email,
@@ -26,36 +26,50 @@ import {
   Send,
   Phone,
   LocationOn,
-  AccessTime
 } from '@mui/icons-material'
 import { supabase } from '../lib/supabase'
+import { useAuthStore } from '../stores/auth'
 
 interface ContactFormData {
   name: string
   email: string
+  phone: string
   message: string
 }
 
 const Contact: React.FC = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const { user } = useAuthStore()
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
+    phone: '',
     message: ''
   })
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
 
-  const handleInputChange = (field: keyof ContactFormData) => (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [field]: event.target.value
-    })
-  }
+  // Precompletez datele pentru utilizatorii autentificați
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        name: user.full_name || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      }))
+    }
+  }, [user])
+
+  const handleInputChange = useCallback((field: keyof ContactFormData) => 
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFormData(prev => ({
+        ...prev,
+        [field]: event.target.value
+      }))
+    }, [])
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
@@ -100,7 +114,9 @@ const Contact: React.FC = () => {
           {
             name: formData.name.trim(),
             email: formData.email.trim().toLowerCase(),
-            message: formData.message.trim()
+            message: formData.message.trim(),
+            // Add phone if provided - will be stored as admin_notes for now since column doesn't exist yet
+            admin_notes: formData.phone.trim() ? `Telefon: ${formData.phone.trim()}` : null
           }
         ])
 
@@ -112,6 +128,7 @@ const Contact: React.FC = () => {
           body: {
             name: formData.name.trim(),
             email: formData.email.trim().toLowerCase(),
+            phone: formData.phone.trim(),
             message: formData.message.trim()
           }
         })
@@ -126,7 +143,7 @@ const Contact: React.FC = () => {
       }
       
       setSuccess('Mesajul dvs. a fost trimis cu succes! Vă vom contacta în curând.')
-      setFormData({ name: '', email: '', message: '' })
+      setFormData({ name: '', email: '', phone: '', message: '' })
       
       // Hide success message after 5 seconds
       setTimeout(() => setSuccess(''), 5000)
@@ -150,7 +167,7 @@ const Contact: React.FC = () => {
   )
 
   // Standardized loading state following CLAUDE.md guidelines
-  if (loading && !success && !error && !formData.name && !formData.email && !formData.message) {
+  if (loading && !success && !error && !formData.name && !formData.email && !formData.phone && !formData.message) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {renderBreadcrumbs()}
@@ -218,9 +235,9 @@ const Contact: React.FC = () => {
         )}
 
         <Box component="form" onSubmit={handleSubmit}>
-          {/* Row 1: Name and Email side by side */}
+          {/* Row 1: Name, Email, and Phone responsive layout */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid xs={12} sm={6}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
                 required
@@ -241,7 +258,7 @@ const Contact: React.FC = () => {
               />
             </Grid>
 
-            <Grid xs={12} sm={6}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <TextField
                 fullWidth
                 required
@@ -253,6 +270,28 @@ const Contact: React.FC = () => {
                 InputProps={{
                   startAdornment: (
                     <Email sx={{ color: 'text.secondary', mr: 1 }} />
+                  ),
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 4 }}>
+              <TextField
+                fullWidth
+                type="tel"
+                label="Numărul de telefon"
+                value={formData.phone}
+                onChange={handleInputChange('phone')}
+                disabled={loading}
+                placeholder="07XX XXX XXX"
+                InputProps={{
+                  startAdornment: (
+                    <Phone sx={{ color: 'text.secondary', mr: 1 }} />
                   ),
                 }}
                 sx={{
@@ -300,7 +339,7 @@ const Contact: React.FC = () => {
                 disabled={loading}
                 startIcon={loading ? <CircularProgress size={20} /> : <Send />}
                 sx={{
-                  minHeight: { xs: 44, md: 48 }, // CLAUDE.md compliance
+                  minHeight: { xs: 44, sm: 44, md: 48 }, // CLAUDE.md compliance with sm breakpoint
                   borderRadius: 2,
                   px: 4,
                   py: 1.5,
@@ -314,95 +353,6 @@ const Contact: React.FC = () => {
           </Box>
         </Box>
       </Paper>
-
-      {/* Contact Information Cards - Below form, spanning full width */}
-      <Box sx={{ display: 'flex', gap: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
-        {/* Company Info Card */}
-        <Card elevation={2} sx={{ borderRadius: 3, flex: 1 }}>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Informații de contact
-            </Typography>
-            
-            <Stack spacing={2}>
-              <Box display="flex" alignItems="center" gap={2}>
-                <Phone sx={{ color: 'primary.main', fontSize: 20 }} />
-                <Typography variant="body1">
-                  0729 926 085
-                </Typography>
-              </Box>
-              
-              <Box display="flex" alignItems="center" gap={2}>
-                <Email sx={{ color: 'primary.main', fontSize: 20 }} />
-                <Typography variant="body1">
-                  contact@promac.ro
-                </Typography>
-              </Box>
-              
-              <Box display="flex" alignItems="flex-start" gap={2}>
-                <LocationOn sx={{ color: 'primary.main', fontSize: 20, mt: 0.2 }} />
-                <Box>
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    Sediul principal
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Vezi showroom-urile noastre pentru adrese complete
-                  </Typography>
-                </Box>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-
-        {/* Business Hours Card */}
-        <Card elevation={2} sx={{ borderRadius: 3, flex: 1 }}>
-          <CardContent sx={{ p: 3 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-              Program de lucru
-            </Typography>
-            
-            <Stack spacing={1.5}>
-              <Box display="flex" alignItems="center" gap={2}>
-                <AccessTime sx={{ color: 'primary.main', fontSize: 20 }} />
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Luni - Vineri
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    09:00 - 18:00
-                  </Typography>
-                </Box>
-              </Box>
-              
-              <Divider sx={{ mx: 2 }} />
-              
-              <Box display="flex" alignItems="center" gap={2}>
-                <Box sx={{ width: 20 }} /> {/* Spacer */}
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Sâmbătă
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    09:00 - 14:00
-                  </Typography>
-                </Box>
-              </Box>
-              
-              <Box display="flex" alignItems="center" gap={2}>
-                <Box sx={{ width: 20 }} /> {/* Spacer */}
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Duminică
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Închis
-                  </Typography>
-                </Box>
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
     </Container>
   )
 }

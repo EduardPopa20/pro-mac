@@ -15,20 +15,17 @@ test.describe('Showroom Dashboard Design Analysis', () => {
     })
   })
 
-  test('analyze showroom cards design deficiencies', async ({ page, isMobile }) => {
-    console.log(`\n🔍 Analyzing ${isMobile ? 'Mobile' : 'Desktop'} Showroom Dashboard Design`)
+  test('analyze public showroom cards design deficiencies', async ({ page, isMobile }) => {
+    console.log(`\n🔍 Analyzing ${isMobile ? 'Mobile' : 'Desktop'} Public Showroom Page Design`)
 
-    // Navigate to admin showrooms
-    await page.goto('/admin/showroom-uri')
-    await page.waitForTimeout(2000)
+    // Navigate to public showrooms page
+    await page.goto('http://localhost:5179/showroomuri')
+    await page.waitForTimeout(3000)
 
-    // Check if we need authentication
-    if (page.url().includes('/auth')) {
-      console.log('⚠️  Authentication required - skipping showroom analysis')
-      return
-    }
+    // Wait for showrooms to load
+    await page.waitForLoadState('networkidle')
 
-    console.log('✅ Successfully accessed showroom dashboard')
+    console.log('✅ Successfully accessed public showrooms page')
 
     // Take comprehensive screenshots for analysis
     await expect(page).toHaveScreenshot('showroom-dashboard-overview.png', {

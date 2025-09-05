@@ -13,9 +13,12 @@ import {
   useTheme,
   useMediaQuery,
   InputAdornment,
-  IconButton
+  IconButton,
+  Modal,
+  AppBar,
+  Toolbar
 } from '@mui/material'
-import { Search, Close } from '@mui/icons-material'
+import { Search, Close, ArrowBack } from '@mui/icons-material'
 import { supabase } from '../../lib/supabase'
 import type { Product, Category } from '../../types'
 
@@ -55,6 +58,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [mobileModalOpen, setMobileModalOpen] = useState(false)
 
   // Debounced search function
   const searchProducts = useCallback(
@@ -87,7 +91,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
               slug
             )
           `)
-          .eq('is_active', true)
+          .gt('stock_quantity', 0)
           .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
           .limit(8)
           .order('name')
@@ -98,7 +102,6 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         const { data: categoryResults, error: categoryError } = await supabase
           .from('categories')
           .select('*')
-          .eq('is_active', true)
           .ilike('name', `%${searchQuery}%`)
           .limit(3)
           .order('name')
@@ -150,6 +153,7 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const handleProductSelect = (product: SearchResult) => {
     setQuery('')
     setOpen(false)
+    setMobileModalOpen(false)
     if (onProductSelect) {
       onProductSelect(product)
     } else {
@@ -161,11 +165,22 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const handleCategorySelect = (category: Category) => {
     setQuery('')
     setOpen(false)
+    setMobileModalOpen(false)
     // Navigate to category page
     window.location.href = `/${category.slug}`
   }
 
   const clearSearch = () => {
+    setQuery('')
+    setOpen(false)
+  }
+
+  const openMobileModal = () => {
+    setMobileModalOpen(true)
+  }
+
+  const closeMobileModal = () => {
+    setMobileModalOpen(false)
     setQuery('')
     setOpen(false)
   }
@@ -378,7 +393,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     )
   }
 
-  return (
+  // Desktop version - show textfield with popper
+  const DesktopSearch = () => (
     <ClickAwayListener onClickAway={handleClose}>
       <Box sx={{ position: 'relative' }}>
         <TextField
@@ -424,35 +440,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
           }}
           sx={{
             width: {
-              xs: 180, // Mobile
-              sm: 220, // Small tablet  
               md: 260, // Medium screens
               lg: 300, // Desktop
               xl: 320  // Large desktop
-            },
-            // Force WCAG AA compliance: 44px minimum touch target on mobile with highest specificity
-            '&.MuiTextField-root': {
-              '@media (max-width: 959px)': { // Direct media query for mobile/tablet
-                '& .MuiOutlinedInput-root': {
-                  minHeight: '44px !important',
-                  height: '44px !important',
-                  '& .MuiInputBase-input': {
-                    minHeight: '20px',
-                    py: 0.9, // Adjusted padding for 44px total
-                    fontSize: 'max(0.875rem, 14px)'
-                  }
-                }
-              },
-              '@media (min-width: 960px)': { // Desktop
-                '& .MuiOutlinedInput-root': {
-                  minHeight: 36,
-                  height: 'auto',
-                  '& .MuiInputBase-input': {
-                    py: size === 'small' ? 0.75 : 1.5,
-                    fontSize: size === 'small' ? 'max(0.875rem, 14px)' : 'max(1rem, 16px)'
-                  }
-                }
-              }
             }
           }}
         />
@@ -463,10 +453,8 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
           placement="bottom-start"
           transition
           sx={{ 
-            zIndex: theme.zIndex.modal + 1,
+            zIndex: theme.zIndex.dropdown,
             width: {
-              xs: 180,
-              sm: 220,
               md: 260,
               lg: 300,
               xl: 320
@@ -484,8 +472,6 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                   borderRadius: 2,
                   overflow: 'hidden',
                   width: {
-                    xs: 180,
-                    sm: 220,
                     md: 260,
                     lg: 300,
                     xl: 320
@@ -499,6 +485,146 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
         </Popper>
       </Box>
     </ClickAwayListener>
+  )
+
+  // Mobile version - show icon button that opens modal
+  const MobileSearchIcon = () => (
+    <IconButton 
+      onClick={openMobileModal}
+      sx={{ 
+        minWidth: 44,
+        minHeight: 44,
+        p: 1.5,
+        color: 'text.primary'
+      }}
+      aria-label="Căutare produse"
+    >
+      <Search />
+    </IconButton>
+  )
+
+  // Full-screen search modal for mobile
+  const MobileSearchModal = () => (
+    <Modal
+      open={mobileModalOpen}
+      onClose={closeMobileModal}
+      sx={{
+        zIndex: theme.zIndex.modal
+      }}
+    >
+      <Box
+        sx={{
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'background.paper',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        {/* Modal Header */}
+        <AppBar 
+          position="static" 
+          elevation={1}
+          sx={{ 
+            backgroundColor: 'white', 
+            color: 'black' 
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              edge="start"
+              onClick={closeMobileModal}
+              sx={{ mr: 2 }}
+            >
+              <ArrowBack />
+            </IconButton>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Căutare produse
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        {/* Search Input */}
+        <Box sx={{ p: 2 }}>
+          <TextField
+            value={query}
+            onChange={handleInputChange}
+            placeholder={placeholder}
+            size="medium"
+            variant="outlined"
+            fullWidth
+            autoFocus
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search sx={{ color: 'text.secondary', fontSize: 24 }} />
+                </InputAdornment>
+              ),
+              endAdornment: query && (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={clearSearch}
+                    sx={{ p: 1 }}
+                  >
+                    <Close sx={{ fontSize: 20 }} />
+                  </IconButton>
+                </InputAdornment>
+              ),
+              sx: {
+                backgroundColor: 'background.paper',
+                borderRadius: 2,
+                minHeight: 48,
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'divider',
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'primary.main',
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'primary.main',
+                  borderWidth: 1
+                }
+              }
+            }}
+          />
+        </Box>
+
+        {/* Search Results */}
+        <Box 
+          sx={{ 
+            flex: 1,
+            overflow: 'auto',
+            backgroundColor: '#f5f5f5'
+          }}
+        >
+          {query.length > 0 ? (
+            <Paper sx={{ m: 2, borderRadius: 2 }}>
+              {renderResults()}
+            </Paper>
+          ) : (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Search sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                Caută prin produsele noastre
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Introdu cel puțin 2 caractere pentru a începe căutarea
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Modal>
+  )
+
+  return (
+    <>
+      {/* Show textfield on desktop, icon on mobile */}
+      {isMobile ? <MobileSearchIcon /> : <DesktopSearch />}
+      
+      {/* Mobile search modal */}
+      <MobileSearchModal />
+    </>
   )
 }
 

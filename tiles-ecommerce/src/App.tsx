@@ -34,11 +34,16 @@ import WhatsAppButton from './components/common/WhatsAppButton'
 import GlobalAlert from './components/common/GlobalAlert'
 import SearchComponent from './components/common/SearchComponent'
 import CartPopper from './components/common/CartPopper'
+import UserProfilePopper from './components/common/UserProfilePopper'
 import PublicShowrooms from './pages/PublicShowrooms'
 import Products from './pages/Products'
+import Calculator from './pages/Calculator'
 import ProductDetail from './pages/ProductDetail'
 import Watchlist from './pages/Watchlist'
 import Cart from './pages/Cart'
+import Billing from './pages/Billing'
+import Checkout from './pages/Checkout'
+import PaymentSimulator from './pages/PaymentSimulator'
 import Auth from './pages/Auth'
 import Profile from './pages/Profile'
 import VerifyEmail from './pages/VerifyEmail'
@@ -51,9 +56,15 @@ import ShowroomEdit from './pages/admin/ShowroomEdit'
 import ShowroomCreate from './pages/admin/ShowroomCreate'
 import ShowroomPreview from './pages/admin/ShowroomPreview'
 import ProductManagement from './pages/admin/ProductManagement'
+import InventoryDashboard from './pages/admin/InventoryDashboard'
+import FaiantaEdit from './pages/admin/products/FaiantaEdit'
+import GresieEdit from './pages/admin/products/GresieEdit'
+import ParchetEdit from './pages/admin/products/ParchetEdit'
+import RiflajeEdit from './pages/admin/products/RiflajeEdit'
 import NewsletterManagement from './pages/admin/NewsletterManagement'
 import Contact from './pages/Contact'
 import HomePage from './pages/HomePage'
+import Categories from './pages/Categories'
 import Unsubscribe from './pages/Unsubscribe'
 import AuthCallback from './pages/AuthCallback'
 import ErrorBoundary from './components/common/ErrorBoundary'
@@ -69,7 +80,7 @@ const queryClient = new QueryClient()
 // Get navigation items based on user authentication state and products
 const getStaticNavItems = () => [
   { id: 'home', label: 'Acasă', path: '/' },
-  { id: 'showrooms', label: 'Showroomuri', path: '/showroomuri' },
+  { id: 'showrooms', label: 'Showroomuri', path: '/showroom-uri' },
   { id: 'offers', label: 'Oferte Speciale', path: '/oferte' },
   { id: 'ideas', label: 'Idei Amenajare', path: '/idei' },
   { id: 'calculator', label: 'Calculator', path: '/calculator' },
@@ -245,9 +256,9 @@ const HamburgerMenu: React.FC = () => {
               <img 
                 src="/pro-mac-logo.png" 
                 alt="Pro-Mac" 
-                style={{ height: 32, marginRight: 8 }}
+                style={{ height: 36, marginRight: 12 }}
               />
-              <Typography variant="h6">
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Pro-Mac
               </Typography>
             </Box>
@@ -303,7 +314,7 @@ const WatchlistPopper: React.FC = () => {
 
   return (
     <>
-      <IconButton size="small" onClick={handleClick} color={items.length > 0 ? 'error' : 'default'}>
+      <IconButton size="medium" onClick={handleClick} color={items.length > 0 ? 'error' : 'default'}>
         <Favorite />
         {items.length > 0 && (
           <Box
@@ -327,18 +338,63 @@ const WatchlistPopper: React.FC = () => {
           </Box>
         )}
       </IconButton>
-      <Popper open={open} anchorEl={anchorEl} placement="bottom-end" transition>
+      <Popper 
+        open={open} 
+        anchorEl={anchorEl} 
+        placement="bottom-end" 
+        transition
+        strategy="fixed" // Prevents lag on mobile scroll
+        sx={{
+          zIndex: theme.zIndex.modal + 1 // Higher than breadcrumbs and other content
+        }}
+      >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={350}>
             <Paper
               sx={{
-                width: 320,
+                width: { 
+                  xs: '100vw', // Full screen width on mobile
+                  md: 320 
+                },
+                maxWidth: { xs: '100vw', md: 320 },
                 maxHeight: 400,
                 overflow: 'auto',
-                mt: 1,
+                mt: 0.5,
+                mx: { xs: 0, md: 0 }, // No margins on mobile for full width
+                borderRadius: { xs: 0, md: 2 }, // No border radius on mobile for full edge-to-edge
                 boxShadow: theme.shadows[8],
                 border: '1px solid',
-                borderColor: 'divider'
+                borderColor: 'divider',
+                // Remove side borders on mobile for true full width
+                borderLeft: { xs: 'none', md: '1px solid' },
+                borderRight: { xs: 'none', md: '1px solid' },
+                // Add small arrow/connector effect on mobile - positioned for full width
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: -8,
+                  right: { xs: 32, md: 16 }, // Adjust position for full width
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderBottom: '8px solid',
+                  borderBottomColor: 'divider',
+                  display: { xs: 'block', md: 'none' }
+                },
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: -7,
+                  right: { xs: 32, md: 16 }, // Adjust position for full width
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderBottom: '8px solid',
+                  borderBottomColor: 'background.paper',
+                  display: { xs: 'block', md: 'none' }
+                }
               }}
             >
               <ClickAwayListener onClickAway={handleClose}>
@@ -458,8 +514,14 @@ const AppContent: React.FC = () => {
           }>
             <Route index element={<Dashboard />} />
             <Route path="panou-control" element={<Dashboard />} />
-            <Route path="produse" element={<ProductManagement />} />
-            <Route path="produse/:categorySlug" element={<ProductManagement />} />
+            <Route path="categorii_produse" element={<ProductManagement />} />
+            <Route path="categorii_produse/:categorySlug" element={<ProductManagement />} />
+            <Route path="inventar" element={<InventoryDashboard />} />
+            {/* New specialized product editing routes */}
+            <Route path="produse/faianta/:productSlug/editare" element={<FaiantaEdit />} />
+            <Route path="produse/gresie/:productSlug/editare" element={<GresieEdit />} />
+            <Route path="produse/parchet/:productSlug/editare" element={<ParchetEdit />} />
+            <Route path="produse/riflaje/:productSlug/editare" element={<RiflajeEdit />} />
             <Route path="inventar" element={
               <Box textAlign="center" py={8}>
                 <Typography variant="h5" gutterBottom>Managementul Stocurilor</Typography>
@@ -494,6 +556,7 @@ interface NormalUserLayoutProps {
 const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
   isMobile
 }) => {
+  const navigate = useNavigate()
 
   return (
     <ErrorBoundary>
@@ -513,13 +576,32 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
             {/* Hamburger Menu - Always visible */}
             <HamburgerMenu />
             
-            <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                flexGrow: 1,
+                cursor: 'pointer',
+                // Even more aggressive reduction for iPhone
+                ml: { xs: -3, sm: -2, md: 0 },
+                mr: { xs: -2, md: 0 } // More aggressive right margin reduction
+              }}
+              onClick={() => navigate('/homepage')}
+            >
               <img 
                 src="/pro-mac-logo.png" 
                 alt="Pro-Mac" 
-                style={{ height: 40, marginRight: 12 }}
+                style={{ height: 48, marginRight: isMobile ? 0 : 16 }} // Remove all margin on mobile
               />
-              <Typography variant="h6" component="h1">
+              {/* Hide company name on mobile */}
+              <Typography 
+                variant="h6" 
+                component="h1" 
+                sx={{ 
+                  fontWeight: 600,
+                  display: { xs: 'none', md: 'block' }
+                }}
+              >
                 Pro-Mac
               </Typography>
             </Box>
@@ -530,10 +612,8 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
               <WatchlistPopper />
               <CartPopper />
               
-              {/* Mobile Auth Icon */}
-              {isMobile && (
-                <AuthButton />
-              )}
+              {/* User Profile Icon */}
+              <UserProfilePopper />
             </Box>
           </Toolbar>
         </AppBar>
@@ -565,6 +645,7 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
           >
             <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/homepage" element={<HomePage />} />
                 
                 <Route path="/auth" element={
                   <ProtectedRoute requireAuth={false}>
@@ -586,16 +667,21 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
                   </ProtectedRoute>
                 } />
                 
-                <Route path="/showroomuri" element={<PublicShowrooms />} />
+                <Route path="/showroom-uri" element={<PublicShowrooms />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/categories" element={<Categories />} />
                 <Route path="/favorite" element={<Watchlist />} />
                 <Route path="/cos" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/payment-simulator" element={<PaymentSimulator />} />
+                <Route path="/finalizare-comanda" element={<Billing />} />
                 <Route path="/unsubscribe" element={<Unsubscribe />} />
                 
                 {/* Product detail routes - must come before category routes */}
                 <Route path="/:categorySlug/:productSlug/:productId" element={<ProductDetail />} />
                 
                 {/* Category-specific product routes */}
+                <Route path="/calculator" element={<Calculator />} />
                 <Route path="/:categorySlug" element={<Products />} />
                 
               {/* 404 catch-all route for normal users */}
@@ -624,26 +710,6 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
   )
 }
 
-// Auth Button Component that uses navigate
-const AuthButton: React.FC = () => {
-  const { user } = useAuthStore()
-  const navigate = useNavigate()
-  
-  return (
-    <IconButton 
-      size="small"
-      onClick={() => navigate(user ? '/profile' : '/auth')}
-      sx={{ 
-        color: theme.palette.primary.main,
-        '&:hover': {
-          backgroundColor: theme.palette.primary.light + '20'
-        }
-      }}
-    >
-      <Login />
-    </IconButton>
-  )
-}
 
 // Main App component
 function App() {

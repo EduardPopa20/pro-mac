@@ -44,13 +44,13 @@ const Footer: React.FC = () => {
               Peste 10 ani de experiență în amenajări interioare și exterioare.
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton size="small" sx={{ color: 'grey.300' }}>
+              <IconButton size="medium" sx={{ color: 'grey.300' }}>
                 <Facebook />
               </IconButton>
-              <IconButton size="small" sx={{ color: 'grey.300' }}>
+              <IconButton size="medium" sx={{ color: 'grey.300' }}>
                 <Instagram />
               </IconButton>
-              <IconButton size="small" sx={{ color: 'grey.300' }}>
+              <IconButton size="medium" sx={{ color: 'grey.300' }}>
                 <YouTube />
               </IconButton>
             </Box>
@@ -65,7 +65,7 @@ const Footer: React.FC = () => {
               <Link href="#" color="grey.300" underline="hover">Gresie</Link>
               <Link href="#" color="grey.300" underline="hover">Faianta</Link>
               <Link href="#" color="grey.300" underline="hover">Parchet</Link>
-              <Link href="#" color="grey.300" underline="hover">Accesorii</Link>
+              <Link href="#" color="grey.300" underline="hover">Riflaje</Link>
             </Box>
           </Grid>
 

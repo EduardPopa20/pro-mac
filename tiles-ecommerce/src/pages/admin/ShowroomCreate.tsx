@@ -5,7 +5,8 @@ import {
   Typography,
   Alert,
   Breadcrumbs,
-  Link
+  Link,
+  Container
 } from '@mui/material'
 import { useSettingsStore } from '../../stores/settings'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
@@ -29,7 +30,8 @@ const ShowroomCreate: React.FC = () => {
     google_maps_url: '',
     description: '',
     opening_hours: '',
-    is_active: true
+    is_active: true,
+    photos: []
   })
 
   // We don't need this anymore since form handles its own state
@@ -82,16 +84,18 @@ const ShowroomCreate: React.FC = () => {
   }
 
   return (
-    <Box>
-      <Breadcrumbs sx={{ mb: 3 }}>
-        <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
-          Admin
-        </Link>
-        <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
-          Showroom-uri
-        </Link>
-        <Typography color="text.primary">Adaugă nou</Typography>
-      </Breadcrumbs>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Breadcrumbs>
+          <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
+            Admin
+          </Link>
+          <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
+            Showroom-uri
+          </Link>
+          <Typography color="text.primary">Adaugă nou</Typography>
+        </Breadcrumbs>
+      </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
@@ -115,7 +119,7 @@ const ShowroomCreate: React.FC = () => {
         isCreate={true}
         saving={saving}
       />
-    </Box>
+    </Container>
   )
 }
 

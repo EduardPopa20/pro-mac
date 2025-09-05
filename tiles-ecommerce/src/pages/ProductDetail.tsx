@@ -64,6 +64,7 @@ import { generateProductSlug } from '../utils/slugUtils'
 import { useWatchlistStore } from '../stores/watchlist'
 import { useCartStore } from '../stores/cart'
 import { useGlobalAlertStore } from '../stores/globalAlert'
+import ProductSpecs from '../components/product/ProductSpecs'
 
 const ProductDetail: React.FC = () => {
   const { productSlug, productId } = useParams<{ productSlug: string; productId: string }>()
@@ -79,6 +80,7 @@ const ProductDetail: React.FC = () => {
   const [imageDialogOpen, setImageDialogOpen] = useState(false)
   const [fullScreenImage, setFullScreenImage] = useState(false)
   const [quantity, setQuantity] = useState(1)
+{/* Calculator state removed as requested */}
 
   useEffect(() => {
     fetchCategories()
@@ -141,6 +143,8 @@ const ProductDetail: React.FC = () => {
     }
   }
 
+{/* Calculator type function removed as requested */}
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ro-RO', {
       style: 'currency',
@@ -196,16 +200,34 @@ const ProductDetail: React.FC = () => {
 
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh' }}>
-      {/* Breadcrumbs - Absolute top-left positioning */}
+      {/* Breadcrumbs - Responsive positioning */}
       <Box 
         sx={{ 
-          position: 'absolute',
-          top: 16,
-          left: 24,
-          zIndex: 10
+          position: { xs: 'relative', md: 'absolute' }, // Relative on mobile, absolute on desktop
+          top: { xs: 0, md: 16 },
+          left: { xs: 0, md: 24 },
+          right: { xs: 0, md: 'auto' },
+          zIndex: (theme) => theme.zIndex.overlay,
+          px: { xs: 2, md: 0 }, // Padding on mobile
+          py: { xs: 2, md: 0 },
+          backgroundColor: { xs: 'background.paper', md: 'transparent' }, // Background on mobile for readability
+          borderRadius: { xs: 1, md: 0 }
         }}
       >
-        <Breadcrumbs>
+        <Breadcrumbs
+          maxItems={3}
+          sx={{
+            '& .MuiBreadcrumbs-ol': {
+              flexWrap: { xs: 'nowrap', md: 'wrap' }
+            },
+            '& .MuiBreadcrumbs-li': {
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              maxWidth: { xs: '120px', sm: '200px', md: 'none' }
+            }
+          }}
+        >
           <Link color="inherit" href="/" sx={{ textDecoration: 'none' }}>
             Acasă
           </Link>
@@ -222,8 +244,8 @@ const ProductDetail: React.FC = () => {
         </Breadcrumbs>
       </Box>
 
-      {/* Main content with top padding for breadcrumbs */}
-      <Container maxWidth="lg" sx={{ py: 3, pt: 8 }}>
+      {/* Main content with responsive padding */}
+      <Container maxWidth="lg" sx={{ py: 3, pt: { xs: 1, md: 8 } }}>
 
       {/* Product Content */}
       <Grid container spacing={3}>
@@ -315,11 +337,14 @@ const ProductDetail: React.FC = () => {
                       {product && isInWatchlist(product.id) ? <Favorite /> : <FavoriteBorder />}
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Distribuie produs">
-                    <IconButton onClick={handleShare}>
-                      <Share />
-                    </IconButton>
-                  </Tooltip>
+                  {/* Share Button - Only show on mobile/tablet */}
+                  {isMobile && (
+                    <Tooltip title="Distribuie produs">
+                      <IconButton onClick={handleShare}>
+                        <Share />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </Box>
               </Box>
 
@@ -348,284 +373,41 @@ const ProductDetail: React.FC = () => {
                     <Typography 
                       variant="h4" 
                       color="error" 
-                      sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}
+                      sx={{ fontWeight: 700 }}
                     >
-                      <Euro />
-                      {formatPrice(product.special_price)}
-                      <Chip label="OFERTĂ" color="error" size="small" />
+                      {product.special_price.toFixed(0)} RON / m²
+                      <Chip label="OFERTĂ" color="error" size="small" sx={{ ml: 2 }} />
                     </Typography>
                     <Typography 
                       variant="body1" 
                       color="text.secondary"
                       sx={{ textDecoration: 'line-through' }}
                     >
-                      Preț normal: {formatPrice(product.price)}
+                      Preț normal: {product.price.toFixed(0)} RON / m²
                     </Typography>
                   </>
                 ) : (
                   <Typography 
                     variant="h4" 
                     color="primary" 
-                    sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 1 }}
+                    sx={{ fontWeight: 700 }}
                   >
-                    <Euro />
-                    {formatPrice(product.price)}
-                  </Typography>
-                )}
-                
-                {product.price_unit && (
-                  <Typography variant="body2" color="text.secondary">
-                    Preț per {product.price_unit}
+                    {product.price.toFixed(0)} RON / m²
                   </Typography>
                 )}
               </Stack>
             </Box>
 
-            {/* Enhanced Specifications Table */}
-            <TableContainer component={Paper} sx={{ mb: 3, maxHeight: 'none' }}>
-              <Table size="small" aria-label="specificații produs">
-                <TableBody>
-                  {/* Basic Properties */}
-                  {product.dimensions && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Straighten fontSize="small" color="action" />
-                        Dimensiuni
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.dimensions}</TableCell>
-                    </TableRow>
-                  )}
-                  
-                  {product.thickness && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Layers fontSize="small" color="action" />
-                        Grosime
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.thickness} mm</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.material && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <TextureOutlined fontSize="small" color="action" />
-                        Material
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.material}</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.surface_finish && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <TextureOutlined fontSize="small" color="action" />
-                        Finisaj
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.surface_finish}</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.texture && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Palette fontSize="small" color="action" />
-                        Textură
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.texture}</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.color && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Palette fontSize="small" color="action" />
-                        Culoare
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.color}</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.origin_country && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Public fontSize="small" color="action" />
-                        Origine
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.origin_country}</TableCell>
-                    </TableRow>
-                  )}
-
-                  {/* Physical Properties */}
-                  {product.weight_per_box && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Scale fontSize="small" color="action" />
-                        Greutate cutie
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.weight_per_box} kg</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.area_per_box && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <AspectRatio fontSize="small" color="action" />
-                        Suprafață cutie
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.area_per_box} m²</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.tiles_per_box && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Info fontSize="small" color="action" />
-                        Plăci per cutie
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.tiles_per_box}</TableCell>
-                    </TableRow>
-                  )}
-
-                  {/* Technical Capabilities */}
-                  {product.is_rectified !== undefined && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <BuildCircle fontSize="small" color="action" />
-                        Rectificat
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>
-                        {product.is_rectified ? (
-                          <CheckCircle fontSize="small" color="success" />
-                        ) : (
-                          <Cancel fontSize="small" color="error" />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.is_frost_resistant !== undefined && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <AcUnit fontSize="small" color="action" />
-                        Rezistent îngheț
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>
-                        {product.is_frost_resistant ? (
-                          <CheckCircle fontSize="small" color="success" />
-                        ) : (
-                          <Cancel fontSize="small" color="error" />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.is_floor_heating_compatible !== undefined && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Whatshot fontSize="small" color="action" />
-                        Compatibil pardoseala caldă
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>
-                        {product.is_floor_heating_compatible ? (
-                          <CheckCircle fontSize="small" color="success" />
-                        ) : (
-                          <Cancel fontSize="small" color="error" />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {/* Suitability */}
-                  {(product.suitable_for_walls !== undefined || product.suitable_for_floors !== undefined) && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Home fontSize="small" color="action" />
-                        Utilizare
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>
-                        <Stack direction="row" spacing={1}>
-                          {product.suitable_for_walls && <Chip label="Pereți" size="small" />}
-                          {product.suitable_for_floors && <Chip label="Podea" size="small" />}
-                          {product.suitable_for_exterior && <Chip label="Exterior" size="small" />}
-                          {product.suitable_for_commercial && <Chip label="Comercial" size="small" />}
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {/* Application Areas */}
-                  {product.application_areas && product.application_areas.length > 0 && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <LocationOn fontSize="small" color="action" />
-                        Zone aplicare
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>
-                        <Stack direction="row" spacing={1} flexWrap="wrap">
-                          {product.application_areas.map((area, index) => (
-                            <Chip key={index} label={area} size="small" variant="outlined" />
-                          ))}
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  )}
-
-                  {/* Delivery and Stock */}
-                  {product.estimated_delivery_days && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <LocalShipping fontSize="small" color="action" />
-                        Livrare estimată
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>{product.estimated_delivery_days} zile</TableCell>
-                    </TableRow>
-                  )}
-
-                  {product.stock_quantity !== undefined && (
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1, border: 0 }}>
-                        <Info fontSize="small" color="action" />
-                        Stoc disponibil
-                      </TableCell>
-                      <TableCell sx={{ border: 0 }}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          {product.stock_quantity} m²
-                          <Chip 
-                            label={
-                              product.stock_quantity > 10 
-                                ? 'În stoc' 
-                                : product.stock_quantity > 0 
-                                  ? 'Stoc limitat' 
-                                  : 'Stoc epuizat'
-                            }
-                            color={
-                              product.stock_quantity > 10 
-                                ? 'success' 
-                                : product.stock_quantity > 0 
-                                  ? 'warning' 
-                                  : 'error'
-                            }
-                            size="small"
-                          />
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
             {/* Description */}
             {product.description && (
-              <Paper sx={{ p: 2, mb: 3 }}>
+              <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
                   Descriere
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                   {product.description}
                 </Typography>
-              </Paper>
+              </Box>
             )}
 
             {/* Care Instructions and Installation Notes */}
@@ -657,13 +439,30 @@ const ProductDetail: React.FC = () => {
               </Paper>
             )}
 
-            {/* Quantity Selector */}
+            {/* Quantity Selector with Add to Cart */}
             <Box sx={{ mt: 2, mb: 3 }}>
               <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
                 Cantitate
               </Typography>
-              <Box display="flex" alignItems="center" gap={2}>
-                <Box display="flex" alignItems="center" border="1px solid" borderColor="divider" borderRadius={1}>
+              {/* Single row layout with proper spacing */}
+              <Box 
+                display="flex" 
+                alignItems="center" 
+                gap={{ xs: 1, sm: 2 }}
+                sx={{
+                  flexWrap: 'nowrap', // Prevent wrapping - keep on same row
+                  width: '100%'
+                }}
+              >
+                {/* Quantity Selector - Fixed width */}
+                <Box 
+                  display="flex" 
+                  alignItems="center" 
+                  border="1px solid" 
+                  borderColor="divider" 
+                  borderRadius={1}
+                  sx={{ flexShrink: 0 }} // Don't shrink
+                >
                   <IconButton
                     size="small"
                     onClick={() => handleQuantityChange(quantity - 1)}
@@ -693,8 +492,7 @@ const ProductDetail: React.FC = () => {
                     size="small"
                     onClick={() => handleQuantityChange(quantity + 1)}
                     disabled={
-                      product.stock_quantity !== undefined && 
-                      quantity >= product.stock_quantity
+                      product.stock_quantity && quantity >= product.stock_quantity
                     }
                     sx={{ borderRadius: 0 }}
                   >
@@ -702,41 +500,34 @@ const ProductDetail: React.FC = () => {
                   </IconButton>
                 </Box>
                 
-                {product.price_unit && (
-                  <Typography variant="body2" color="text.secondary">
-                    {product.price_unit}
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-
-            {/* Action Buttons */}
-            <Box sx={{ mt: 'auto', pt: 2 }}>
-              <Stack spacing={2} direction={isMobile ? 'column' : 'row'}>
+                {/* Add to Cart Button - Fill remaining space */}
                 <Button
                   variant="contained"
                   size="large"
                   startIcon={<ShoppingCart />}
-                  fullWidth={isMobile}
-                  sx={{ flex: 1 }}
-                  disabled={product.stock_quantity === 0}
+                  disabled={
+                    !product.stock_quantity || product.stock_quantity <= 0
+                  }
                   onClick={handleAddToCart}
+                  sx={{ 
+                    flex: 1, // Take remaining space
+                    minWidth: { xs: 140, sm: 160 }, // Responsive min width
+                    fontSize: { xs: '0.875rem', sm: '1rem' } // Smaller text on mobile if needed
+                  }}
                 >
-                  {product.stock_quantity === 0 ? 'Stoc epuizat' : 'Adaugă în coș'}
+                  {(!product.stock_quantity || product.stock_quantity <= 0) 
+                    ? 'Stoc epuizat' : 'Adaugă în coș'}
                 </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  fullWidth={isMobile}
-                  href="/contact"
-                >
-                  Contactează-ne
-                </Button>
-              </Stack>
+              </Box>
             </Box>
           </Box>
         </Grid>
       </Grid>
+      
+      {/* Product Specifications - Full width below main content */}
+      <Box sx={{ mt: 4 }}>
+        <ProductSpecs product={product} categorySlug={category?.slug} />
+      </Box>
       
       {/* Full Screen Image Dialog */}
       <Dialog
@@ -818,6 +609,8 @@ const ProductDetail: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+      
+{/* Product Calculator Modal removed as requested */}
       
       </Container>
     </Box>

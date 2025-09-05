@@ -227,7 +227,11 @@ const EnhancedShowroomCard: React.FC<EnhancedShowroomCardProps> = ({
                     borderRadius: 2,
                     fontWeight: 600,
                     textTransform: 'none',
-                    minHeight: 40
+                    minHeight: 40,
+                    backgroundColor: '#FFB300',
+                    '&:hover': {
+                      backgroundColor: '#FF9800'
+                    }
                   }}
                 >
                   Editează

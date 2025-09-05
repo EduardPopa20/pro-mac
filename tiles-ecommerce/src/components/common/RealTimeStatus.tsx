@@ -40,7 +40,7 @@ export default function RealTimeStatus({
   const getPositionStyles = () => {
     const base = {
       position: 'fixed' as const,
-      zIndex: 9999,
+      zIndex: (theme) => theme.zIndex.globalAlert,
       m: 1,
     }
 

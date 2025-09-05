@@ -30,7 +30,6 @@ interface SidebarProps {
 const getStaticNavItems = () => [
   { id: 'home', label: 'Acasă', path: '/' },
   { id: 'showrooms', label: 'Showroomuri', path: '/showroomuri' },
-  { id: 'offers', label: 'Oferte Speciale', path: '/oferte' },
   { id: 'ideas', label: 'Idei Amenajare', path: '/idei' },
   { id: 'calculator', label: 'Calculator', path: '/calculator' },
   { id: 'contact', label: 'Contact', path: '/contact' }

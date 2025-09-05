@@ -63,7 +63,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
           *,
           category:categories(*)
         `)
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
         .order('name')
 
       if (error) throw error
@@ -82,7 +83,6 @@ export const useProductStore = create<ProductState>((set, get) => ({
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
-        .eq('is_active', true)
         .order('sort_order', { ascending: true })
 
       if (categoriesError) throw categoriesError
@@ -91,7 +91,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('category_id')
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
 
       if (productsError) throw productsError
 
@@ -133,7 +134,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
           category:categories(*)
         `, { count: 'exact' })
         .eq('category_id', categoryId)
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
 
       // Apply filters if provided
       if (filters) {
@@ -202,7 +204,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
           category:categories(*)
         `)
         .eq('category_id', categoryId)
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
         .order('name')
 
       if (error) throw error
@@ -425,7 +428,8 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
           *,
           category:categories(*)
         `)
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
         .order('name')
 
       if (error) throw error
@@ -443,7 +447,8 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
         .order('sort_order', { ascending: true })
 
       if (error) throw error
@@ -485,7 +490,8 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
           category:categories(*)
         `)
         .eq('category_id', categoryId)
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
         .order('name')
 
       if (error) throw error
@@ -700,7 +706,8 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('category_id')
-        .eq('is_active', true)
+        // Include all products for testing - UI will handle stock display
+        // .in('stock_status', ['available', 'coming_soon'])
 
       if (productsError) throw productsError
 

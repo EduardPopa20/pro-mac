@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Box,
+  Container,
   Typography,
   Alert,
   Breadcrumbs,
@@ -34,6 +35,7 @@ const ShowroomEdit: React.FC = () => {
     google_maps_url: '',
     description: '',
     opening_hours: '',
+    photos: [] as string[],
     is_active: true
   })
 
@@ -56,6 +58,7 @@ const ShowroomEdit: React.FC = () => {
           google_maps_url: showroom.google_maps_url || '',
           description: showroom.description || '',
           opening_hours: showroom.opening_hours || '',
+          photos: showroom.photos || [],
           is_active: showroom.is_active
         })
       } else {
@@ -116,16 +119,18 @@ const ShowroomEdit: React.FC = () => {
 
   if (loading) {
     return (
-      <Box>
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
-            Admin
-          </Link>
-          <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
-            Showroom-uri
-          </Link>
-          <Typography color="text.primary">Editare</Typography>
-        </Breadcrumbs>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Breadcrumbs>
+            <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
+              Admin
+            </Link>
+            <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
+              Showroom-uri
+            </Link>
+            <Typography color="text.primary">Editare</Typography>
+          </Breadcrumbs>
+        </Box>
         
         <Box 
           display="flex" 
@@ -140,43 +145,47 @@ const ShowroomEdit: React.FC = () => {
             Se încarcă showroom-ul...
           </Typography>
         </Box>
-      </Box>
+      </Container>
     )
   }
 
   if (error && !editingShowroom) {
     return (
-      <Box>
-        <Breadcrumbs sx={{ mb: 3 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Breadcrumbs>
+            <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
+              Admin
+            </Link>
+            <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
+              Showroom-uri
+            </Link>
+            <Typography color="text.primary">Eroare</Typography>
+          </Breadcrumbs>
+        </Box>
+        
+        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+          {error}
+        </Alert>
+      </Container>
+    )
+  }
+
+  return (
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Breadcrumbs>
           <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
             Admin
           </Link>
           <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
             Showroom-uri
           </Link>
-          <Typography color="text.primary">Eroare</Typography>
+          <Typography color="text.primary">
+            {editingShowroom ? editingShowroom.name : 'Editare'}
+          </Typography>
         </Breadcrumbs>
-        
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          {error}
-        </Alert>
       </Box>
-    )
-  }
-
-  return (
-    <Box>
-      <Breadcrumbs sx={{ mb: 3 }}>
-        <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
-          Admin
-        </Link>
-        <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
-          Showroom-uri
-        </Link>
-        <Typography color="text.primary">
-          {editingShowroom ? editingShowroom.name : 'Editare'}
-        </Typography>
-      </Breadcrumbs>
 
       {error && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
@@ -191,7 +200,6 @@ const ShowroomEdit: React.FC = () => {
       )}
 
       <EnhancedShowroomForm
-        key={editingShowroom?.id || 'new'}
         formData={formData}
         setFormData={handleFormDataChange}
         onSave={handleSave}
@@ -200,7 +208,7 @@ const ShowroomEdit: React.FC = () => {
         isCreate={false}
         saving={saving}
       />
-    </Box>
+    </Container>
   )
 }
 

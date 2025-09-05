@@ -714,34 +714,36 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         </Box>
       )}
 
-      {/* Action Buttons */}
-      <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
-        <Button
-          variant="outlined"
-          startIcon={<Clear />}
-          onClick={clearAllFilters}
-          size="small"
-          fullWidth
-        >
-          Șterge tot
-        </Button>
-        <Badge 
-          color="error" 
-          variant="dot" 
-          invisible={!hasPendingChanges()}
-        >
+      {/* Action Buttons - Only show on desktop */}
+      {!isMobile && (
+        <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
           <Button
-            variant="contained"
-            startIcon={<FilterList />}
-            onClick={applyFilters}
+            variant="outlined"
+            startIcon={<Clear />}
+            onClick={clearAllFilters}
             size="small"
             fullWidth
-            disabled={!!priceError}
           >
-            Aplică filtrele
+            Șterge tot
           </Button>
-        </Badge>
-      </Box>
+          <Badge 
+            color="error" 
+            variant="dot" 
+            invisible={!hasPendingChanges()}
+          >
+            <Button
+              variant="contained"
+              startIcon={<FilterList />}
+              onClick={applyFilters}
+              size="small"
+              fullWidth
+              disabled={!!priceError}
+            >
+              Aplică filtrele
+            </Button>
+          </Badge>
+        </Box>
+      )}
     </Stack>
   )
 
@@ -834,7 +836,17 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
           '& .MuiDialog-paper': {
             margin: 0,
             maxHeight: '100vh',
-            height: '100vh'
+            height: '100vh',
+            // Safari iOS specific fixes
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            // Handle iOS safe area
+            paddingTop: 'env(safe-area-inset-top)',
+            paddingBottom: 'env(safe-area-inset-bottom)'
           }
         }}
       >
@@ -844,20 +856,106 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
             borderColor: 'divider',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            p: 2,
+            minHeight: { xs: 72, md: 56 }, // Increased for Safari iOS
+            // Safari iOS specific fixes
+            position: 'sticky',
+            top: 0,
+            backgroundColor: 'background.paper',
+            zIndex: 1,
+            // Prevent text selection issues on iOS
+            WebkitUserSelect: 'none',
+            userSelect: 'none'
           }}
         >
-          <Typography variant="h6">
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600,
+              pr: 2, // Ensure space between title and close button
+              flex: 1,
+              minWidth: 0 // Allow text to truncate if needed
+            }}
+          >
             Filtrare produse
           </Typography>
-          <IconButton onClick={closeFilterModal}>
+          <IconButton 
+            onClick={closeFilterModal}
+            sx={{
+              minWidth: { xs: 44, md: 40 },
+              minHeight: { xs: 44, md: 40 },
+              ml: 1 // Extra margin from title
+            }}
+          >
             <Close />
           </IconButton>
         </DialogTitle>
 
-        <DialogContent sx={{ pt: 3, pb: 2 }}>
+        <DialogContent sx={{ pt: 3, pb: 1 }}>
           <FilterContent />
         </DialogContent>
+
+        {/* Mobile Action Buttons */}
+        <DialogActions 
+          sx={{ 
+            p: 2, 
+            pt: 1.5,
+            pb: 2.5, // Extra padding for iOS safe area
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            gap: 1,
+            // Safari iOS specific fixes
+            position: 'sticky',
+            bottom: 0,
+            backgroundColor: 'background.paper',
+            zIndex: 1,
+            // Prevent layout shift on iOS
+            minHeight: { xs: 80, md: 64 },
+            boxSizing: 'border-box'
+          }}
+        >
+          <Button
+            variant="outlined"
+            startIcon={<Clear />}
+            onClick={clearAllFilters}
+            sx={{
+              flex: 1,
+              minHeight: { xs: 52, md: 40 }, // Increased for Safari iOS
+              fontSize: { xs: '1rem', md: '0.875rem' },
+              // Safari iOS specific fixes
+              WebkitTouchCallout: 'none',
+              WebkitUserSelect: 'none',
+              touchAction: 'manipulation'
+            }}
+          >
+            Șterge tot
+          </Button>
+          <Badge 
+            color="error" 
+            variant="dot" 
+            invisible={!hasPendingChanges()}
+            sx={{ flex: 1 }}
+          >
+            <Button
+              variant="contained"
+              startIcon={<FilterList />}
+              onClick={applyFilters}
+              disabled={!!priceError}
+              fullWidth
+              sx={{
+                minHeight: { xs: 52, md: 40 }, // Increased for Safari iOS
+                fontSize: { xs: '1rem', md: '0.875rem' },
+                // Safari iOS specific fixes
+                WebkitTouchCallout: 'none',
+                WebkitUserSelect: 'none',
+                touchAction: 'manipulation'
+              }}
+            >
+              Aplică filtrele
+            </Button>
+          </Badge>
+        </DialogActions>
       </Dialog>
     </>
   )

@@ -5,7 +5,18 @@ interface User {
   id: string
   email: string
   full_name?: string
+  phone?: string
+  // Legacy address field (keeping for backwards compatibility)
+  address?: string
+  // New structured address fields
+  county?: string
+  city?: string
+  street_address_1?: string
+  street_address_2?: string
+  postal_code?: string
+  newsletter_subscribed?: boolean
   role: 'admin' | 'customer'
+  created_at: string
 }
 
 interface AuthState {
@@ -226,7 +237,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               id: profile.id,
               email: profile.email,
               full_name: profile.full_name,
-              role: profile.role
+              phone: profile.phone,
+              address: profile.address,
+              newsletter_subscribed: profile.newsletter_subscribed,
+              role: profile.role,
+              created_at: profile.created_at
             },
             loading: false 
           })
@@ -251,7 +266,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 id: newProfile.id,
                 email: newProfile.email,
                 full_name: newProfile.full_name,
-                role: newProfile.role
+                phone: newProfile.phone,
+                address: newProfile.address,
+                newsletter_subscribed: newProfile.newsletter_subscribed,
+                role: newProfile.role,
+                created_at: newProfile.created_at
               },
               loading: false 
             })

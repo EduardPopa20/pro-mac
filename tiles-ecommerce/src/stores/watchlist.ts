@@ -5,11 +5,11 @@ import { showSuccessAlert, showErrorAlert } from './globalAlert'
 
 interface WatchlistState {
   items: Product[]
-  addToWatchlist: (product: Product) => void
+  addToWatchlist: (product: Product, isAuthenticated?: boolean) => void
   removeFromWatchlist: (productId: number) => void
   clearWatchlist: () => void
   isInWatchlist: (productId: number) => boolean
-  toggleWatchlist: (product: Product) => void
+  toggleWatchlist: (product: Product, isAuthenticated?: boolean) => void
 }
 
 export const useWatchlistStore = create<WatchlistState>()(
@@ -17,7 +17,18 @@ export const useWatchlistStore = create<WatchlistState>()(
     (set, get) => ({
       items: [],
 
-      addToWatchlist: (product: Product) => {
+      addToWatchlist: (product: Product, isAuthenticated?: boolean) => {
+        // Check if user is authenticated (fallback to localStorage if not provided)
+        const userIsAuth = isAuthenticated ?? !!JSON.parse(localStorage.getItem('sb-zrluhnqksnnqtjhbxcql-auth-token') || '{}')?.user
+        
+        if (!userIsAuth) {
+          showErrorAlert(
+            'Pentru a adăuga produse la favorite, trebuie să vă conectați la cont.',
+            'Autentificare necesară'
+          )
+          return
+        }
+
         const { items } = get()
         
         // Check if already in watchlist
@@ -62,13 +73,24 @@ export const useWatchlistStore = create<WatchlistState>()(
         return items.some(item => item.id === productId)
       },
 
-      toggleWatchlist: (product: Product) => {
+      toggleWatchlist: (product: Product, isAuthenticated?: boolean) => {
+        // Check if user is authenticated before any watchlist operation
+        const userIsAuth = isAuthenticated ?? !!JSON.parse(localStorage.getItem('sb-zrluhnqksnnqtjhbxcql-auth-token') || '{}')?.user
+        
+        if (!userIsAuth) {
+          showErrorAlert(
+            'Pentru a gestiona lista de favorite, trebuie să vă conectați la cont.',
+            'Autentificare necesară'
+          )
+          return
+        }
+
         const { items, addToWatchlist, removeFromWatchlist } = get()
         
         if (items.find(item => item.id === product.id)) {
           removeFromWatchlist(product.id)
         } else {
-          addToWatchlist(product)
+          addToWatchlist(product, userIsAuth)
         }
       }
     }),

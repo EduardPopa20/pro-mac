@@ -58,7 +58,7 @@ const AdminLayout: React.FC = () => {
     {
       text: 'Produse',
       icon: <ProductsIcon />,
-      path: '/admin/produse'
+      path: '/admin/categorii_produse'
     },
     {
       text: 'Inventar',

@@ -465,7 +465,7 @@ export const getGresieFilters = (allProducts: Product[]): FilterOption[] => {
 // Generic filter configuration - fallback for other categories
 export const getGenericFilters = (products: Product[]): FilterOption[] => {
   const dimensionsOptions = extractFilterOptions(products, 'dimensions')
-  const materialOptions = getAllFilterOptions(allProducts, 'material')
+  const materialOptions = getAllFilterOptions(products, 'material')
   const finishOptions = extractFilterOptions(products, 'finish')
 
   const filters: FilterOption[] = []
@@ -500,6 +500,344 @@ export const getGenericFilters = (products: Product[]): FilterOption[] => {
   return filters
 }
 
+// Enhanced filter configuration for Parchet (flooring) - Based on Dedeman specifications
+export const getParchetFilters = (allProducts: Product[]): FilterOption[] => {
+  const filters: FilterOption[] = []
+
+  // Brand (most important for parchet - as requested: brand, price, material)
+  const brandOptions = getAllFilterOptions(allProducts, 'brand')
+  if (brandOptions.length > 0) {
+    filters.push({
+      id: 'brand',
+      label: 'Brand',
+      type: 'multiselect',
+      options: brandOptions
+    })
+  }
+
+  // Wood essence (material characteristic for parchet)
+  const woodEssenceOptions = getAllFilterOptions(allProducts, 'wood_essence' as keyof Product)
+  if (woodEssenceOptions.length > 0) {
+    filters.push({
+      id: 'wood_essence',
+      label: 'Esență lemn',
+      type: 'multiselect',
+      options: woodEssenceOptions
+    })
+  }
+
+  // Core material (requested: material)
+  const coreMaterialOptions = getAllFilterOptions(allProducts, 'core_material' as keyof Product)
+  if (coreMaterialOptions.length > 0) {
+    filters.push({
+      id: 'core_material',
+      label: 'Material miez',
+      type: 'multiselect',
+      options: coreMaterialOptions
+    })
+  }
+
+  // Traffic class (important for flooring)
+  const trafficClassOptions = getAllFilterOptions(allProducts, 'traffic_class' as keyof Product)
+  if (trafficClassOptions.length > 0) {
+    filters.push({
+      id: 'traffic_class',
+      label: 'Clasa trafic',
+      type: 'multiselect',
+      options: trafficClassOptions
+    })
+  }
+
+  // Thickness (technical specification)
+  const thicknessMmOptions = getAllFilterOptions(allProducts, 'thickness_mm' as keyof Product, extractNumericRangeOptions)
+  if (thicknessMmOptions.length > 0) {
+    filters.push({
+      id: 'thickness_mm',
+      label: 'Grosime (mm)',
+      type: 'multiselect',
+      options: thicknessMmOptions.map(opt => ({ ...opt, label: `${opt.value} mm` }))
+    })
+  }
+
+  // Floor type/style
+  const floorTypeOptions = getAllFilterOptions(allProducts, 'floor_type' as keyof Product)
+  if (floorTypeOptions.length > 0) {
+    filters.push({
+      id: 'floor_type',
+      label: 'Tip sol',
+      type: 'multiselect',
+      options: floorTypeOptions
+    })
+  }
+
+  // Collection name
+  const collectionOptions = getAllFilterOptions(allProducts, 'collection_name' as keyof Product)
+  if (collectionOptions.length > 0) {
+    filters.push({
+      id: 'collection_name',
+      label: 'Colecție',
+      type: 'multiselect',
+      options: collectionOptions
+    })
+  }
+
+  // Installation type
+  const installationTypeOptions = getAllFilterOptions(allProducts, 'installation_type' as keyof Product)
+  if (installationTypeOptions.length > 0) {
+    filters.push({
+      id: 'installation_type',
+      label: 'Tip montaj',
+      type: 'multiselect',
+      options: installationTypeOptions
+    })
+  }
+
+  // Underfloor heating compatibility
+  const underfloorHeatingOptions = getAllFilterOptions(allProducts, 'underfloor_heating_compatible' as keyof Product)
+  if (underfloorHeatingOptions.length > 0) {
+    filters.push({
+      id: 'underfloor_heating_compatible',
+      label: 'Compatibil încălzire pardoseală',
+      type: 'select',
+      options: [
+        { value: 'yes', label: 'Da' },
+        { value: 'no', label: 'Nu' }
+      ]
+    })
+  }
+
+  // Antistatic properties
+  const antistaticOptions = getAllFilterOptions(allProducts, 'is_antistatic' as keyof Product, extractBooleanOptions)
+  if (antistaticOptions.length > 0) {
+    filters.push({
+      id: 'is_antistatic',
+      label: 'Antiestatic',
+      type: 'select',
+      options: antistaticOptions
+    })
+  }
+
+  // Surface texture
+  const surfaceTextureOptions = getAllFilterOptions(allProducts, 'surface_texture' as keyof Product)
+  if (surfaceTextureOptions.length > 0) {
+    filters.push({
+      id: 'surface_texture',
+      label: 'Textură suprafață',
+      type: 'multiselect',
+      options: surfaceTextureOptions
+    })
+  }
+
+  // Usage areas
+  const usageAreaOptions = getAllFilterOptions(allProducts, 'usage_area')
+  if (usageAreaOptions.length > 0) {
+    filters.push({
+      id: 'usage_area',
+      label: 'Zone de utilizare',
+      type: 'multiselect',
+      options: usageAreaOptions
+    })
+  }
+
+  return filters
+}
+
+// Enhanced filter configuration for Riflaje (decorative slat panels)
+// Primary filters: Material, Brand, Proprietăți, Dimensiuni (based on research)
+export const getRiflajFilters = (allProducts: Product[]): FilterOption[] => {
+  const filters: FilterOption[] = []
+
+  // MATERIAL (Most Important - combines panel_type + base_material)
+  const panelTypeOptions = getAllFilterOptions(allProducts, 'panel_type' as keyof Product)
+  const baseMaterialOptions = getAllFilterOptions(allProducts, 'base_material' as keyof Product)
+  
+  if (panelTypeOptions.length > 0 || baseMaterialOptions.length > 0) {
+    const combinedMaterials = [
+      ...panelTypeOptions.map(opt => ({ ...opt, label: `${opt.value} (Tip)` })),
+      ...baseMaterialOptions.map(opt => ({ ...opt, label: `${opt.value} (Material)` }))
+    ]
+    
+    const uniqueMaterials = Array.from(
+      new Map(combinedMaterials.map(item => [item.value, item])).values()
+    )
+    
+    filters.push({
+      id: 'panel_type',
+      label: 'Material',
+      type: 'multiselect',
+      options: uniqueMaterials
+    })
+  }
+
+  // BRAND (Second most important)
+  const brandOptions = getAllFilterOptions(allProducts, 'brand')
+  if (brandOptions.length > 0) {
+    filters.push({
+      id: 'brand',
+      label: 'Brand',
+      type: 'multiselect',
+      options: brandOptions
+    })
+  }
+
+  // ACOUSTIC PROPERTIES (Key differentiator)
+  const acousticOptions = getAllFilterOptions(allProducts, 'acoustic_properties' as keyof Product)
+  if (acousticOptions.length > 0) {
+    filters.push({
+      id: 'acoustic_properties',
+      label: 'Proprietăți Acustice',
+      type: 'multiselect',
+      options: acousticOptions.map(opt => ({
+        ...opt,
+        label: opt.value === 'decorativ' ? '🎨 Doar Decorativ' :
+               opt.value === 'fonoabsorbant' ? '🔊 Fonoabsorbant' :
+               opt.value === 'izolant fonix' ? '🔇 Izolant Fonic' :
+               opt.value === 'mixt' ? '🎯 Decorativ + Acustic' : opt.value
+      }))
+    })
+  }
+
+  // THICKNESS (Important for installation)
+  const thicknessOptions = getAllFilterOptions(allProducts, 'panel_thickness_mm' as keyof Product, extractNumericRangeOptions)
+  if (thicknessOptions.length > 0) {
+    filters.push({
+      id: 'panel_thickness_mm',
+      label: 'Grosime (mm)',
+      type: 'multiselect',
+      options: thicknessOptions.map(opt => ({ ...opt, label: `${opt.value} mm` }))
+    })
+  }
+
+  // WOOD SPECIES (For solid wood panels)
+  const woodSpeciesOptions = getAllFilterOptions(allProducts, 'wood_species' as keyof Product)
+  if (woodSpeciesOptions.length > 0) {
+    filters.push({
+      id: 'wood_species',
+      label: 'Esență Lemn',
+      type: 'multiselect',
+      options: woodSpeciesOptions.map(opt => ({
+        ...opt,
+        label: opt.value === 'stejar' ? '🌳 Stejar' :
+               opt.value === 'nuc' ? '🌰 Nuc' :
+               opt.value === 'pin' ? '🌲 Pin' :
+               opt.value === 'fag' ? '🍂 Fag' :
+               opt.value === 'tec' ? '🏗️ Tec' : opt.value
+      }))
+    })
+  }
+
+  // PANEL PROFILE/MODEL
+  const panelProfileOptions = getAllFilterOptions(allProducts, 'panel_profile' as keyof Product)
+  if (panelProfileOptions.length > 0) {
+    filters.push({
+      id: 'panel_profile',
+      label: 'Model/Profil',
+      type: 'multiselect',
+      options: panelProfileOptions
+    })
+  }
+
+  // SURFACE FINISH TYPE
+  const surfaceFinishOptions = getAllFilterOptions(allProducts, 'surface_finish_type' as keyof Product)
+  if (surfaceFinishOptions.length > 0) {
+    filters.push({
+      id: 'surface_finish_type',
+      label: 'Tip Finisaj',
+      type: 'multiselect',
+      options: surfaceFinishOptions
+    })
+  }
+
+  // MOUNTING SYSTEM
+  const mountingOptions = getAllFilterOptions(allProducts, 'mounting_system' as keyof Product)
+  if (mountingOptions.length > 0) {
+    filters.push({
+      id: 'mounting_system',
+      label: 'Sistem Montaj',
+      type: 'multiselect',
+      options: mountingOptions.map(opt => ({
+        ...opt,
+        label: opt.value === 'lipire' ? '🔗 Lipire' :
+               opt.value === 'înșurubare' ? '🔩 Înșurubare' :
+               opt.value === 'profile montaj' ? '📐 Profile Montaj' :
+               opt.value === 'kit complet' ? '📦 Kit Complet' : opt.value
+      }))
+    })
+  }
+
+  // PANEL ORIENTATION
+  const orientationOptions = getAllFilterOptions(allProducts, 'panel_orientation' as keyof Product)
+  if (orientationOptions.length > 0) {
+    filters.push({
+      id: 'panel_orientation',
+      label: 'Orientare',
+      type: 'multiselect',
+      options: orientationOptions.map(opt => ({
+        ...opt,
+        label: opt.value === 'vertical' ? '⬆️ Vertical' :
+               opt.value === 'orizontal' ? '➡️ Orizontal' :
+               opt.value === 'ambele' ? '🔄 Ambele' : opt.value
+      }))
+    })
+  }
+
+  // INSTALLATION AREA
+  const installAreaOptions = getAllFilterOptions(allProducts, 'installation_area' as keyof Product)
+  if (installAreaOptions.length > 0) {
+    filters.push({
+      id: 'installation_area',
+      label: 'Zonă Instalare',
+      type: 'multiselect',
+      options: installAreaOptions.map(opt => ({
+        ...opt,
+        label: opt.value === 'interior' ? '🏠 Interior' :
+               opt.value === 'exterior' ? '🌤️ Exterior' :
+               opt.value === 'ambele' ? '🏠🌤️ Interior + Exterior' : opt.value
+      }))
+    })
+  }
+
+  // UV RESISTANCE (Boolean filter)
+  const uvResistantProducts = allProducts.filter(p => p.uv_resistance === true).length
+  const nonUvResistantProducts = allProducts.filter(p => p.uv_resistance === false).length
+  
+  if (uvResistantProducts > 0 || nonUvResistantProducts > 0) {
+    const uvOptions = []
+    if (uvResistantProducts > 0) {
+      uvOptions.push({ value: 'true', label: '☀️ Cu Rezistență UV' })
+    }
+    if (nonUvResistantProducts > 0) {
+      uvOptions.push({ value: 'false', label: '🏠 Doar Interior' })
+    }
+    
+    filters.push({
+      id: 'uv_resistance',
+      label: 'Rezistență UV',
+      type: 'multiselect',
+      options: uvOptions
+    })
+  }
+
+  // INSTALLATION DIFFICULTY
+  const difficultyOptions = getAllFilterOptions(allProducts, 'installation_difficulty' as keyof Product)
+  if (difficultyOptions.length > 0) {
+    filters.push({
+      id: 'installation_difficulty',
+      label: 'Dificultate Instalare',
+      type: 'multiselect',
+      options: difficultyOptions.map(opt => ({
+        ...opt,
+        label: opt.value === 'ușoară' ? '😊 Ușoară (DIY)' :
+               opt.value === 'medie' ? '🛠️ Medie' :
+               opt.value === 'avansată' ? '👨‍🔧 Avansată' :
+               opt.value === 'specializată' ? '🏗️ Specializată' : opt.value
+      }))
+    })
+  }
+
+  return filters
+}
+
 // Main function to get category-specific filters
 export const getCategoryFilters = (categorySlug: string, products: Product[]): FilterOption[] => {
   switch (categorySlug?.toLowerCase()) {
@@ -508,6 +846,10 @@ export const getCategoryFilters = (categorySlug: string, products: Product[]): F
       return getFaiantaFilters(products)
     case 'gresie':
       return getGresieFilters(products)
+    case 'parchet':
+      return getParchetFilters(products)
+    case 'riflaje':
+      return getRiflajFilters(products)
     default:
       return getGenericFilters(products)
   }

@@ -63,7 +63,6 @@ test.describe('Comprehensive Accurate Application Testing', () => {
       'Acasă',
       'Produse',
       'Showroomuri',
-      'Oferte Speciale',
       'Idei Amenajare',
       'Calculator',
       'Contact'

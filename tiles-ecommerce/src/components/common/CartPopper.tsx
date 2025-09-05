@@ -70,7 +70,7 @@ const CartPopper: React.FC = () => {
   return (
     <>
       <IconButton 
-        size="small" 
+        size="medium" 
         onClick={handleClick} 
         color={totalItems > 0 ? 'primary' : 'default'}
         sx={{
@@ -101,17 +101,62 @@ const CartPopper: React.FC = () => {
         )}
       </IconButton>
 
-      <Popper open={open} anchorEl={anchorEl} placement="bottom-end" transition>
+      <Popper 
+        open={open} 
+        anchorEl={anchorEl} 
+        placement="bottom-end" 
+        transition
+        strategy="fixed" // Prevents lag on mobile scroll
+        sx={{
+          zIndex: theme.zIndex.modal + 1 // Higher than breadcrumbs and other content
+        }}
+      >
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={350}>
             <Paper
               sx={{
-                width: 380,
+                width: { 
+                  xs: '100vw', // Full screen width on mobile
+                  md: 380 
+                },
+                maxWidth: { xs: '100vw', md: 380 },
                 maxHeight: 500,
-                mt: 1,
+                mt: 0.5,
+                mx: { xs: 0, md: 0 }, // No margins on mobile for full width
+                borderRadius: { xs: 0, md: 2 }, // No border radius on mobile for full edge-to-edge
                 boxShadow: theme.shadows[8],
                 border: '1px solid',
-                borderColor: 'divider'
+                borderColor: 'divider',
+                // Remove side borders on mobile for true full width
+                borderLeft: { xs: 'none', md: '1px solid' },
+                borderRight: { xs: 'none', md: '1px solid' },
+                // Add small arrow/connector effect on mobile - positioned for full width
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  top: -8,
+                  right: { xs: 32, md: 16 }, // Adjust position for full width
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderBottom: '8px solid',
+                  borderBottomColor: 'divider',
+                  display: { xs: 'block', md: 'none' }
+                },
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: -7,
+                  right: { xs: 32, md: 16 }, // Adjust position for full width
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderBottom: '8px solid',
+                  borderBottomColor: 'background.paper',
+                  display: { xs: 'block', md: 'none' }
+                }
               }}
             >
               <ClickAwayListener onClickAway={handleClose}>

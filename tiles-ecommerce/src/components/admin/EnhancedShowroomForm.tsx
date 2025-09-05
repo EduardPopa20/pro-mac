@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Box,
   Typography,
@@ -10,7 +10,9 @@ import {
   Paper,
   Divider,
   Button,
-  useTheme
+  Tooltip,
+  useTheme,
+  IconButton
 } from '@mui/material'
 import {
   Store,
@@ -20,10 +22,15 @@ import {
   Navigation,
   Settings,
   Save,
-  ArrowBack,
-  Preview
+  Preview,
+  Info,
+  PhotoLibrary,
+  Add,
+  Delete,
+  CloudUpload
 } from '@mui/icons-material'
 import WorkingHoursEditor from './WorkingHoursEditor'
+import ShowroomPhotoManager from './ShowroomPhotoManager'
 
 interface ShowroomFormData {
   name: string
@@ -36,6 +43,7 @@ interface ShowroomFormData {
   description: string
   opening_hours: string
   is_active: boolean
+  photos: string[]
 }
 
 interface EnhancedShowroomFormProps {
@@ -64,6 +72,9 @@ const FormSection: React.FC<{
         border: `1px solid`,
         borderColor: `${color}.light`,
         borderRadius: 2,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
         '&:hover': {
           borderColor: `${color}.main`,
           boxShadow: theme.shadows[4]
@@ -97,7 +108,9 @@ const FormSection: React.FC<{
         </Typography>
       </Box>
       <Divider sx={{ mb: 3, borderColor: `${color}.light` }} />
-      {children}
+      <Box sx={{ flex: 1 }}>
+        {children}
+      </Box>
     </Paper>
   )
 }
@@ -111,7 +124,7 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
   isCreate,
   saving = false
 }) => {
-  // Use completely independent local state - no syncing with parent at all
+  // Local form state with sync from parent formData
   const [localFormData, setLocalFormData] = useState(() => ({
     name: formData.name || '',
     city: formData.city || '',
@@ -122,243 +135,270 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
     google_maps_url: formData.google_maps_url || '',
     description: formData.description || '',
     opening_hours: formData.opening_hours || '',
-    is_active: formData.is_active ?? true
+    is_active: formData.is_active ?? true,
+    photos: formData.photos || []
   }))
+
 
   const isFormValid = localFormData.name.trim() && localFormData.city.trim() && localFormData.address.trim()
 
+  const handleDescriptionChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalFormData(prev => ({ ...prev, description: e.target.value }))
+  }, [])
+
+  // Helper function to count words
+  const countWords = (text: string): number => {
+    if (!text || text.trim() === '') return 0
+    return text.trim().split(/\s+/).filter(word => word.length > 0).length
+  }
+
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+      {/* Action Buttons - Upper Right */}
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'flex-start',
+          gap: 2,
+          mb: 4
+        }}
+      >
+        {/* Showroom Settings Toggle - Left Side */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Tooltip title={localFormData.is_active ? "Showroom-ul va fi vizibil pe site pentru clienți" : "Showroom-ul va fi ascuns de pe site"}>
+            <IconButton size="small" sx={{ color: 'text.secondary' }}>
+              <Info fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            Showroom activ
+          </Typography>
+          <Switch
+            checked={localFormData.is_active}
+            onChange={(e) => setLocalFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+            color="success"
+            size="medium"
+          />
+        </Box>
+
+        {/* Action Buttons */}
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+          <Tooltip title="Vizualizează cum va arăta showroom-ul pe site">
+            <Button
+              variant="outlined"
+              size="large"
+              startIcon={<Preview />}
+              onClick={() => onPreview(localFormData)}
+              disabled={saving}
+              sx={{ 
+                minHeight: 48,
+                fontWeight: 600,
+                minWidth: { xs: '100%', sm: 140 }
+              }}
+            >
+              Preview
+            </Button>
+          </Tooltip>
+          
+          <Tooltip title={isFormValid ? (isCreate ? 'Creează showroom-ul nou' : 'Salvează modificările') : 'Completează câmpurile obligatorii'}>
+            <span>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<Save />}
+                onClick={() => onSave(localFormData)}
+                disabled={saving || !isFormValid}
+                sx={{ 
+                  minHeight: 48,
+                  fontWeight: 600,
+                  minWidth: { xs: '100%', sm: 160 }
+                }}
+              >
+                {saving ? 'Se salvează...' : (isCreate ? 'Creează' : 'Salvează')}
+              </Button>
+            </span>
+          </Tooltip>
+        </Stack>
+      </Box>
+
       <Grid container spacing={4}>
         
-        {/* Main Form Sections */}
-        <Grid size={{ xs: 12, lg: 8 }}>
+        {/* Main Form Content */}
+        <Grid size={12}>
           <Stack spacing={4}>
             
-            {/* Basic Information */}
-            <FormSection
-              icon={<Store />}
-              title="Informații de bază"
-              color="primary"
-            >
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Nume Showroom"
-                    value={localFormData.name}
-                    onChange={(e) => setLocalFormData(prev => ({ ...prev, name: e.target.value }))}
-                    required
-                    placeholder="ex: Pro-Mac București"
-                    sx={{
-                      '& .MuiInputBase-input': {
-                        fontSize: '1.1rem',
-                        fontWeight: 500
-                      }
-                    }}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Oraș"
-                    value={localFormData.city}
-                    onChange={(e) => setLocalFormData(prev => ({ ...prev, city: e.target.value }))}
-                    required
-                    placeholder="ex: București"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12 }}>
-                  <TextField
-                    fullWidth
-                    label="Adresa completă"
-                    value={localFormData.address}
-                    onChange={(e) => setLocalFormData(prev => ({ ...prev, address: e.target.value }))}
-                    required
-                    placeholder="Strada Principală Nr. 123, Sector 1"
-                    helperText={`${localFormData.address.length}/200 caractere`}
-                    inputProps={{ maxLength: 200 }}
-                  />
-                </Grid>
+            {/* Row 1: Basic Information + Contact Information */}
+            <Grid container spacing={4} sx={{ alignItems: 'stretch' }}>
+              <Grid size={{ xs: 12, md: 7 }}>
+                <FormSection
+                  icon={<Store />}
+                  title="Informații de bază"
+                  color="primary"
+                >
+                  <Stack spacing={3}>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Nume Showroom"
+                          value={localFormData.name}
+                          onChange={(e) => setLocalFormData(prev => ({ ...prev, name: e.target.value }))}
+                          required
+                          placeholder="ex: Pro-Mac București"
+                          sx={{
+                            '& .MuiInputBase-input': {
+                              fontSize: '1.1rem',
+                              fontWeight: 500
+                            }
+                          }}
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField
+                          fullWidth
+                          label="Oraș"
+                          value={localFormData.city}
+                          onChange={(e) => setLocalFormData(prev => ({ ...prev, city: e.target.value }))}
+                          required
+                          placeholder="ex: București"
+                        />
+                      </Grid>
+                    </Grid>
+                    <TextField
+                      fullWidth
+                      label="Adresa completă"
+                      value={localFormData.address}
+                      onChange={(e) => setLocalFormData(prev => ({ ...prev, address: e.target.value }))}
+                      required
+                      placeholder="Strada Principală Nr. 123, Sector 1"
+                      helperText={`${localFormData.address.length}/200 caractere`}
+                      inputProps={{ maxLength: 200 }}
+                    />
+                  </Stack>
+                </FormSection>
               </Grid>
-            </FormSection>
-
-            {/* Contact Information */}
-            <FormSection
-              icon={<Phone />}
-              title="Informații de contact"
-              color="info"
-            >
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Telefon"
-                    value={localFormData.phone}
-                    onChange={(e) => setLocalFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="021-123-4567"
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    type="email"
-                    value={localFormData.email}
-                    onChange={(e) => setLocalFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder="showroom@pro-mac.ro"
-                  />
-                </Grid>
+              
+              <Grid size={{ xs: 12, md: 5 }}>
+                <FormSection
+                  icon={<Phone />}
+                  title="Informații de contact"
+                  color="info"
+                >
+                  <Stack spacing={3}>
+                    <TextField
+                      fullWidth
+                      label="Telefon"
+                      value={localFormData.phone}
+                      onChange={(e) => setLocalFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="021-123-4567"
+                    />
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      type="email"
+                      value={localFormData.email}
+                      onChange={(e) => setLocalFormData(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="showroom@pro-mac.ro"
+                    />
+                  </Stack>
+                </FormSection>
               </Grid>
-            </FormSection>
+            </Grid>
 
-            {/* Description */}
-            <FormSection
-              icon={<Description />}
-              title="Descriere showroom"
-              color="secondary"
-            >
-              <TextField
-                fullWidth
-                label="Descriere"
-                multiline
-                rows={4}
-                value={localFormData.description}
-                onChange={(e) => setLocalFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Descrieți showroom-ul, serviciile oferite și particularitățile..."
-                helperText={`${localFormData.description.split(' ').filter(word => word.trim().length > 0).length} cuvinte`}
-              />
-            </FormSection>
-
-            {/* Navigation Links */}
-            <FormSection
-              icon={<Navigation />}
-              title="Link-uri de navigare"
-              color="warning"
-            >
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Link Waze"
-                    value={localFormData.waze_url}
-                    onChange={(e) => setLocalFormData(prev => ({ ...prev, waze_url: e.target.value }))}
-                    placeholder="https://waze.com/ul/..."
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    fullWidth
-                    label="Link Google Maps"
-                    value={localFormData.google_maps_url}
-                    onChange={(e) => setLocalFormData(prev => ({ ...prev, google_maps_url: e.target.value }))}
-                    placeholder="https://maps.google.com/..."
-                  />
-                </Grid>
+            {/* Row 2: Description & Navigation + Working Hours */}
+            <Grid container spacing={4} sx={{ alignItems: 'stretch' }}>
+              <Grid size={{ xs: 12, md: 4 }}>
+                <FormSection
+                  icon={<Description />}
+                  title="Descriere și navigare"
+                  color="secondary"
+                >
+                  <Stack spacing={3}>
+                    <TextField
+                      fullWidth
+                      label="Descriere"
+                      multiline
+                      rows={6}
+                      value={localFormData.description}
+                      onChange={handleDescriptionChange}
+                      placeholder="Descrieți showroom-ul, serviciile oferite și particularitățile..."
+                      helperText={`${countWords(localFormData.description)} cuvinte`}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          height: 'auto'
+                        }
+                      }}
+                    />
+                    
+                    <Divider sx={{ mx: 2 }} />
+                    
+                    <Box>
+                      <Box display="flex" alignItems="center" gap={1} mb={2}>
+                        <Navigation sx={{ color: 'warning.main', fontSize: '1.2rem' }} />
+                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'warning.main', fontSize: '1rem' }}>
+                          Link-uri de navigare
+                        </Typography>
+                      </Box>
+                      <Stack spacing={2}>
+                        <TextField
+                          fullWidth
+                          label="Link Waze"
+                          value={localFormData.waze_url}
+                          onChange={(e) => setLocalFormData(prev => ({ ...prev, waze_url: e.target.value }))}
+                          placeholder="https://waze.com/ul/..."
+                          size="small"
+                        />
+                        <TextField
+                          fullWidth
+                          label="Link Google Maps"
+                          value={localFormData.google_maps_url}
+                          onChange={(e) => setLocalFormData(prev => ({ ...prev, google_maps_url: e.target.value }))}
+                          placeholder="https://maps.google.com/..."
+                          size="small"
+                        />
+                      </Stack>
+                    </Box>
+                  </Stack>
+                </FormSection>
               </Grid>
-            </FormSection>
+              
+              <Grid size={{ xs: 12, md: 8 }}>
+                <FormSection
+                  icon={<AccessTime />}
+                  title="Program de lucru"
+                  color="success"
+                >
+                  <WorkingHoursEditor
+                    value={localFormData.opening_hours}
+                    onChange={(value) => setLocalFormData(prev => ({ ...prev, opening_hours: value }))}
+                  />
+                </FormSection>
+              </Grid>
+            </Grid>
+
+            {/* Row 3: Photo Management */}
+            <Grid container>
+              <Grid size={12}>
+                <FormSection
+                  icon={<PhotoLibrary />}
+                  title="Fotografii prezentare"
+                  color="info"
+                >
+                  <ShowroomPhotoManager
+                    photos={localFormData.photos}
+                    onChange={(photos) => setLocalFormData(prev => ({ ...prev, photos }))}
+                    maxPhotos={3}
+                    disabled={saving}
+                  />
+                </FormSection>
+              </Grid>
+            </Grid>
 
           </Stack>
         </Grid>
 
-        {/* Sidebar - Working Hours & Settings */}
-        <Grid size={{ xs: 12, lg: 4 }}>
-          <Box sx={{ position: 'sticky', top: 24 }}>
-            <Stack spacing={4}>
-              
-              {/* Working Hours */}
-              <FormSection
-                icon={<AccessTime />}
-                title="Program de lucru"
-                color="success"
-              >
-                <WorkingHoursEditor
-                  value={localFormData.opening_hours}
-                  onChange={(value) => setLocalFormData(prev => ({ ...prev, opening_hours: value }))}
-                />
-              </FormSection>
-
-              {/* Settings */}
-              <FormSection
-                icon={<Settings />}
-                title="Setări showroom"
-                color="secondary"
-              >
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={localFormData.is_active}
-                      onChange={(e) => setLocalFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-                      color="success"
-                      size="medium"
-                    />
-                  }
-                  label={
-                    <Box>
-                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                        Showroom activ
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Showroom-ul va fi vizibil pe site
-                      </Typography>
-                    </Box>
-                  }
-                />
-              </FormSection>
-
-              {/* Action Buttons */}
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
-                  Acțiuni
-                </Typography>
-                <Stack spacing={2}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    startIcon={<Save />}
-                    onClick={() => onSave(localFormData)}
-                    disabled={saving || !isFormValid}
-                    sx={{ 
-                      minHeight: 48,
-                      fontWeight: 600
-                    }}
-                  >
-                    {saving ? 'Se salvează...' : (isCreate ? 'Creează Showroom' : 'Salvează modificările')}
-                  </Button>
-                  
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    startIcon={<Preview />}
-                    onClick={() => onPreview(localFormData)}
-                    disabled={saving}
-                    sx={{ 
-                      minHeight: 48,
-                      fontWeight: 600
-                    }}
-                  >
-                    Preview
-                  </Button>
-                  
-                  <Button
-                    variant="text"
-                    size="large"
-                    startIcon={<ArrowBack />}
-                    onClick={onCancel}
-                    disabled={saving}
-                    sx={{ 
-                      minHeight: 48,
-                      fontWeight: 600
-                    }}
-                  >
-                    Înapoi la listă
-                  </Button>
-                </Stack>
-              </Paper>
-
-            </Stack>
-          </Box>
-        </Grid>
       </Grid>
     </Box>
   )

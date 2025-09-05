@@ -65,8 +65,7 @@ const Cart: React.FC = () => {
   }
 
   const handleCheckout = () => {
-    // TODO: Implement checkout functionality
-    alert('Funcționalitatea de checkout va fi implementată în curând!')
+    navigate('/checkout')
   }
 
   const totalItems = getTotalItems()
@@ -275,7 +274,12 @@ const Cart: React.FC = () => {
 
           {/* Order Summary */}
           <Grid size={{ xs: 12, lg: 4 }}>
-            <Card sx={{ position: 'sticky', top: 24 }}>
+            <Card sx={{ 
+              position: 'sticky', 
+              top: (theme) => theme.spacing(3), // 24px
+              zIndex: (theme) => theme.zIndex.sticky,
+              alignSelf: 'flex-start'
+            }}>
               <CardContent>
                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                   Rezumatul comenzii

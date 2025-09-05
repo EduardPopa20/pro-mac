@@ -10,7 +10,8 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
-  Chip
+  Chip,
+  Stack
 } from '@mui/material'
 import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -151,69 +152,55 @@ const WorkingHoursEditor: React.FC<WorkingHoursEditorProps> = ({ value, onChange
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ro}>
       <Box mb={2}>
-        <Box display="flex" alignItems="center" gap={1} mb={2}>
-          <BusinessCenter sx={{ color: 'primary.main' }} />
-          <Typography variant="h6">
-            Program de lucru
-          </Typography>
-        </Box>
-
-        <Grid container spacing={1}>
+        <Stack spacing={1.5}>
           {workingDays.map((day, index) => (
-            <Grid item xs={12} key={day.day}>
-              <Box 
+            <Box 
+              key={day.day}
+              sx={{ 
+                p: 1.5,
+                border: 1,
+                borderColor: 'grey.300',
+                borderRadius: 1.5,
+                backgroundColor: 'background.paper',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  backgroundColor: 'action.hover'
+                },
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 2,
+                minHeight: '48px'
+              }}
+            >
+              {/* Day name */}
+              <Typography 
+                variant="subtitle2" 
                 sx={{ 
-                  p: 1.5,
-                  border: 1,
-                  borderColor: 'grey.300',
-                  borderRadius: 1.5,
-                  backgroundColor: 'background.paper',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                    backgroundColor: 'action.hover'
-                  }
+                  fontWeight: 600, 
+                  fontSize: '0.9rem',
+                  minWidth: '80px',
+                  textAlign: 'left'
                 }}
               >
-                <Box display="flex" alignItems="center" justifyContent="space-between" mb={day.isOpen ? 1 : 0}>
-                  <Typography 
-                    variant="subtitle2" 
-                    sx={{ fontWeight: 600, minWidth: 80, fontSize: '0.9rem' }}
-                  >
-                    {day.dayName}
-                  </Typography>
+                {day.dayName}
+              </Typography>
 
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={day.isOpen}
-                        onChange={(e) => updateDay(index, { 
-                          isOpen: e.target.checked,
-                          openTime: e.target.checked && !day.openTime ? new Date(2024, 0, 1, 9, 0) : day.openTime,
-                          closeTime: e.target.checked && !day.closeTime ? new Date(2024, 0, 1, 18, 0) : day.closeTime
-                        })}
-                        size="small"
-                      />
-                    }
-                    label={
-                      <Box sx={{ width: '54px', textAlign: 'right' }}>
-                        {day.isOpen ? "Deschis" : "Închis"}
-                      </Box>
-                    }
-                    labelPlacement="start"
-                    sx={{ 
-                      m: 0, 
-                      '& .MuiFormControlLabel-label': { 
-                        fontSize: '0.875rem',
-                        lineHeight: 1.4
-                      } 
-                    }}
-                  />
-                </Box>
-
-                <Grid container spacing={0.5}>
-                  <Grid item xs={12}>
+              {/* Time pickers or closed indicator */}
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  gap: 1, 
+                  alignItems: 'center', 
+                  flex: 1, 
+                  justifyContent: 'center',
+                  flexDirection: { xs: 'column', sm: 'row' }
+                }}
+              >
+                {day.isOpen ? (
+                  <>
                     <TimePicker
-                      label="Deschidere"
+                      label="Start"
                       value={day.openTime}
                       onChange={(newTime) => updateDay(index, { openTime: newTime })}
                       disabled={!day.isOpen}
@@ -221,21 +208,38 @@ const WorkingHoursEditor: React.FC<WorkingHoursEditorProps> = ({ value, onChange
                       slotProps={{
                         textField: {
                           size: 'small',
-                          fullWidth: true,
                           variant: 'outlined',
                           disabled: !day.isOpen,
                           sx: { 
-                            '& .MuiOutlinedInput-root': { borderRadius: 1 },
-                            '& .MuiInputBase-root': { height: '36px' }
+                            flex: 1,
+                            minWidth: { xs: '130px', sm: '110px' },
+                            width: { xs: '100%', sm: 'auto' },
+                            '& .MuiOutlinedInput-root': { 
+                              borderRadius: 1,
+                              fontSize: '0.8rem',
+                              '& input': {
+                                padding: '6px 10px',
+                                textAlign: 'center'
+                              }
+                            },
+                            '& .MuiInputBase-root': { 
+                              height: { xs: '44px', sm: '34px' },
+                              fontSize: '0.8rem'
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: '0.75rem',
+                              transform: 'translate(10px, 8px) scale(1)'
+                            },
+                            '& .MuiInputLabel-shrink': {
+                              transform: 'translate(10px, -6px) scale(0.75)'
+                            }
                           }
                         }
                       }}
                     />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
+                    
                     <TimePicker
-                      label="Închidere"
+                      label="Stop"
                       value={day.closeTime}
                       onChange={(newTime) => updateDay(index, { closeTime: newTime })}
                       disabled={!day.isOpen}
@@ -243,22 +247,68 @@ const WorkingHoursEditor: React.FC<WorkingHoursEditorProps> = ({ value, onChange
                       slotProps={{
                         textField: {
                           size: 'small',
-                          fullWidth: true,
                           variant: 'outlined',
                           disabled: !day.isOpen,
                           sx: { 
-                            '& .MuiOutlinedInput-root': { borderRadius: 1 },
-                            '& .MuiInputBase-root': { height: '36px' }
+                            flex: 1,
+                            minWidth: { xs: '130px', sm: '110px' },
+                            width: { xs: '100%', sm: 'auto' },
+                            '& .MuiOutlinedInput-root': { 
+                              borderRadius: 1,
+                              fontSize: '0.8rem',
+                              '& input': {
+                                padding: '6px 10px',
+                                textAlign: 'center'
+                              }
+                            },
+                            '& .MuiInputBase-root': { 
+                              height: { xs: '44px', sm: '34px' },
+                              fontSize: '0.8rem'
+                            },
+                            '& .MuiInputLabel-root': {
+                              fontSize: '0.75rem',
+                              transform: 'translate(10px, 8px) scale(1)'
+                            },
+                            '& .MuiInputLabel-shrink': {
+                              transform: 'translate(10px, -6px) scale(0.75)'
+                            }
                           }
                         }
                       }}
                     />
-                  </Grid>
-                </Grid>
+                  </>
+                ) : (
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      fontSize: '0.85rem',
+                      color: 'text.secondary',
+                      fontStyle: 'italic',
+                      flex: 1,
+                      textAlign: 'center'
+                    }}
+                  >
+                    Închis
+                  </Typography>
+                )}
               </Box>
-            </Grid>
+              
+              {/* Toggle switch - moved to right */}
+              <Switch
+                checked={day.isOpen}
+                onChange={(e) => updateDay(index, { 
+                  isOpen: e.target.checked,
+                  openTime: e.target.checked && !day.openTime ? new Date(2024, 0, 1, 9, 0) : day.openTime,
+                  closeTime: e.target.checked && !day.closeTime ? new Date(2024, 0, 1, 18, 0) : day.closeTime
+                })}
+                size="small"
+                sx={{
+                  transform: 'scale(0.9)'
+                }}
+              />
+            </Box>
           ))}
-        </Grid>
+        </Stack>
 
         <Divider sx={{ my: 1.5 }} />
         

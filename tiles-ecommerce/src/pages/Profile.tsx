@@ -16,19 +16,30 @@ import {
   CircularProgress,
   useTheme,
   useMediaQuery,
-  Chip
+  Chip,
+  Breadcrumbs,
+  Link,
+  Switch,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Stack,
+  Select,
+  MenuItem
 } from '@mui/material'
 import {
   Person,
   Email,
-  Lock,
-  Delete,
   Save,
   Edit,
-  AdminPanelSettings
+  Phone,
+  Home,
+  LocationOn
 } from '@mui/icons-material'
 import { useAuthStore } from '../stores/auth'
+import { useNewsletterStore } from '../stores/newsletter'
 import { useNavigate } from 'react-router-dom'
+import ROMANIA_COUNTIES from '../utils/romaniaData'
 
 const Profile: React.FC = () => {
   const theme = useTheme()
@@ -36,6 +47,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate()
   
   const { user, updateProfile, updatePassword, deleteAccount, signOut } = useAuthStore()
+  const { subscribe, unsubscribe, isSubscribed } = useNewsletterStore()
   
   const [editing, setEditing] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -46,15 +58,16 @@ const Profile: React.FC = () => {
   // Profile form state
   const [profileData, setProfileData] = useState({
     full_name: user?.full_name || '',
-    email: user?.email || ''
+    email: user?.email || '',
+    phone: user?.phone || '',
+    county: user?.county || '',
+    city: user?.city || '',
+    street_address_1: user?.street_address_1 || '',
+    street_address_2: user?.street_address_2 || '',
+    postal_code: user?.postal_code || '',
+    newsletter_subscribed: user?.newsletter_subscribed || false
   })
   
-  // Password change state
-  const [passwordData, setPasswordData] = useState({
-    newPassword: '',
-    confirmPassword: ''
-  })
-  const [changePasswordMode, setChangePasswordMode] = useState(false)
 
   const handleUpdateProfile = async () => {
     if (!profileData.full_name.trim()) {
@@ -66,9 +79,27 @@ const Profile: React.FC = () => {
     setError('')
     
     try {
+      // Update profile data
       await updateProfile({
-        full_name: profileData.full_name.trim()
+        full_name: profileData.full_name.trim(),
+        phone: profileData.phone.trim() || null,
+        county: profileData.county.trim() || null,
+        city: profileData.city.trim() || null,
+        street_address_1: profileData.street_address_1.trim() || null,
+        street_address_2: profileData.street_address_2.trim() || null,
+        postal_code: profileData.postal_code.trim() || null,
+        newsletter_subscribed: profileData.newsletter_subscribed
       })
+
+      // Handle newsletter subscription changes
+      if (user?.email) {
+        if (profileData.newsletter_subscribed && !user.newsletter_subscribed) {
+          await subscribe(user.email, 'profile_update')
+        } else if (!profileData.newsletter_subscribed && user.newsletter_subscribed) {
+          await unsubscribe(user.email)
+        }
+      }
+
       setSuccess('Profil actualizat cu succes!')
       setEditing(false)
     } catch (err: any) {
@@ -78,43 +109,7 @@ const Profile: React.FC = () => {
     }
   }
 
-  const handleChangePassword = async () => {
-    if (passwordData.newPassword.length < 6) {
-      setError('Parola trebuie să aibă cel puțin 6 caractere')
-      return
-    }
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError('Parolele nu se potrivesc')
-      return
-    }
 
-    setLoading(true)
-    setError('')
-    
-    try {
-      await updatePassword(passwordData.newPassword)
-      setSuccess('Parola a fost schimbată cu succes!')
-      setPasswordData({ newPassword: '', confirmPassword: '' })
-      setChangePasswordMode(false)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDeleteAccount = async () => {
-    setLoading(true)
-    setError('')
-    
-    try {
-      await deleteAccount()
-      navigate('/auth')
-    } catch (err: any) {
-      setError(err.message)
-      setLoading(false)
-    }
-  }
 
   if (!user) {
     return (
@@ -128,31 +123,19 @@ const Profile: React.FC = () => {
 
   return (
     <Container maxWidth="md" sx={{ py: 4, minHeight: 'calc(100vh - 200px)' }}>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3, textAlign: 'center' }}>
-        Profilul meu
-      </Typography>
+      {/* Breadcrumbs */}
+      <Box sx={{ mb: 4 }}>
+        <Breadcrumbs>
+          <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>
+            Acasă
+          </Link>
+          <Typography color="text.primary">Profilul meu</Typography>
+        </Breadcrumbs>
+      </Box>
+
 
       <Card elevation={4} sx={{ mb: 3, borderRadius: 3 }}>
         <CardContent sx={{ p: isMobile ? 2 : 4 }}>
-          {/* User Info Header */}
-          <Box display="flex" alignItems="center" gap={2} sx={{ mb: 3 }}>
-            <Person sx={{ fontSize: '3rem', color: theme.palette.primary.main }} />
-            <Box>
-              <Typography variant="h5" gutterBottom>
-                {user.full_name}
-              </Typography>
-              <Box display="flex" gap={1} alignItems="center">
-                <Chip
-                  icon={user.role === 'admin' ? <AdminPanelSettings /> : <Person />}
-                  label={user.role === 'admin' ? 'Administrator' : 'Client'}
-                  color={user.role === 'admin' ? 'secondary' : 'primary'}
-                  variant="outlined"
-                />
-              </Box>
-            </Box>
-          </Box>
-
-          <Divider sx={{ mb: 3 }} />
 
           {/* Error/Success Messages */}
           {error && (
@@ -171,38 +154,198 @@ const Profile: React.FC = () => {
             Informații personale
           </Typography>
 
+          {/* First Row: Name, Email, Phone - Desktop Only */}
+          <Box 
+            sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' },
+              gap: 2,
+              mb: 3
+            }}
+          >
+            <TextField
+              label="Nume complet"
+              value={editing ? profileData.full_name : user.full_name}
+              onChange={(e) => setProfileData(prev => ({ ...prev, full_name: e.target.value }))}
+              disabled={!editing || loading}
+              InputProps={{
+                startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+
+            <TextField
+              label="Email"
+              value={user.email}
+              disabled
+              InputProps={{
+                startAdornment: <Email sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+
+            <TextField
+              label="Număr de telefon"
+              value={editing ? profileData.phone : (user.phone || '')}
+              onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
+              disabled={!editing || loading}
+              placeholder="0729123456"
+              InputProps={{
+                startAdornment: <Phone sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+          </Box>
+
+          {/* Delivery Address Section */}
+          <Typography variant="h6" gutterBottom sx={{ mb: 2, mt: 3 }}>
+            Adrese de livrare
+          </Typography>
+
+          <Box 
+            sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gap: 2,
+              mb: 3
+            }}
+          >
+            <TextField
+              select
+              label="Județ"
+              value={editing ? profileData.county : (user.county || ROMANIA_COUNTIES[0].name)}
+              onChange={(e) => setProfileData(prev => ({ ...prev, county: e.target.value }))}
+              disabled={!editing || loading}
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                      zIndex: 1500,
+                    },
+                  },
+                },
+              }}
+              InputProps={{
+                startAdornment: <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            >
+              <MenuItem value="">
+                <em>Selectează județul</em>
+              </MenuItem>
+              {ROMANIA_COUNTIES.map((county) => (
+                <MenuItem key={county.code} value={county.name}>
+                  {county.name}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
+              label="Localitate"
+              value={editing ? profileData.city : (user.city || '')}
+              onChange={(e) => setProfileData(prev => ({ ...prev, city: e.target.value }))}
+              disabled={!editing || loading}
+              InputProps={{
+                startAdornment: <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+          </Box>
+
+          <Box 
+            sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gap: 2,
+              mb: 2
+            }}
+          >
+            <TextField
+              label="Adresă strada (Linia 1)"
+              value={editing ? profileData.street_address_1 : (user.street_address_1 || '')}
+              onChange={(e) => setProfileData(prev => ({ ...prev, street_address_1: e.target.value }))}
+              disabled={!editing || loading}
+              placeholder="Strada, numărul"
+              inputProps={{ maxLength: 100 }}
+              helperText={`${(editing ? profileData.street_address_1 : (user.street_address_1 || '')).length}/100`}
+              InputProps={{
+                startAdornment: <Home sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+
+            <TextField
+              label="Adresă strada (Linia 2)"
+              value={editing ? profileData.street_address_2 : (user.street_address_2 || '')}
+              onChange={(e) => setProfileData(prev => ({ ...prev, street_address_2: e.target.value }))}
+              disabled={!editing || loading}
+              placeholder="Bloc, scara, apartament (opțional)"
+              inputProps={{ maxLength: 100 }}
+              helperText={`${(editing ? profileData.street_address_2 : (user.street_address_2 || '')).length}/100`}
+              InputProps={{
+                startAdornment: <Home sx={{ mr: 1, color: 'text.secondary' }} />
+              }}
+            />
+          </Box>
+
           <TextField
-            fullWidth
-            label="Nume complet"
-            value={editing ? profileData.full_name : user.full_name}
-            onChange={(e) => setProfileData(prev => ({ ...prev, full_name: e.target.value }))}
+            label="Cod poștal"
+            value={editing ? profileData.postal_code : (user.postal_code || '')}
+            onChange={(e) => setProfileData(prev => ({ ...prev, postal_code: e.target.value }))}
             disabled={!editing || loading}
-            sx={{ mb: 2 }}
+            sx={{ width: { xs: '100%', md: '200px' }, mb: 3 }}
+            inputProps={{ maxLength: 6, pattern: '[0-9]*' }}
             InputProps={{
-              startAdornment: <Person sx={{ mr: 1, color: 'text.secondary' }} />
+              startAdornment: <LocationOn sx={{ mr: 1, color: 'text.secondary' }} />
             }}
           />
 
-          <TextField
-            fullWidth
-            label="Email"
-            value={user.email}
-            disabled
-            sx={{ mb: 3 }}
-            helperText="Email-ul nu poate fi modificat"
-            InputProps={{
-              startAdornment: <Email sx={{ mr: 1, color: 'text.secondary' }} />
-            }}
-          />
+          {/* Newsletter Subscription */}
+          <Box sx={{ mb: 3, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              Preferințe newsletter
+            </Typography>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={editing ? profileData.newsletter_subscribed : (user.newsletter_subscribed || false)}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, newsletter_subscribed: e.target.checked }))}
+                  disabled={!editing || loading}
+                  color="primary"
+                />
+              }
+              label={
+                <Box>
+                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    {(editing ? profileData.newsletter_subscribed : (user.newsletter_subscribed || false))
+                      ? 'Subscris la newsletter' 
+                      : 'Nu ești subscris la newsletter'
+                    }
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Primește oferte speciale și noutăți prin email
+                  </Typography>
+                </Box>
+              }
+            />
+          </Box>
 
-          {/* Profile Action Buttons */}
-          <Box display="flex" gap={2} sx={{ mb: 3 }} flexWrap="wrap">
+          {/* Action Buttons - Right Aligned */}
+          <Box 
+            display="flex" 
+            justifyContent="flex-end"
+            gap={1} 
+            sx={{ mt: 4 }} 
+            flexWrap="wrap"
+          >
             {!editing ? (
               <Button
                 variant="contained"
                 startIcon={<Edit />}
                 onClick={() => setEditing(true)}
                 disabled={loading}
+                size={isMobile ? 'small' : 'medium'}
+                sx={{
+                  backgroundColor: '#FFB300',
+                  '&:hover': {
+                    backgroundColor: '#FF9800'
+                  }
+                }}
               >
                 Editează profilul
               </Button>
@@ -213,8 +356,13 @@ const Profile: React.FC = () => {
                   startIcon={loading ? <CircularProgress size={20} /> : <Save />}
                   onClick={handleUpdateProfile}
                   disabled={loading}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    minWidth: { xs: 'auto', sm: '140px' },
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
                 >
-                  Salvează modificările
+                  {isMobile ? 'Salvează' : 'Salvează modificările'}
                 </Button>
                 <Button
                   variant="outlined"
@@ -222,149 +370,33 @@ const Profile: React.FC = () => {
                     setEditing(false)
                     setProfileData({
                       full_name: user.full_name || '',
-                      email: user.email || ''
+                      email: user.email || '',
+                      phone: user.phone || '',
+                      county: user.county || '',
+                      city: user.city || '',
+                      street_address_1: user.street_address_1 || '',
+                      street_address_2: user.street_address_2 || '',
+                      postal_code: user.postal_code || '',
+                      newsletter_subscribed: user.newsletter_subscribed || false
                     })
                     setError('')
                     setSuccess('')
                   }}
                   disabled={loading}
+                  size={isMobile ? "small" : "medium"}
+                  sx={{
+                    minWidth: { xs: 'auto', sm: '100px' },
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
                 >
                   Anulează
                 </Button>
               </>
             )}
           </Box>
-
-          <Divider sx={{ my: 3 }} />
-
-          {/* Password Change Section */}
-          <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
-            Securitate
-          </Typography>
-
-          {!changePasswordMode ? (
-            <Button
-              variant="outlined"
-              startIcon={<Lock />}
-              onClick={() => setChangePasswordMode(true)}
-              disabled={loading}
-              sx={{ mb: 2 }}
-            >
-              Schimbă parola
-            </Button>
-          ) : (
-            <Box>
-              <TextField
-                fullWidth
-                label="Parola nouă"
-                type="password"
-                value={passwordData.newPassword}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                disabled={loading}
-                sx={{ mb: 2 }}
-                helperText="Minimum 6 caractere"
-              />
-              <TextField
-                fullWidth
-                label="Confirmă parola nouă"
-                type="password"
-                value={passwordData.confirmPassword}
-                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                disabled={loading}
-                sx={{ mb: 2 }}
-              />
-              <Box display="flex" gap={2} flexWrap="wrap">
-                <Button
-                  variant="contained"
-                  startIcon={loading ? <CircularProgress size={20} /> : <Save />}
-                  onClick={handleChangePassword}
-                  disabled={loading}
-                >
-                  Schimbă parola
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    setChangePasswordMode(false)
-                    setPasswordData({ newPassword: '', confirmPassword: '' })
-                    setError('')
-                    setSuccess('')
-                  }}
-                  disabled={loading}
-                >
-                  Anulează
-                </Button>
-              </Box>
-            </Box>
-          )}
-
-          <Divider sx={{ my: 3 }} />
-
-          {/* Danger Zone */}
-          <Typography variant="h6" color="error" gutterBottom sx={{ mb: 2 }}>
-            Zona de pericol
-          </Typography>
-          
-          <Box display="flex" gap={2} flexWrap="wrap">
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<Delete />}
-              onClick={() => setDeleteDialogOpen(true)}
-              disabled={loading}
-            >
-              Șterge contul
-            </Button>
-
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => signOut().then(() => navigate('/auth'))}
-              disabled={loading}
-            >
-              Deconectează-te
-            </Button>
-          </Box>
-
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Cont creat: {new Date(user.created_at).toLocaleDateString('ro-RO')}
-          </Typography>
         </CardContent>
       </Card>
 
-      {/* Delete Account Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle color="error">
-          Confirmare ștergere cont
-        </DialogTitle>
-        <DialogContent>
-          <Typography>
-            Sunteți sigur că doriți să vă ștergeți contul? Această acțiune este ireversibilă și veți pierde toate datele asociate contului.
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setDeleteDialogOpen(false)}
-            disabled={loading}
-          >
-            Anulează
-          </Button>
-          <Button
-            onClick={handleDeleteAccount}
-            color="error"
-            variant="contained"
-            disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} /> : <Delete />}
-          >
-            {loading ? 'Se șterge...' : 'Șterge contul'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   )
 }

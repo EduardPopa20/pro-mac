@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
   const inventoryAlerts: InventoryAlertItem[] = [
     { id: 1, productName: 'Faianță Albă Premium', currentStock: 5, reorderLevel: 10, status: 'low' },
     { id: 2, productName: 'Gresie Gri Modern', currentStock: 0, reorderLevel: 15, status: 'out' },
-    { id: 3, productName: 'Mozaic Decorativ', currentStock: 3, reorderLevel: 8, status: 'low' },
+    { id: 3, productName: 'Parchet Laminat', currentStock: 3, reorderLevel: 8, status: 'low' },
     { id: 4, productName: 'Gresie Exterior Antiderapantă', currentStock: 1, reorderLevel: 5, status: 'low' }
   ]
 

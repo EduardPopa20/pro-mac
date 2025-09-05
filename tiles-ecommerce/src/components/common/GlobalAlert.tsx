@@ -33,7 +33,7 @@ const GlobalAlert: React.FC = () => {
             position: 'fixed',
             bottom: 16,
             right: 16,
-            zIndex: 9999,
+            zIndex: (theme) => theme.zIndex.globalAlert,
             '& .MuiSnackbar-root': {
               position: 'static'
             },

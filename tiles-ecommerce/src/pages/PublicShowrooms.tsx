@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react'
+import Slider from 'react-slick'
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
 import { 
   Box, 
   Typography, 
@@ -15,7 +18,8 @@ import {
   Stack,
   Chip,
   Divider,
-  Paper
+  Paper,
+  IconButton
 } from '@mui/material'
 import { 
   LocationOn, 
@@ -26,7 +30,7 @@ import {
   Directions,
   Store,
   CheckCircle,
-  Cancel
+  Business as BusinessIcon
 } from '@mui/icons-material'
 import { supabase } from '../lib/supabase'
 import type { Showroom } from '../types'
@@ -34,6 +38,37 @@ import type { Showroom } from '../types'
 const PublicShowrooms: React.FC = () => {
   const [showrooms, setShowrooms] = useState<Showroom[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Parse working hours into structured format - Hardcoded realistic schedule
+  const parseWorkingHours = (workingHours: string | null) => {
+    const days = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă']
+    
+    // Hardcoded realistic business hours - in proper week order
+    const schedule = [
+      { day: 'Luni', hours: '08:30 - 18:00' },
+      { day: 'Marți', hours: '08:30 - 18:00' },
+      { day: 'Miercuri', hours: '08:30 - 18:00' },
+      { day: 'Joi', hours: '08:30 - 18:00' },
+      { day: 'Vineri', hours: '08:30 - 18:00' },
+      { day: 'Sâmbătă', hours: '09:00 - 16:00' },
+      { day: 'Duminică', hours: 'Închis' }
+    ]
+    
+    return schedule
+  }
+
+  // Check if showroom is open now
+  const isShowroomOpen = (workingHours: string) => {
+    const now = new Date()
+    const day = now.getDay()
+    const hour = now.getHours()
+    
+    // Simple logic - can be enhanced based on actual hours format
+    if (day === 0) return false // Sunday closed
+    if (day === 6 && hour >= 9 && hour < 16) return true // Saturday 9-16
+    if (day >= 1 && day <= 5 && hour >= 9 && hour < 18) return true // Weekdays 9-18
+    return false
+  }
   
   useEffect(() => {
     const fetchShowrooms = async () => {
@@ -61,25 +96,6 @@ const PublicShowrooms: React.FC = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
-  const handleMapsClick = (showroom: Showroom) => {
-    if (showroom.google_maps_url) {
-      window.open(showroom.google_maps_url, '_blank')
-    } else {
-      const encodedAddress = encodeURIComponent(showroom.address)
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
-      window.open(mapsUrl, '_blank')
-    }
-  }
-
-  const handleWazeClick = (showroom: Showroom) => {
-    if (showroom.waze_url) {
-      window.open(showroom.waze_url, '_blank')
-    } else {
-      const encodedAddress = encodeURIComponent(showroom.address)
-      const wazeUrl = `https://www.waze.com/ul?q=${encodedAddress}`
-      window.open(wazeUrl, '_blank')
-    }
-  }
 
 
   if (loading) {
@@ -115,261 +131,302 @@ const PublicShowrooms: React.FC = () => {
             <Typography color="text.primary">Showroom-uri</Typography>
           </Breadcrumbs>
         </Box>
-        <Paper
-          sx={{
-            p: 6,
-            textAlign: 'center',
-            borderRadius: 3,
-            backgroundColor: 'grey.50'
-          }}
-        >
-          <Store sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-            Nu sunt showroom-uri active momentan
+        <Box display="flex" flexDirection="column" alignItems="center" sx={{ py: 8, textAlign: 'center' }}>
+          <Store sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h5" color="text.secondary" gutterBottom>Nu există showroom-uri active</Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 400 }}>
+            Nu sunt showroom-uri disponibile momentan. Vă rugăm să reveniți mai târziu.
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Vă rugăm să reveniți mai târziu sau să ne contactați pentru informații
-          </Typography>
-        </Paper>
+        </Box>
       </Container>
     )
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Breadcrumbs>
-          <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>Acasă</Link>
-          <Typography color="text.primary">Showroom-uri</Typography>
-        </Breadcrumbs>
-      </Box>
+    <Box>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Breadcrumbs>
+            <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>Acasă</Link>
+            <Typography color="text.primary">Showroom-uri</Typography>
+          </Breadcrumbs>
+        </Box>
+      </Container>
       
-      {/* Header */}
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
-          Showroom-urile noastre
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Vizitează-ne pentru a vedea și atinge produsele noastre de calitate
-        </Typography>
-      </Box>
-
-      <Grid container spacing={4}>
-        {showrooms.map((showroom) => (
-          <Grid item xs={12} md={6} xl={4} key={showroom.id}>
-            <Card 
-              sx={{ 
-                height: '100%',
-                borderRadius: 3,
-                border: `1px solid`,
-                borderColor: 'success.light',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  borderColor: 'success.main',
-                  boxShadow: theme.shadows[6],
-                  transform: 'translateY(-2px)'
-                },
-                position: 'relative',
-                overflow: 'visible'
-              }}
+      {/* Showroom Carousel - Full Width Background */}
+      <Box 
+        sx={{
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          color: 'text.primary',
+          py: 4,
+          mx: -3
+        }}
+      >
+        <Container maxWidth="xl">
+          <Box sx={{ 
+            '.slick-track': { display: 'flex', alignItems: 'stretch' },
+            '.slick-slide': { padding: '0 4px' },
+            '.slick-slide > div': { height: '100%' },
+            overflow: 'hidden',
+            width: '100%',
+            px: { xs: 2, md: 4 }
+          }}>
+            <Slider
+              dots={true}
+              infinite={showrooms.length > 1}
+              speed={500}
+              slidesToShow={1}
+              slidesToScroll={1}
+              autoplay={showrooms.length > 1}
+              autoplaySpeed={5000}
+              pauseOnHover={true}
+              arrows={!isMobile}
+              centerMode={false}
+              variableWidth={false}
             >
-              {/* Status Badge */}
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: -8,
-                  right: 16,
-                  zIndex: 1
-                }}
-              >
-                <Chip
-                  icon={<CheckCircle />}
-                  label="Deschis"
-                  color="success"
-                  size="small"
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: '0.75rem',
-                    height: 24,
-                    boxShadow: theme.shadows[2]
-                  }}
-                />
-              </Box>
-
-              <CardContent sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                {/* Header Section */}
-                <Box
-                  sx={{
-                    p: 3,
-                    pb: 2,
-                    background: `linear-gradient(135deg, ${theme.palette.success.light} 0%, ${theme.palette.success.main} 100%)`,
-                    color: 'white',
-                    borderRadius: '12px 12px 0 0'
-                  }}
-                >
-                  <Box display="flex" alignItems="flex-start" gap={2}>
+              {showrooms.map((showroom) => {
+                const schedule = parseWorkingHours(showroom.opening_hours)
+                const isOpen = isShowroomOpen(showroom.opening_hours || '')
+                
+                return (
+                  <Box key={showroom.id} sx={{ px: { xs: 1, md: 2 } }}>
+                <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+                  <Box
+                    sx={{
+                      overflow: 'hidden'
+                    }}
+                  >
                     <Box
                       sx={{
-                        p: 1.5,
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        backgroundColor: 'white',
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        boxShadow: theme.shadows[4],
+                        p: 3,
                         display: 'flex',
+                        flexDirection: 'column',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        textAlign: 'center'
                       }}
                     >
-                      <Store sx={{ fontSize: 24, color: 'inherit' }} />
-                    </Box>
-                    <Box flex={1}>
+                      {/* Rand 1: Titlul centrat */}
                       <Typography 
-                        variant="h5" 
+                        variant="h4" 
                         sx={{ 
-                          fontWeight: 700, 
-                          mb: 0.5,
-                          lineHeight: 1.2,
-                          letterSpacing: '-0.02em'
+                          fontWeight: 600, 
+                          color: 'text.primary', 
+                          mb: 2,
+                          fontSize: { xs: '1.5rem', md: '2rem' },
+                          textAlign: 'center'
                         }}
                       >
                         {showroom.name}
                       </Typography>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          opacity: 0.9,
-                          fontWeight: 500
-                        }}
-                      >
-                        {showroom.city}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
 
-                {/* Content Section */}
-                <Box sx={{ p: 3, pt: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  
-                  {/* Location */}
-                  <Box display="flex" alignItems="flex-start" gap={1.5} mb={2}>
-                    <LocationOn sx={{ color: 'primary.main', fontSize: 20, mt: 0.1 }} />
-                    <Box>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontWeight: 500,
-                          lineHeight: 1.4,
-                          color: 'text.primary'
-                        }}
-                      >
-                        {showroom.address}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Contact Info */}
-                  <Stack spacing={1.5} sx={{ mb: 2 }}>
-                    {showroom.phone && (
-                      <Box display="flex" alignItems="center" gap={1.5}>
-                        <Phone sx={{ color: 'info.main', fontSize: 18 }} />
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {showroom.phone}
-                        </Typography>
+                      {/* Rand 2: Adresa + Telefon centrate */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 6, mb: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <LocationOn sx={{ fontSize: 20, color: 'primary.main' }} />
+                          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                            {showroom.address}
+                          </Typography>
+                        </Box>
+                        
+                        {showroom.phone && (
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Phone sx={{ fontSize: 20, color: 'primary.main' }} />
+                            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                              {showroom.phone}
+                            </Typography>
+                          </Box>
+                        )}
                       </Box>
-                    )}
-                    
-                    {showroom.email && (
-                      <Box display="flex" alignItems="center" gap={1.5}>
-                        <Email sx={{ color: 'warning.main', fontSize: 18 }} />
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {showroom.email}
-                        </Typography>
+
+                      {/* Separator 1 */}
+                      <Box sx={{ 
+                        width: '100%', 
+                        height: '1px', 
+                        backgroundColor: 'black', 
+                        mb: 3 
+                      }} />
+
+                      {/* Rand 3: Poza + Program */}
+                      <Box sx={{ display: 'flex', gap: 3, mb: 3, width: '100%', alignItems: 'center', flexDirection: { xs: 'column', md: 'row' } }}>
+                        {/* Poza */}
+                        <Box
+                          sx={{
+                            width: { xs: '100%', md: 250 },
+                            height: 200,
+                            background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                            position: 'relative',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 2,
+                            flexShrink: 0
+                          }}
+                        >
+                          <BusinessIcon sx={{ fontSize: 60, color: 'white', opacity: 0.3 }} />
+                          {showroom.photos && showroom.photos.length > 0 && (
+                            <Box
+                              component="img"
+                              src={showroom.photos[0]}
+                              alt={showroom.name}
+                              sx={{
+                                position: 'absolute',
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                borderRadius: 2
+                              }}
+                            />
+                          )}
+                        </Box>
+
+                        {/* Program de lucru */}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1, justifyContent: 'center' }}>
+                            <AccessTime sx={{ fontSize: 20, color: 'primary.main' }} />
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                              Program de lucru
+                            </Typography>
+                          </Box>
+                          <Paper 
+                            elevation={0}
+                            sx={{ 
+                              display: 'flex', 
+                              flexDirection: 'column',
+                              backgroundColor: 'grey.50',
+                              borderRadius: 2,
+                              p: 1.5
+                            }}
+                          >
+                            {schedule.map((item, index) => (
+                              <Box key={index}>
+                                <Box 
+                                  sx={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center', 
+                                    py: 0.5,
+                                    px: 1,
+                                    borderRadius: 1,
+                                    transition: 'background-color 0.2s',
+                                    '&:hover': {
+                                      backgroundColor: 'action.hover'
+                                    }
+                                  }}
+                                >
+                                  <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 80, color: 'text.primary' }}>
+                                    {item.day}
+                                  </Typography>
+                                  <Typography 
+                                    variant="body2" 
+                                    color={item.hours === 'Închis' ? 'error.main' : 'text.primary'}
+                                    sx={{ 
+                                      fontWeight: item.hours === 'Închis' ? 600 : 500,
+                                      textAlign: 'right'
+                                    }}
+                                  >
+                                    {item.hours}
+                                  </Typography>
+                                </Box>
+                                {index < schedule.length - 1 && (
+                                  <Box sx={{ 
+                                    borderBottom: '1px solid',
+                                    borderColor: 'divider',
+                                    my: 0.5,
+                                    width: '100%',
+                                    opacity: 0.5
+                                  }} />
+                                )}
+                              </Box>
+                            ))}
+                          </Paper>
+                        </Box>
                       </Box>
-                    )}
 
-                    {showroom.opening_hours && (
-                      <Box display="flex" alignItems="center" gap={1.5}>
-                        <AccessTime sx={{ color: 'secondary.main', fontSize: 18 }} />
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {showroom.opening_hours}
-                        </Typography>
-                      </Box>
-                    )}
-                  </Stack>
-
-                  {/* Description */}
-                  {showroom.description && (
-                    <Box sx={{ mb: 2, flex: 1 }}>
-                      <Divider sx={{ mb: 2, borderColor: 'divider' }} />
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          lineHeight: 1.5,
-                          fontStyle: 'italic',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}
-                      >
-                        "{showroom.description}"
-                      </Typography>
-                    </Box>
-                  )}
-
-                  {/* Actions */}
-                  <Box sx={{ mt: 'auto', pt: 2 }}>
-                    <Divider sx={{ mb: 2 }} />
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        variant="contained"
-                        size="medium"
-                        startIcon={<Directions />}
-                        onClick={() => handleMapsClick(showroom)}
-                        sx={{ 
-                          flex: 1, 
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          textTransform: 'none',
-                          minHeight: 40,
-                          bgcolor: '#4285F4',
-                          '&:hover': { 
-                            bgcolor: '#3367D6',
-                            transform: 'translateY(-1px)'
-                          }
-                        }}
-                      >
-                        Google Maps
-                      </Button>
+                      {/* Separator 2 */}
+                      <Box sx={{ 
+                        width: '100%', 
+                        height: '1px', 
+                        backgroundColor: 'black', 
+                        mb: 3 
+                      }} />
                       
-                      <Button
-                        variant="contained"
-                        size="medium"
-                        startIcon={<Navigation />}
-                        onClick={() => handleWazeClick(showroom)}
-                        sx={{ 
-                          flex: 1, 
-                          borderRadius: 2,
-                          fontWeight: 600,
-                          textTransform: 'none',
-                          minHeight: 40,
-                          bgcolor: '#00D4FF',
-                          '&:hover': { 
-                            bgcolor: '#00B8E6',
-                            transform: 'translateY(-1px)'
-                          }
-                        }}
-                      >
-                        Waze
-                      </Button>
-                    </Stack>
+                      {/* Rand 4: Butoanele Google Maps si Waze centrate */}
+                      <Box sx={{ display: 'flex', gap: 6, justifyContent: 'center', alignItems: 'center' }}>
+                        <Box
+                          component="a"
+                          href={showroom.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(showroom.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{
+                            display: 'block',
+                            width: { xs: 44, md: 50 },
+                            height: { xs: 44, md: 50 },
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            transition: 'transform 0.2s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)'
+                            },
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src="google-map-icon.png"
+                            alt="Google Maps"
+                            sx={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'contain'
+                            }}
+                          />
+                        </Box>
+
+                        <Box
+                          component="a"
+                          href={showroom.waze_url || `https://waze.com/ul?q=${encodeURIComponent(showroom.address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{
+                            display: 'block',
+                            width: { xs: 56, md: 64 },
+                            height: { xs: 56, md: 64 },
+                            borderRadius: 2,
+                            overflow: 'hidden',
+                            transition: 'transform 0.2s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)'
+                            },
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src="download.png"
+                            alt="Waze"
+                            sx={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'contain'
+                            }}
+                          />
+                        </Box>
+                        </Box>
+                    </Box>
                   </Box>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+              </Box>
+                )
+              })}
+            </Slider>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   )
 }
 

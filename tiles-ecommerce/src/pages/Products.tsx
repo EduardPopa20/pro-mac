@@ -315,7 +315,7 @@ const Products: React.FC = () => {
           position: 'absolute',
           top: 16,
           left: 24,
-          zIndex: 10
+          zIndex: (theme) => theme.zIndex.overlay
         }}
       >
         <Breadcrumbs>
