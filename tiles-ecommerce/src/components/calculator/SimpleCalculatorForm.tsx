@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -17,7 +17,9 @@ import {
   ListItemIcon,
   Divider,
   CircularProgress,
-  Stack
+  Stack,
+  useTheme,
+  useMediaQuery
 } from '@mui/material'
 import {
   Calculate as CalculateIcon,
@@ -49,6 +51,8 @@ interface SimpleCalculatorFormProps {
 export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculatorFormProps) {
   const [result, setResult] = useState<CalculationResult | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   
   // Form state
   const [roomLength, setRoomLength] = useState<string>('')
@@ -62,6 +66,20 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
   // Wall dimensions for faianta
   const [wallLength, setWallLength] = useState<string>('')
   const [wallHeight, setWallHeight] = useState<string>('')
+
+  // Reset form state when calculator type changes
+  useEffect(() => {
+    setResult(null)
+    setRoomLength('')
+    setRoomWidth('')
+    setRoomHeight('')
+    setWallLength('')
+    setWallHeight('')
+    setWastagePercentage(
+      WASTAGE_OPTIONS[calculatorType]?.find(o => o.recommended)?.value || 
+      WASTAGE_OPTIONS[calculatorType]?.[0]?.value || 10
+    )
+  }, [calculatorType])
 
   const handleCalculate = useCallback(async () => {
     setIsCalculating(true)
@@ -205,6 +223,12 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
                         value={wallLength}
                         onChange={(e) => setWallLength(e.target.value)}
                         inputProps={{ min: 0, step: 0.1 }}
+                        sx={{
+                          minWidth: { xs: 80, sm: 90, md: 100 },
+                          '& .MuiInputBase-root': {
+                            fontSize: { xs: '0.875rem', md: '1rem' }
+                          }
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -215,6 +239,12 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
                         value={wallHeight}
                         onChange={(e) => setWallHeight(e.target.value)}
                         inputProps={{ min: 0, step: 0.1 }}
+                        sx={{
+                          minWidth: { xs: 80, sm: 90, md: 100 },
+                          '& .MuiInputBase-root': {
+                            fontSize: { xs: '0.875rem', md: '1rem' }
+                          }
+                        }}
                       />
                     </Grid>
                   </>
@@ -228,6 +258,12 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
                         value={roomLength}
                         onChange={(e) => setRoomLength(e.target.value)}
                         inputProps={{ min: 0, step: 0.1 }}
+                        sx={{
+                          minWidth: { xs: 80, sm: 90, md: 100 },
+                          '& .MuiInputBase-root': {
+                            fontSize: { xs: '0.875rem', md: '1rem' }
+                          }
+                        }}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -238,6 +274,12 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
                         value={roomWidth}
                         onChange={(e) => setRoomWidth(e.target.value)}
                         inputProps={{ min: 0, step: 0.1 }}
+                        sx={{
+                          minWidth: { xs: 80, sm: 90, md: 100 },
+                          '& .MuiInputBase-root': {
+                            fontSize: { xs: '0.875rem', md: '1rem' }
+                          }
+                        }}
                       />
                     </Grid>
                     {calculatorType === 'faianta' && (
@@ -249,6 +291,12 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
                           value={roomHeight}
                           onChange={(e) => setRoomHeight(e.target.value)}
                           inputProps={{ min: 0, step: 0.1 }}
+                          sx={{
+                            minWidth: { xs: 80, sm: 90, md: 100 },
+                            '& .MuiInputBase-root': {
+                              fontSize: { xs: '0.875rem', md: '1rem' }
+                            }
+                          }}
                         />
                       </Grid>
                     )}
@@ -295,12 +343,13 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
                 disabled={!isFormValid() || isCalculating}
                 startIcon={isCalculating ? <CircularProgress size={20} /> : <CalculateIcon />}
                 fullWidth
-                size="large"
+                size={isMobile ? 'medium' : 'large'}
                 sx={{
                   background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
                   boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
                   borderRadius: 3,
                   fontWeight: 600,
+                  minHeight: { xs: 44, md: 48 },
                   '&:hover': {
                     background: 'linear-gradient(45deg, #1976D2 30%, #1BA7D3 90%)',
                     boxShadow: '0 6px 10px 4px rgba(33, 203, 243, .2)',
@@ -319,11 +368,12 @@ export default function SimpleCalculatorForm({ calculatorType }: SimpleCalculato
                 <Button
                   variant="outlined"
                   onClick={resetForm}
-                  size="large"
+                  size={isMobile ? 'medium' : 'large'}
                   sx={{
                     borderRadius: 3,
                     borderWidth: 2,
                     fontWeight: 600,
+                    minHeight: { xs: 44, md: 48 },
                     '&:hover': {
                       borderWidth: 2,
                       transform: 'translateY(-1px)',

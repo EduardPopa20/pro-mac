@@ -154,17 +154,14 @@ export const mapNetopiaStatus = (netopiaCode: string): string => {
 export const validateMerchantConfig = (): boolean => {
   // For development, allow testing without real credentials
   if (isDevelopment) {
-    console.log('Netopia: Development mode - using test credentials')
     return true
   }
   
   if (!netopiaConfig.merchantId || !netopiaConfig.merchantKey) {
-    console.error('Netopia: Missing merchant credentials')
     return false
   }
   
   if (isProduction && (!netopiaConfig.publicCertPath || !netopiaConfig.privateCertPath)) {
-    console.error('Netopia: Missing certificates for production')
     return false
   }
   
@@ -218,15 +215,3 @@ export const SANDBOX_TEST_CARDS = {
 // Export types
 export type PaymentMethodId = keyof typeof PAYMENT_METHODS
 export type NetopiaErrorCode = keyof typeof NETOPIA_ERROR_CODES
-
-// Debug logging (only in development)
-if (isDevelopment) {
-  console.log('Netopia Config:', {
-    paymentUrl: netopiaConfig.paymentUrl,
-    apiUrl: netopiaConfig.apiUrl,
-    merchantId: netopiaConfig.merchantId,
-    hasKey: !!netopiaConfig.merchantKey,
-    confirmUrl: netopiaConfig.confirmUrl,
-    returnUrl: netopiaConfig.returnUrl,
-  })
-}

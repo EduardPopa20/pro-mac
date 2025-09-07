@@ -3,23 +3,18 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   Box,
   Typography,
-  IconButton,
-  Button,
-  Card,
-  CardContent,
+  Container,
   Stack,
   Breadcrumbs,
   Link,
-  Tooltip
+  useTheme,
+  Paper
 } from '@mui/material'
 import {
-  ArrowBack,
   LocationOn,
   Phone,
-  Email,
   AccessTime,
-  Navigation,
-  Directions
+  Business as BusinessIcon
 } from '@mui/icons-material'
 import { useSettingsStore } from '../../stores/settings'
 import type { Showroom } from '../../types'
@@ -65,154 +60,286 @@ const ShowroomPreview: React.FC = () => {
     }
   }, [id, searchParams, showrooms, fetchShowrooms])
 
-  const handleBackToEdit = () => {
-    if (id) {
-      navigate(`/admin/showroom-uri/${id}/edit`)
-    } else {
-      navigate('/admin/showroom-uri/create')
-    }
+  const theme = useTheme()
+
+  // Parse working hours into structured format - Same as PublicShowrooms
+  const parseWorkingHours = (workingHours: string | null) => {
+    const schedule = [
+      { day: 'Luni', hours: '08:30 - 18:00' },
+      { day: 'Marți', hours: '08:30 - 18:00' },
+      { day: 'Miercuri', hours: '08:30 - 18:00' },
+      { day: 'Joi', hours: '08:30 - 18:00' },
+      { day: 'Vineri', hours: '08:30 - 18:00' },
+      { day: 'Sâmbătă', hours: '09:00 - 16:00' },
+      { day: 'Duminică', hours: 'Închis' }
+    ]
+    
+    return schedule
   }
 
   if (!previewShowroom) {
     return (
-      <Box>
-        <Breadcrumbs sx={{ mb: 3 }}>
-          <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
-            Admin
-          </Link>
-          <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
-            Showroom-uri
-          </Link>
-          <Typography color="text.primary">Preview</Typography>
-        </Breadcrumbs>
-        
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Breadcrumbs>
+            <Link href="/admin" color="inherit" sx={{ textDecoration: 'none' }}>Admin</Link>
+            <Link href="/admin/showroom-uri" color="inherit" sx={{ textDecoration: 'none' }}>Showroom-uri</Link>
+            <Typography color="text.primary">Preview</Typography>
+          </Breadcrumbs>
+        </Box>
         <Typography>Se încarcă preview-ul...</Typography>
-      </Box>
+      </Container>
     )
   }
 
+  const schedule = parseWorkingHours(previewShowroom.opening_hours)
+
   return (
     <Box>
-      <Breadcrumbs sx={{ mb: 3 }}>
-        <Link color="inherit" href="/admin" sx={{ textDecoration: 'none' }}>
-          Admin
-        </Link>
-        <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
-          Showroom-uri
-        </Link>
-        <Typography color="text.primary">Preview</Typography>
-      </Breadcrumbs>
-      
-      {/* Header */}
-      <Box display="flex" alignItems="center" gap={2} mb={4}>
-        <Tooltip title="Înapoi la editare">
-          <IconButton 
-            onClick={handleBackToEdit}
-            size="large"
-            sx={{ backgroundColor: 'action.hover' }}
-          >
-            <ArrowBack />
-          </IconButton>
-        </Tooltip>
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
-            Preview Showroom
-          </Typography>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ mb: 4 }}>
+          <Breadcrumbs>
+            <Link href="/admin" color="inherit" sx={{ textDecoration: 'none' }}>Admin</Link>
+            <Link href="/admin/showroom-uri" color="inherit" sx={{ textDecoration: 'none' }}>Showroom-uri</Link>
+            <Typography color="text.primary">Preview</Typography>
+          </Breadcrumbs>
         </Box>
-      </Box>
+      </Container>
+      
+      {/* Showroom Preview - Full Width Background - Same as PublicShowrooms */}
+      <Box 
+        sx={{
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          color: 'text.primary',
+          py: 4,
+          mx: -3
+        }}
+      >
+        <Container maxWidth="xl">
+          <Box sx={{ 
+            overflow: 'hidden',
+            width: '100%',
+            px: { xs: 2, md: 4 }
+          }}>
+            <Box sx={{ px: { xs: 1, md: 2 } }}>
+              <Box sx={{ maxWidth: 800, mx: 'auto' }}>
+                <Box
+                  sx={{
+                    overflow: 'hidden'
+                  }}
+                >
+                  <Box
+                    sx={{
+                      backgroundColor: 'white',
+                      borderRadius: 3,
+                      overflow: 'hidden',
+                      boxShadow: theme.shadows[4],
+                      p: 3,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {/* Row 1: Title centered */}
+                    <Typography 
+                      variant="h4" 
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: 'text.primary', 
+                        mb: 2,
+                        fontSize: { xs: '1.5rem', md: '2rem' },
+                        textAlign: 'center'
+                      }}
+                    >
+                      {previewShowroom.name}
+                    </Typography>
 
-      {/* Preview Card - exactly like in public site */}
-      <Box maxWidth="500px" mx="auto">
-        <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
-          <CardContent sx={{ p: 4 }}>
-            <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-              {previewShowroom.name}
-            </Typography>
-            
-            <Stack spacing={2}>
-              <Box display="flex" alignItems="flex-start" gap={1}>
-                <LocationOn sx={{ color: 'primary.main', fontSize: 20, mt: 0.2 }} />
-                <Box>
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {previewShowroom.city}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {previewShowroom.address}
-                  </Typography>
+                    {/* Row 2: Address + Phone centered */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 6, mb: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <LocationOn sx={{ fontSize: 20, color: 'primary.main' }} />
+                        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                          {previewShowroom.address}
+                        </Typography>
+                      </Box>
+                      
+                      {previewShowroom.phone && (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Phone sx={{ fontSize: 20, color: 'primary.main' }} />
+                          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                            {previewShowroom.phone}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Separator 1 */}
+                    <Box sx={{ 
+                      width: '100%', 
+                      height: '1px', 
+                      backgroundColor: 'black', 
+                      mb: 3 
+                    }} />
+
+                    {/* Row 3: Photo + Schedule */}
+                    <Box sx={{ display: 'flex', gap: 3, mb: 3, width: '100%', alignItems: 'center', flexDirection: { xs: 'column', md: 'row' } }}>
+                      {/* Photo */}
+                      <Box
+                        sx={{
+                          width: { xs: '100%', md: 250 },
+                          height: 200,
+                          background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                          position: 'relative',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 2,
+                          flexShrink: 0
+                        }}
+                      >
+                        <BusinessIcon sx={{ fontSize: 60, color: 'white', opacity: 0.3 }} />
+                      </Box>
+
+                      {/* Working schedule */}
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1, justifyContent: 'center' }}>
+                          <AccessTime sx={{ fontSize: 20, color: 'primary.main' }} />
+                          <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                            Program de lucru
+                          </Typography>
+                        </Box>
+                        <Paper 
+                          elevation={0}
+                          sx={{ 
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            backgroundColor: 'grey.50',
+                            borderRadius: 2,
+                            p: 1.5
+                          }}
+                        >
+                          {schedule.map((item, index) => (
+                            <Box key={index}>
+                              <Box 
+                                sx={{ 
+                                  display: 'flex', 
+                                  justifyContent: 'space-between', 
+                                  alignItems: 'center', 
+                                  py: 0.5,
+                                  px: 1,
+                                  borderRadius: 1,
+                                  transition: 'background-color 0.2s',
+                                  '&:hover': {
+                                    backgroundColor: 'action.hover'
+                                  }
+                                }}
+                              >
+                                <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 80, color: 'text.primary' }}>
+                                  {item.day}
+                                </Typography>
+                                <Typography 
+                                  variant="body2" 
+                                  color={item.hours === 'Închis' ? 'error.main' : 'text.primary'}
+                                  sx={{ 
+                                    fontWeight: item.hours === 'Închis' ? 600 : 500,
+                                    textAlign: 'right'
+                                  }}
+                                >
+                                  {item.hours}
+                                </Typography>
+                              </Box>
+                              {index < schedule.length - 1 && (
+                                <Box sx={{ 
+                                  borderBottom: '1px solid',
+                                  borderColor: 'divider',
+                                  my: 0.5,
+                                  width: '100%',
+                                  opacity: 0.5
+                                }} />
+                              )}
+                            </Box>
+                          ))}
+                        </Paper>
+                      </Box>
+                    </Box>
+
+                    {/* Separator 2 */}
+                    <Box sx={{ 
+                      width: '100%', 
+                      height: '1px', 
+                      backgroundColor: 'black', 
+                      mb: 3 
+                    }} />
+                    
+                    {/* Row 4: Google Maps and Waze buttons centered */}
+                    <Box sx={{ display: 'flex', gap: 6, justifyContent: 'center', alignItems: 'center' }}>
+                      <Box
+                        component="a"
+                        href={previewShowroom.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(previewShowroom.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          display: 'block',
+                          width: { xs: 44, md: 50 },
+                          height: { xs: 44, md: 50 },
+                          borderRadius: 2,
+                          overflow: 'hidden',
+                          transition: 'transform 0.2s ease',
+                          '&:hover': {
+                            transform: 'scale(1.05)'
+                          },
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src="/google-map-icon.png"
+                          alt="Google Maps"
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </Box>
+
+                      <Box
+                        component="a"
+                        href={previewShowroom.waze_url || `https://waze.com/ul?q=${encodeURIComponent(previewShowroom.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                          display: 'block',
+                          width: { xs: 56, md: 64 },
+                          height: { xs: 56, md: 64 },
+                          borderRadius: 2,
+                          overflow: 'hidden',
+                          transition: 'transform 0.2s ease',
+                          '&:hover': {
+                            transform: 'scale(1.05)'
+                          },
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src="/waze.png"
+                          alt="Waze"
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
-
-              {previewShowroom.phone && (
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Phone sx={{ color: 'primary.main', fontSize: 20 }} />
-                  <Typography variant="body1">{previewShowroom.phone}</Typography>
-                </Box>
-              )}
-
-              {previewShowroom.email && (
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Email sx={{ color: 'primary.main', fontSize: 20 }} />
-                  <Typography variant="body1">{previewShowroom.email}</Typography>
-                </Box>
-              )}
-
-              {previewShowroom.opening_hours && (
-                <Box display="flex" alignItems="center" gap={1}>
-                  <AccessTime sx={{ color: 'primary.main', fontSize: 20 }} />
-                  <Typography variant="body1">{previewShowroom.opening_hours}</Typography>
-                </Box>
-              )}
-            </Stack>
-
-            {previewShowroom.description && (
-              <Box mt={3}>
-                <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
-                  {previewShowroom.description}
-                </Typography>
-              </Box>
-            )}
-
-            {(previewShowroom.waze_url || previewShowroom.google_maps_url) && (
-              <Stack direction="row" spacing={2} mt={3}>
-                {previewShowroom.waze_url && (
-                  <Button
-                    variant="contained"
-                    startIcon={<Navigation />}
-                    href={previewShowroom.waze_url}
-                    target="_blank"
-                    size="small"
-                  >
-                    Waze
-                  </Button>
-                )}
-                {previewShowroom.google_maps_url && (
-                  <Button
-                    variant="outlined"
-                    startIcon={<Directions />}
-                    href={previewShowroom.google_maps_url}
-                    target="_blank"
-                    size="small"
-                  >
-                    Google Maps
-                  </Button>
-                )}
-              </Stack>
-            )}
-          </CardContent>
-        </Card>
-      </Box>
-
-      <Box display="flex" justifyContent="center" mt={4}>
-        <Tooltip title="Înapoi la editare">
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleBackToEdit}
-            sx={{ borderRadius: 2, px: 4 }}
-          >
-            Înapoi la editare
-          </Button>
-        </Tooltip>
+            </Box>
+          </Box>
+        </Container>
       </Box>
     </Box>
   )

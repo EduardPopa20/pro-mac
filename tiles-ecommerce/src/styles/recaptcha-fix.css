@@ -1,0 +1,78 @@
+/* Fix for reCAPTCHA v2 z-index issues that block page interaction */
+
+/* Prevent ALL iframes from taking over the entire screen */
+/* Target only reCAPTCHA-related iframes, not all iframes */
+iframe[src*="google.com/recaptcha/"],
+iframe[src*="gstatic.com/recaptcha/"],
+iframe[title*="recaptcha"],
+iframe[title*="reCAPTCHA"] {
+  width: auto !important;
+  height: auto !important;
+  position: static !important;
+  inset: auto !important;
+  display: inline-block !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* Specifically target the invisible reCAPTCHA challenge overlay */
+/* This is the element that often gets z-index: 2000000000 */
+div[style*="z-index: 2000000000"],
+div[style*="z-index:2000000000"] {
+  z-index: 9999 !important;
+  pointer-events: none !important;
+}
+
+/* Allow the actual reCAPTCHA challenge to be clickable */
+div[style*="z-index: 2000000000"] iframe,
+div[style*="z-index:2000000000"] iframe {
+  pointer-events: auto !important;
+}
+
+/* Fix for the reCAPTCHA badge and its container */
+.grecaptcha-badge {
+  z-index: 1000 !important;
+}
+
+/* Ensure the reCAPTCHA container doesn't block the page */
+.g-recaptcha {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Fix for the challenge popup when it appears */
+body > div[style*="position: fixed"][style*="z-index"] {
+  z-index: 9999 !important;
+}
+
+/* Ensure challenge iframe is interactive but contained */
+body > div > div > iframe[title*="recaptcha challenge"] {
+  z-index: 10000 !important;
+  pointer-events: auto !important;
+}
+
+/* Fix for any reCAPTCHA bubble elements */
+.g-recaptcha-bubble-arrow {
+  z-index: 10001 !important;
+}
+
+/* Prevent any element from having an absurdly high z-index */
+*:not(iframe[title*="recaptcha"]) {
+  max-z-index: 999999 !important;
+}
+
+/* Specific fix for MUI components that might conflict */
+.MuiModal-root,
+.MuiDialog-root,
+.MuiPopover-root,
+.MuiTooltip-popper {
+  z-index: 1300 !important;
+}
+
+/* Ensure form elements are always clickable */
+.MuiTextField-root,
+.MuiButton-root,
+.MuiFormControl-root {
+  position: relative;
+  z-index: 1;
+}

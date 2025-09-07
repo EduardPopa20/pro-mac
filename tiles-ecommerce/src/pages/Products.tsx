@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { useNavigateWithScroll } from '../hooks/useNavigateWithScroll'
 import {
   Box,
   Typography,
@@ -49,7 +50,7 @@ import { generateProductSlug } from '../utils/slugUtils'
 
 const Products: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>()
-  const navigate = useNavigate()
+  const navigate = useNavigateWithScroll()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
@@ -72,45 +73,59 @@ const Products: React.FC = () => {
     colors: []
   })
   const [currentPage, setCurrentPage] = useState(1)
+  const [initialLoading, setInitialLoading] = useState(true)
 
+  // Load categories on mount
   useEffect(() => {
-    fetchCategories()
+    if (categories.length === 0) {
+      fetchCategories()
+    }
   }, [fetchCategories])
 
+  // Load page data when category changes or categories are loaded
   useEffect(() => {
     if (!categorySlug) {
       navigate('/')
       return
     }
 
-    const category = categories.find(cat => cat.slug === categorySlug)
-    if (category) {
-      fetchProductsByCategory(category.id, currentPage, 12, filters)
-      // Also fetch all products for the category (for filter options)
-      fetchAllCategoryProducts(category.id)
-    } else if (categories.length > 0) {
-      // Category not found - redirect to home
-      navigate('/')
+    if (categories.length === 0) {
+      setInitialLoading(true)
+      return // Wait for categories to load
     }
-  }, [categorySlug, categories, fetchProductsByCategory, fetchAllCategoryProducts, navigate, currentPage])
+
+    const category = categories.find(cat => cat.slug === categorySlug)
+    if (!category) {
+      navigate('/')
+      return
+    }
+
+    const loadProducts = async () => {
+      try {
+        setInitialLoading(true)
+        await Promise.all([
+          fetchProductsByCategory(category.id, currentPage, 12, filters),
+          fetchAllCategoryProducts(category.id)
+        ])
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+
+    loadProducts()
+  }, [categorySlug, categories, currentPage, filters, navigate])
 
   // Handle filters change
   const handleFiltersChange = (newFilters: ProductFilters) => {
     setFilters(newFilters)
     setCurrentPage(1) // Reset to first page when filters change
-    const category = categories.find(cat => cat.slug === categorySlug)
-    if (category) {
-      fetchProductsByCategory(category.id, 1, 12, newFilters)
-    }
+    // The useEffect will handle re-fetching products
   }
 
   // Handle page change
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page)
-    const category = categories.find(cat => cat.slug === categorySlug)
-    if (category) {
-      fetchProductsByCategory(category.id, page, 12, filters)
-    }
+    // The useEffect will handle re-fetching products
   }
 
   const currentCategory = categories.find(cat => cat.slug === categorySlug)
@@ -319,7 +334,12 @@ const Products: React.FC = () => {
         }}
       >
         <Breadcrumbs>
-          <Link color="inherit" href="/" sx={{ textDecoration: 'none' }}>
+          <Link 
+            component="button" 
+            color="inherit" 
+            onClick={() => navigate('/')}
+            sx={{ textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
             Acasă
           </Link>
           {currentCategory && (
@@ -362,7 +382,7 @@ const Products: React.FC = () => {
 
 
       {/* Loading State */}
-      {loading && (
+      {initialLoading && (
         <Grid container spacing={3}>
           {/* Filter skeleton - only show on desktop during loading */}
           {!isMobile && (
@@ -385,7 +405,7 @@ const Products: React.FC = () => {
       )}
 
       {/* Empty State - No products in category at all */}
-      {!loading && products.length === 0 && (
+      {!initialLoading && products.length === 0 && (
         <Box 
           display="flex" 
           flexDirection="column" 
@@ -413,7 +433,7 @@ const Products: React.FC = () => {
       )}
 
       {/* Main Content Grid with Sidebar - Always show when category exists */}
-      {!loading && currentCategory && (
+      {!initialLoading && currentCategory && (
         <Grid container spacing={3}>
           {/* Filter Sidebar - Always visible when category exists */}
           <Grid size={{ xs: 12, md: 4 }}>
@@ -422,7 +442,7 @@ const Products: React.FC = () => {
               filters={filters}
               onFiltersChange={handleFiltersChange}
               customFilters={customFilters}
-              loading={loading}
+              loading={false}
             />
           </Grid>
 
@@ -505,9 +525,26 @@ const Products: React.FC = () => {
       <Menu
         anchorEl={sortAnchorEl}
         open={Boolean(sortAnchorEl)}
-        onClose={handleSortClose}
+        onClose={(event, reason) => {
+          handleSortClose()
+          // Force cleanup
+          setTimeout(() => {
+            if (document.activeElement && document.activeElement !== document.body) {
+              (document.activeElement as HTMLElement).blur?.()
+            }
+          }, 100)
+        }}
         disableScrollLock={true}
         disableRestoreFocus={true}
+        disableAutoFocus={true}
+        disableEnforceFocus={true}
+        // Force unmount when closed
+        keepMounted={false}
+        // Fast exit transition
+        transitionDuration={{
+          enter: 225,
+          exit: 50,
+        }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
@@ -521,6 +558,10 @@ const Products: React.FC = () => {
             minWidth: 200,
             boxShadow: theme.shadows[8]
           }
+        }}
+        // Prevent backdrop interference
+        BackdropProps={{
+          invisible: true,
         }}
       >
         <MenuItem 

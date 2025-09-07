@@ -62,6 +62,25 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
   categoryType
 }) => {
   const theme = useTheme()
+  
+  // Validation helper
+  const isFormValid = () => {
+    const hasName = productForm.name && String(productForm.name).trim().length > 0
+    const hasPrice = productForm.price && String(productForm.price).trim().length > 0 && Number(productForm.price) > 0
+    
+    // Debug logging
+    if (typeof window !== 'undefined') {
+      console.log('Form validation:', {
+        name: productForm.name,
+        price: productForm.price,
+        hasName,
+        hasPrice,
+        isValid: hasName && hasPrice
+      })
+    }
+    
+    return hasName && hasPrice
+  }
 
   const FormSection: React.FC<{
     icon: React.ReactNode
@@ -184,7 +203,10 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
                   <FormField label="Nume Produs" required>
                     <TextField
                       value={productForm.name}
-                      onChange={(e) => setProductForm(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) => {
+                        console.log('Name onChange:', e.target.value)
+                        setProductForm(prev => ({ ...prev, name: e.target.value }))
+                      }}
                       fullWidth
                       placeholder="Introduceti numele produsului"
                       sx={{
@@ -586,7 +608,10 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
                     <TextField
                       type="number"
                       value={productForm.price}
-                      onChange={(e) => setProductForm(prev => ({ ...prev, price: e.target.value }))}
+                      onChange={(e) => {
+                        console.log('Price onChange:', e.target.value)
+                        setProductForm(prev => ({ ...prev, price: e.target.value }))
+                      }}
                       fullWidth
                       inputProps={{ min: 0, step: 0.01 }}
                       sx={{
@@ -709,6 +734,41 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
                 </FormField>
               </Stack>
             </FormSection>
+
+            {/* 8. Action Buttons */}
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
+                Acțiuni
+              </Typography>
+              <Stack spacing={2}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={onSave}
+                  disabled={saving || !isFormValid()}
+                  startIcon={saving ? <CircularProgress size={20} /> : undefined}
+                  sx={{ 
+                    minHeight: 48,
+                    fontWeight: 600
+                  }}
+                >
+                  {saving ? 'Se salvează...' : 'Salvează'} Produs
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  size="large"
+                  onClick={onCancel}
+                  disabled={saving}
+                  sx={{ 
+                    minHeight: 48,
+                    fontWeight: 600
+                  }}
+                >
+                  Anulează
+                </Button>
+              </Stack>
+            </Paper>
 
       </Stack>
     </Box>

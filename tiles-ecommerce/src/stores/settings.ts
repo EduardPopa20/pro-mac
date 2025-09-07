@@ -78,7 +78,20 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       await realTimeEvents.emitEvent('site_settings', 'update', { key, value })
     } catch (error: any) {
       console.error('Error updating setting:', error.message)
-      throw new Error('Eroare la actualizarea setării')
+      // Provide user-friendly error messages
+      if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
+        throw new Error('Există deja o setare cu această cheie')
+      }
+      if (error.message.includes('violates not-null constraint')) {
+        throw new Error('Câmpuri obligatorii lipsă. Vă rugăm să completați toate informațiile necesare')
+      }
+      if (error.message.includes('violates check constraint')) {
+        throw new Error('Valoarea introdusă nu respectă formatul necesar')
+      }
+      if (error.message.includes('permission denied') || error.message.includes('access denied')) {
+        throw new Error('Nu aveți permisiuni pentru a modifica această setare')
+      }
+      throw new Error(error.message || 'Eroare la actualizarea setării')
     }
   },
 
@@ -134,7 +147,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       await realTimeEvents.emitEvent('showrooms', 'update', updatedShowroom)
     } catch (error: any) {
       console.error('Error updating showroom:', error.message)
-      throw new Error('Eroare la actualizarea showroom-ului')
+      // Provide user-friendly error messages
+      if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
+        throw new Error('Există deja un showroom cu același nume sau adresă')
+      }
+      if (error.message.includes('violates not-null constraint')) {
+        throw new Error('Câmpuri obligatorii lipsă. Vă rugăm să completați toate informațiile necesare')
+      }
+      if (error.message.includes('violates check constraint')) {
+        throw new Error('Datele introduse nu respectă formatul necesar')
+      }
+      throw new Error(error.message || 'Eroare la actualizarea showroom-ului')
     }
   },
 
@@ -159,7 +182,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       return newShowroom
     } catch (error: any) {
       console.error('Error creating showroom:', error.message)
-      throw new Error('Eroare la crearea showroom-ului')
+      // Provide user-friendly error messages
+      if (error.message.includes('duplicate key') || error.message.includes('unique constraint')) {
+        throw new Error('Există deja un showroom cu același nume sau adresă')
+      }
+      if (error.message.includes('violates not-null constraint')) {
+        throw new Error('Câmpuri obligatorii lipsă. Vă rugăm să completați toate informațiile necesare')
+      }
+      if (error.message.includes('violates check constraint')) {
+        throw new Error('Datele introduse nu respectă formatul necesar')
+      }
+      throw new Error(error.message || 'Eroare la crearea showroom-ului')
     }
   },
 
@@ -181,7 +214,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       await realTimeEvents.emitEvent('showrooms', 'delete', { id })
     } catch (error: any) {
       console.error('Error deleting showroom:', error.message)
-      throw new Error('Eroare la ștergerea showroom-ului')
+      // Provide user-friendly error messages
+      if (error.message.includes('foreign key constraint')) {
+        throw new Error('Nu se poate șterge showroom-ul deoarece este folosit în alte părți ale sistemului')
+      }
+      throw new Error(error.message || 'Eroare la ștergerea showroom-ului')
     }
   }
 }))

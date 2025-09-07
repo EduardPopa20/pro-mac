@@ -10,6 +10,8 @@ interface ImageUploadProps {
   folder?: string
   maxSizeInMB?: number
   acceptedFormats?: string[]
+  onImageRemove?: () => void // New prop for state-only removal
+  removeFromStorage?: boolean // Flag to control whether to actually delete from storage
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -18,7 +20,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   bucketName = 'product-images',
   folder = 'products',
   maxSizeInMB = 10,
-  acceptedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  acceptedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+  onImageRemove,
+  removeFromStorage = true
 }) => {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -28,6 +32,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const getCurrentImageUrl = useCallback(() => {
     if (!currentImagePath) return null
     
+    // If currentImagePath is already a full URL, return it directly
+    if (currentImagePath.startsWith('http')) {
+      return currentImagePath
+    }
+    
+    // Otherwise, treat it as a storage path and get the public URL
     const { data } = supabase.storage
       .from(bucketName)
       .getPublicUrl(currentImagePath)
@@ -119,6 +129,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleRemoveImage = async () => {
     if (!currentImagePath) return
 
+    // If onImageRemove callback is provided, use it for state-only removal
+    if (onImageRemove && !removeFromStorage) {
+      onImageRemove()
+      return
+    }
+
+    // Legacy behavior: remove from storage (for backwards compatibility)
     try {
       setUploading(true)
       
@@ -146,9 +163,22 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   return (
     <Box>
-      {/* Current Image Display */}
-      {currentImageUrl && (
-        <Box sx={{ mb: 2, position: 'relative' }}>
+      {currentImageUrl ? (
+        /* Image Display with Remove Button */
+        <Box 
+          sx={{ 
+            position: 'relative',
+            borderRadius: 3,
+            overflow: 'hidden',
+            border: '2px solid',
+            borderColor: 'divider',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              borderColor: 'primary.main',
+              boxShadow: (theme) => theme.shadows[4]
+            }
+          }}
+        >
           <Box
             component="img"
             src={currentImageUrl}
@@ -157,72 +187,108 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               width: '100%',
               maxWidth: 300,
               height: 200,
-              objectFit: 'cover',
-              borderRadius: 1,
-              border: 1,
-              borderColor: 'divider'
+              objectFit: 'contain',
+              display: 'block',
+              margin: '0 auto',
+              backgroundColor: 'grey.50'
             }}
           />
-          <IconButton
-            onClick={handleRemoveImage}
-            disabled={uploading}
+          
+          {/* Remove Button Overlay */}
+          <Box
             sx={{
               position: 'absolute',
-              top: 8,
-              right: 8,
-              bgcolor: 'error.main',
-              color: 'white',
-              '&:hover': {
-                bgcolor: 'error.dark'
-              }
+              top: 0,
+              right: 0,
+              left: 0,
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%)',
+              padding: 2,
+              display: 'flex',
+              justifyContent: 'flex-end'
             }}
-            size="small"
           >
-            <Delete />
-          </IconButton>
+            <IconButton
+              onClick={handleRemoveImage}
+              disabled={uploading}
+              sx={{
+                bgcolor: 'rgba(255,255,255,0.9)',
+                color: 'error.main',
+                backdropFilter: 'blur(4px)',
+                '&:hover': {
+                  bgcolor: 'rgba(255,255,255,1)',
+                  transform: 'scale(1.1)'
+                },
+                '&:disabled': {
+                  bgcolor: 'rgba(255,255,255,0.5)'
+                }
+              }}
+              size="small"
+            >
+              <Delete />
+            </IconButton>
+          </Box>
+          
+          {/* Image Info Overlay */}
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%)',
+              color: 'white',
+              p: 2
+            }}
+          >
+            <Typography variant="caption" sx={{ fontWeight: 600 }}>
+              Imagine Produs
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9, fontSize: '0.75rem' }}>
+              Click pe coșul de gunoi pentru a elimina imaginea
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        /* Upload Area */
+        <Box
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          sx={{
+            border: 2,
+            borderStyle: 'dashed',
+            borderColor: dragActive ? 'primary.main' : 'divider',
+            borderRadius: 2,
+            p: 3,
+            textAlign: 'center',
+            bgcolor: dragActive ? 'action.hover' : 'background.paper',
+            transition: 'all 0.2s ease',
+            cursor: uploading ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {uploading ? (
+            <Box>
+              <CircularProgress size={40} sx={{ mb: 2 }} />
+              <Typography variant="body2" color="text.secondary">
+                Se încarcă imaginea...
+              </Typography>
+            </Box>
+          ) : (
+            <Box>
+              <ImageIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" gutterBottom>
+                {dragActive ? 'Eliberează pentru a încărca' : 'Încarcă o imagine'}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Trage și eliberează sau faceți clic pentru a selecta
+              </Typography>
+              <Typography variant="caption" color="text.secondary" display="block">
+                Max {maxSizeInMB}MB • {acceptedFormats.map(f => f.split('/')[1]).join(', ').toUpperCase()}
+              </Typography>
+            </Box>
+          )}
         </Box>
       )}
-
-      {/* Upload Area */}
-      <Box
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        sx={{
-          border: 2,
-          borderStyle: 'dashed',
-          borderColor: dragActive ? 'primary.main' : 'divider',
-          borderRadius: 2,
-          p: 3,
-          textAlign: 'center',
-          bgcolor: dragActive ? 'action.hover' : 'background.paper',
-          transition: 'all 0.2s ease',
-          cursor: uploading ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {uploading ? (
-          <Box>
-            <CircularProgress size={40} sx={{ mb: 2 }} />
-            <Typography variant="body2" color="text.secondary">
-              Se încarcă imaginea...
-            </Typography>
-          </Box>
-        ) : (
-          <Box>
-            <ImageIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              {dragActive ? 'Eliberează pentru a încărca' : 'Încarcă o imagine'}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Trage și eliberează sau faceți clic pentru a selecta
-            </Typography>
-            <Typography variant="caption" color="text.secondary" display="block">
-              Max {maxSizeInMB}MB • {acceptedFormats.map(f => f.split('/')[1]).join(', ').toUpperCase()}
-            </Typography>
-          </Box>
-        )}
-      </Box>
-
       {/* File Input Button */}
       <Box sx={{ mt: 2, textAlign: 'center' }}>
         <Button

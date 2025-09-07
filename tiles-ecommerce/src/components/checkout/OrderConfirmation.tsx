@@ -180,7 +180,7 @@ export default function OrderConfirmation({ orderId, orderNumber, email }: Order
               variant="outlined"
               size="large"
               startIcon={<Receipt />}
-              onClick={() => navigate(`/profile/orders/${orderId}`)}
+              onClick={() => navigate(`/profil/orders/${orderId}`)}
               sx={{ flex: { xs: '1 1 100%', sm: '1 1 auto' } }}
             >
               Vezi comanda

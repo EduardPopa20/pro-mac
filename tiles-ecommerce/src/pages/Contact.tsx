@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import {
   Box,
   Typography,
@@ -18,6 +18,8 @@ import {
   useTheme,
   useMediaQuery,
   Grid,
+  Chip,
+  LinearProgress
 } from '@mui/material'
 import {
   Email,
@@ -26,30 +28,45 @@ import {
   Send,
   Phone,
   LocationOn,
+  Warning,
+  CheckCircle,
+  Info
 } from '@mui/icons-material'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
+import { useNavigateWithScroll } from '../hooks/useNavigateWithScroll'
 
 interface ContactFormData {
   name: string
   email: string
   phone: string
   message: string
+  honeypot: string // Hidden field for bot detection
 }
 
 const Contact: React.FC = () => {
   const theme = useTheme()
+  const navigate = useNavigateWithScroll()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const { user } = useAuthStore()
+  
+  // Track form load time for bot detection
+  const formLoadTimeRef = useRef<number>(Date.now())
+  
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     phone: '',
-    message: ''
+    message: '',
+    honeypot: '' // Should remain empty
   })
+  
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
+  const [remainingMessages, setRemainingMessages] = useState<number | null>(null)
+  const [cooldownSeconds, setCooldownSeconds] = useState(0)
+  const [requiresCaptcha, setRequiresCaptcha] = useState(false)
 
   // Precompletez datele pentru utilizatorii autentificați
   useEffect(() => {
@@ -62,6 +79,16 @@ const Contact: React.FC = () => {
       }))
     }
   }, [user])
+
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldownSeconds > 0) {
+      const timer = setTimeout(() => {
+        setCooldownSeconds(prev => prev - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [cooldownSeconds])
 
   const handleInputChange = useCallback((field: keyof ContactFormData) => 
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -92,6 +119,10 @@ const Contact: React.FC = () => {
       setError('Mesajul nu poate depăși 500 de caractere')
       return false
     }
+    if (formData.message.length < 10) {
+      setError('Mesajul trebuie să aibă cel puțin 10 caractere')
+      return false
+    }
     return true
   }
 
@@ -104,49 +135,77 @@ const Contact: React.FC = () => {
       return
     }
 
+    // Check if still in cooldown
+    if (cooldownSeconds > 0) {
+      setError(`Vă rugăm să așteptați ${cooldownSeconds} secunde înainte de a trimite un alt mesaj`)
+      return
+    }
+
     setLoading(true)
 
     try {
-      // Store contact message in database (anonymous users can't use .select())
-      const { error: dbError } = await supabase
-        .from('contact_messages')
-        .insert([
-          {
-            name: formData.name.trim(),
-            email: formData.email.trim().toLowerCase(),
-            message: formData.message.trim(),
-            // Add phone if provided - will be stored as admin_notes for now since column doesn't exist yet
-            admin_notes: formData.phone.trim() ? `Telefon: ${formData.phone.trim()}` : null
-          }
-        ])
-
-      if (dbError) throw dbError
-
-      // Send email notification via Edge Function (works for anonymous users)
-      try {
-        const emailResponse = await supabase.functions.invoke('send-contact-email', {
-          body: {
-            name: formData.name.trim(),
-            email: formData.email.trim().toLowerCase(),
-            phone: formData.phone.trim(),
-            message: formData.message.trim()
-          }
-        })
-
-        if (emailResponse.error) {
-          console.warn('Email sending failed:', emailResponse.error)
-          // Don't fail the whole operation if email fails
+      // Call the protected edge function with rate limiting
+      const { data, error: functionError } = await supabase.functions.invoke('send-contact-email-prevented', {
+        body: {
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          message: formData.message.trim(),
+          honeypot: formData.honeypot, // Will be checked server-side
+          formLoadTime: formLoadTimeRef.current // Time when form was loaded
         }
-      } catch (emailError: any) {
-        console.warn('Email sending failed:', emailError.message)
-        // Don't fail the whole operation if email fails
+      })
+
+      if (functionError) {
+        console.error('Contact error:', functionError)
+        
+        // Handle rate limiting errors
+        if (data?.error) {
+          setError(data.error)
+          
+          // Set cooldown if provided
+          if (data.retryAfter) {
+            setCooldownSeconds(data.retryAfter)
+          }
+          
+          // Show captcha requirement if needed
+          if (data.requiresCaptcha) {
+            setRequiresCaptcha(true)
+          }
+        } else {
+          setError('A apărut o eroare. Vă rugăm să încercați mai târziu.')
+        }
+        
+        return
       }
-      
-      setSuccess('Mesajul dvs. a fost trimis cu succes! Vă vom contacta în curând.')
-      setFormData({ name: '', email: '', phone: '', message: '' })
-      
-      // Hide success message after 5 seconds
-      setTimeout(() => setSuccess(''), 5000)
+
+      // Success!
+      if (data?.success) {
+        setSuccess(data.message || 'Mesajul dvs. a fost trimis cu succes! Vă vom contacta în curând.')
+        
+        // Update remaining messages count
+        if (data.remainingMessages !== undefined) {
+          setRemainingMessages(data.remainingMessages)
+        }
+        
+        // Reset form
+        setFormData({ 
+          name: user?.full_name || '',
+          email: user?.email || '',
+          phone: user?.phone || '',
+          message: '',
+          honeypot: ''
+        })
+        
+        // Reset form load time
+        formLoadTimeRef.current = Date.now()
+        
+        // Hide success message after 10 seconds
+        setTimeout(() => {
+          setSuccess('')
+          setRemainingMessages(null)
+        }, 10000)
+      }
     } catch (error: any) {
       console.error('Error sending contact message:', error.message)
       setError('A apărut o eroare la trimiterea mesajului. Vă rugăm să încercați din nou.')
@@ -155,47 +214,36 @@ const Contact: React.FC = () => {
     }
   }
 
-  const renderBreadcrumbs = () => (
-    <Breadcrumbs sx={{ mb: 4 }}>
-      <Link color="inherit" href="/" sx={{ textDecoration: 'none' }}>
-        Acasă
-      </Link>
-      <Typography color="text.primary">
-        Contact
-      </Typography>
-    </Breadcrumbs>
-  )
-
-  // Standardized loading state following CLAUDE.md guidelines
-  if (loading && !success && !error && !formData.name && !formData.email && !formData.phone && !formData.message) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        {renderBreadcrumbs()}
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          sx={{ minHeight: 'calc(100vh - 200px)', width: '100%' }}
-        >
-          <Stack alignItems="center" spacing={2}>
-            <CircularProgress size={50} />
-            <Typography color="text.secondary">Se încarcă datele...</Typography>
-          </Stack>
-        </Box>
-      </Container>
-    )
-  }
-
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {renderBreadcrumbs()}
+      {/* Breadcrumbs */}
+      <Breadcrumbs sx={{ mb: 4 }}>
+        <Link 
+          component="button"
+          color="inherit" 
+          onClick={() => navigate('/')}
+          sx={{ textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          Acasă
+        </Link>
+        <Typography color="text.primary">
+          Contact
+        </Typography>
+      </Breadcrumbs>
       
       {/* Page Header */}
       <Box sx={{ textAlign: 'center', mb: 6 }}>
         <Typography 
           variant="h3" 
           component="h1" 
-          sx={{ fontWeight: 700, mb: 2 }}
+          sx={{ 
+            mb: 2, 
+            fontWeight: 700,
+            background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
         >
           Contactează-ne
         </Typography>
@@ -218,23 +266,80 @@ const Contact: React.FC = () => {
           mb: 4
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
-          Trimite un mesaj
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600 }}>
+            Trimite un mesaj
+          </Typography>
+          
+          {/* Rate limit indicator */}
+          {remainingMessages !== null && (
+            <Chip
+              icon={<Info />}
+              label={`${remainingMessages} mesaje rămase astăzi`}
+              color={remainingMessages > 0 ? 'success' : 'error'}
+              variant="outlined"
+              size="small"
+            />
+          )}
+        </Box>
+
+        {/* Cooldown progress */}
+        {cooldownSeconds > 0 && (
+          <Box sx={{ mb: 3 }}>
+            <Alert severity="warning" icon={<Warning />}>
+              Vă rugăm să așteptați {cooldownSeconds} secunde înainte de a trimite un alt mesaj
+            </Alert>
+            <LinearProgress 
+              variant="determinate" 
+              value={100 - (cooldownSeconds / 15) * 100}
+              sx={{ mt: 1, borderRadius: 1 }}
+            />
+          </Box>
+        )}
 
         {error && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+          <Alert 
+            severity="error" 
+            sx={{ mb: 3, borderRadius: 2 }}
+            onClose={() => setError('')}
+          >
             {error}
           </Alert>
         )}
 
         {success && (
-          <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
+          <Alert 
+            severity="success" 
+            icon={<CheckCircle />}
+            sx={{ mb: 3, borderRadius: 2 }}
+            onClose={() => {
+              setSuccess('')
+              setRemainingMessages(null)
+            }}
+          >
             {success}
           </Alert>
         )}
 
+        {/* CAPTCHA requirement notice */}
+        {requiresCaptcha && (
+          <Alert severity="info" sx={{ mb: 3, borderRadius: 2 }}>
+            Pentru siguranța dvs., vă rugăm să completați verificarea CAPTCHA de mai jos
+          </Alert>
+        )}
+
         <Box component="form" onSubmit={handleSubmit}>
+          {/* Hidden honeypot field for bot detection */}
+          <input
+            type="text"
+            name="website"
+            value={formData.honeypot}
+            onChange={handleInputChange('honeypot')}
+            style={{ display: 'none' }}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+
           {/* Row 1: Name, Email, and Phone responsive layout */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, md: 4 }}>
@@ -244,7 +349,7 @@ const Contact: React.FC = () => {
                 label="Numele complet"
                 value={formData.name}
                 onChange={handleInputChange('name')}
-                disabled={loading}
+                disabled={loading || cooldownSeconds > 0}
                 InputProps={{
                   startAdornment: (
                     <Person sx={{ color: 'text.secondary', mr: 1 }} />
@@ -266,7 +371,7 @@ const Contact: React.FC = () => {
                 label="Adresa de email"
                 value={formData.email}
                 onChange={handleInputChange('email')}
-                disabled={loading}
+                disabled={loading || cooldownSeconds > 0}
                 InputProps={{
                   startAdornment: (
                     <Email sx={{ color: 'text.secondary', mr: 1 }} />
@@ -284,10 +389,10 @@ const Contact: React.FC = () => {
               <TextField
                 fullWidth
                 type="tel"
-                label="Numărul de telefon"
+                label="Numărul de telefon (opțional)"
                 value={formData.phone}
                 onChange={handleInputChange('phone')}
-                disabled={loading}
+                disabled={loading || cooldownSeconds > 0}
                 placeholder="07XX XXX XXX"
                 InputProps={{
                   startAdornment: (
@@ -313,9 +418,16 @@ const Contact: React.FC = () => {
               label="Mesajul dvs."
               value={formData.message}
               onChange={handleInputChange('message')}
-              disabled={loading}
-              placeholder="Descrieți cererea dvs., întrebarea sau sugestia..."
-              helperText={`${formData.message.length}/500 caractere`}
+              disabled={loading || cooldownSeconds > 0}
+              placeholder="Descrieți cererea dvs., întrebarea sau sugestia... (minim 10 caractere)"
+              helperText={
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{formData.message.length < 10 ? `Minim 10 caractere` : ''}</span>
+                  <span style={{ color: formData.message.length > 450 ? 'orange' : 'inherit' }}>
+                    {formData.message.length}/500 caractere
+                  </span>
+                </Box>
+              }
               InputProps={{
                 startAdornment: (
                   <Message sx={{ color: 'text.secondary', mr: 1, alignSelf: 'flex-start', mt: 1.5 }} />
@@ -330,25 +442,32 @@ const Contact: React.FC = () => {
           </Box>
 
           {/* Row 3: Submit button on the right */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Tooltip title="Trimite mesajul către echipa noastră">
-              <Button
-                type="submit"
-                variant="contained"
-                size="large"
-                disabled={loading}
-                startIcon={loading ? <CircularProgress size={20} /> : <Send />}
-                sx={{
-                  minHeight: { xs: 44, sm: 44, md: 48 }, // CLAUDE.md compliance with sm breakpoint
-                  borderRadius: 2,
-                  px: 4,
-                  py: 1.5,
-                  fontSize: '1.1rem',
-                  fontWeight: 600
-                }}
-              >
-                {loading ? 'Se trimite...' : 'Trimite mesajul'}
-              </Button>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Rate limit info */}
+            <Typography variant="caption" color="text.secondary">
+              * Maxim 3 mesaje per adresă de email în 24 de ore
+            </Typography>
+            
+            <Tooltip title={cooldownSeconds > 0 ? `Așteptați ${cooldownSeconds} secunde` : 'Trimite mesajul către echipa noastră'}>
+              <span>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={loading || cooldownSeconds > 0}
+                  startIcon={loading ? <CircularProgress size={20} /> : <Send />}
+                  sx={{
+                    minHeight: { xs: 44, sm: 44, md: 48 },
+                    borderRadius: 2,
+                    px: 4,
+                    py: 1.5,
+                    fontSize: '1.1rem',
+                    fontWeight: 600
+                  }}
+                >
+                  {loading ? 'Se trimite...' : 'Trimite mesajul'}
+                </Button>
+              </span>
             </Tooltip>
           </Box>
         </Box>

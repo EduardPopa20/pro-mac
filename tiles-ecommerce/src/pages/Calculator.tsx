@@ -7,14 +7,18 @@ import {
   Link,
   Tabs,
   Tab,
-  Paper
+  Paper,
+  useTheme,
+  useMediaQuery,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material'
-import {
-  Layers as LayersIcon,
-  Straighten as StraightenIcon,
-  Forest as ForestIcon,
-  Architecture as ArchitectureIcon
-} from '@mui/icons-material'
+import FaiantaIcon from '../components/icons/FaiantaIcon'
+import GresieIcon from '../components/icons/GresieIcon'
+import ParchetIcon from '../components/icons/ParchetIcon'
+import RiflajeIcon from '../components/icons/RiflajeIcon'
 import type { ProductCalculatorType } from '../types/calculator'
 import SimpleCalculatorForm from '../components/calculator/SimpleCalculatorForm'
 
@@ -24,31 +28,75 @@ interface CalculatorTab {
   icon: React.ReactNode
 }
 
-const calculatorTabs: CalculatorTab[] = [
+// Culori consistente cu pagina Categories
+const getCategoryColors = (category: ProductCalculatorType) => {
+  const colorMap = {
+    'faianta': { 
+      bgColor: '#E3F2FD', 
+      iconColor: '#1976D2',
+      hoverColor: '#BBDEFB'
+    },
+    'gresie': { 
+      bgColor: '#F3E5F5', 
+      iconColor: '#7B1FA2',
+      hoverColor: '#E1BEE7'
+    },
+    'parchet': { 
+      bgColor: '#FFF3E0', 
+      iconColor: '#F57C00',
+      hoverColor: '#FFE0B2'
+    },
+    'riflaje': { 
+      bgColor: '#E8F5E8', 
+      iconColor: '#388E3C',
+      hoverColor: '#C8E6C9'
+    }
+  }
+  return colorMap[category]
+}
+
+const getCalculatorTabs = (activeTab: ProductCalculatorType): CalculatorTab[] => [
   {
     id: 'gresie',
     label: 'Gresie',
-    icon: <LayersIcon />
+    icon: <GresieIcon size={32} color={activeTab === 'gresie' ? 'white' : getCategoryColors('gresie').iconColor} />
   },
   {
     id: 'faianta', 
     label: 'Faianță',
-    icon: <StraightenIcon />
+    icon: <FaiantaIcon size={32} color={activeTab === 'faianta' ? 'white' : getCategoryColors('faianta').iconColor} />
   },
   {
     id: 'parchet',
     label: 'Parchet',
-    icon: <ForestIcon />
+    icon: <ParchetIcon size={32} color={activeTab === 'parchet' ? 'white' : getCategoryColors('parchet').iconColor} />
   },
   {
     id: 'riflaje',
     label: 'Riflaje',
-    icon: <ArchitectureIcon />
+    icon: <RiflajeIcon size={32} color={activeTab === 'riflaje' ? 'white' : getCategoryColors('riflaje').iconColor} />
   }
 ]
 
 export default function Calculator() {
   const [activeTab, setActiveTab] = useState<ProductCalculatorType>('gresie')
+  const [selectOpen, setSelectOpen] = useState(false)
+  const calculatorTabs = getCalculatorTabs(activeTab)
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')) // xs screens (< 600px)
+  
+  // Handle select change with proper focus management
+  const handleSelectChange = (event: { target: { value: string } }) => {
+    setActiveTab(event.target.value as ProductCalculatorType)
+    setSelectOpen(false)
+    // Allow focus to return to the select trigger properly
+    setTimeout(() => {
+      const firstInput = document.querySelector('input[type="number"]') as HTMLInputElement
+      if (firstInput) {
+        firstInput.focus()
+      }
+    }, 100)
+  }
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -65,11 +113,15 @@ export default function Calculator() {
       {/* Page Title */}
       <Box sx={{ mb: 4, textAlign: 'center' }}>
         <Typography 
-          variant="h1" 
+          variant="h3" 
+          component="h1"
           sx={{ 
-            fontSize: { xs: '2rem', md: '3rem' },
+            mb: 2, 
             fontWeight: 700,
-            mb: 2
+            background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
           }}
         >
           Calculatoare Materiale
@@ -83,7 +135,7 @@ export default function Calculator() {
         </Typography>
       </Box>
 
-      {/* Calculator Tabs */}
+      {/* Calculator Tabs - Responsive */}
       <Paper 
         sx={{ 
           width: '100%',
@@ -94,46 +146,118 @@ export default function Calculator() {
           borderColor: 'grey.200'
         }}
       >
-        <Tabs
-          value={activeTab}
-          onChange={(_, newValue) => setActiveTab(newValue)}
-          variant="fullWidth"
-          sx={{
-            borderBottom: 1,
-            borderColor: 'divider',
-            '& .MuiTab-root': {
-              minHeight: 80,
-              flexDirection: 'column',
-              gap: 1,
-              borderRadius: '12px 12px 0 0',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                backgroundColor: 'primary.light',
-                color: 'white'
-              },
-              '&.Mui-selected': {
-                background: 'linear-gradient(135deg, #2196F3 0%, #21CBF3 100%)',
-                color: 'white',
-                '& .MuiSvgIcon-root': {
-                  filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.3))'
-                }
+        {/* Mobile View - Dropdown Select */}
+        {isMobile ? (
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <FormControl fullWidth>
+              <InputLabel id="calculator-select-label">Selectează Calculatorul</InputLabel>
+              <Select
+                labelId="calculator-select-label"
+                value={activeTab}
+                label="Selectează Calculatorul"
+                open={selectOpen}
+                onOpen={() => setSelectOpen(true)}
+                onClose={() => setSelectOpen(false)}
+                onChange={handleSelectChange}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 300,
+                      zIndex: 1300,
+                    },
+                  },
+                  // Prevent backdrop from interfering with focus
+                  BackdropProps: {
+                    invisible: true,
+                  },
+                  // Better focus management
+                  disableAutoFocus: true,
+                  disableEnforceFocus: true,
+                  disableRestoreFocus: true,
+                }}
+                sx={{
+                  '& .MuiSelect-select': {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                  }
+                }}
+              >
+                {calculatorTabs.map((tab) => (
+                  <MenuItem 
+                    key={tab.id} 
+                    value={tab.id}
+                    onClick={() => setSelectOpen(false)}
+                    sx={{
+                      '&:focus': {
+                        backgroundColor: 'action.hover',
+                        outline: 'none',
+                      },
+                      '&.Mui-selected': {
+                        backgroundColor: getCategoryColors(tab.id).bgColor,
+                        color: getCategoryColors(tab.id).iconColor,
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {React.cloneElement(tab.icon as React.ReactElement, { 
+                        size: 24,
+                        color: activeTab === tab.id ? getCategoryColors(tab.id).iconColor : getCategoryColors(tab.id).iconColor
+                      })}
+                      <Typography>{tab.label}</Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        ) : (
+          /* Desktop/Tablet View - Tabs */
+          <Tabs
+            value={activeTab}
+            onChange={(_, newValue) => setActiveTab(newValue)}
+            variant="fullWidth"
+            scrollButtons={false}
+            sx={{
+              borderBottom: 1,
+              borderColor: 'divider',
+              '& .MuiTab-root': {
+                minHeight: { xs: 64, md: 80 },
+                flexDirection: 'column',
+                gap: 1,
+                borderRadius: '12px 12px 0 0',
+                transition: 'all 0.3s ease',
+                py: { xs: 1, md: 2 },
+                // Hover și selected vor fi gestionate individual pe fiecare tab
               }
-            }
-          }}
-        >
-          {calculatorTabs.map((tab) => (
-            <Tab
-              key={tab.id}
-              value={tab.id}
-              label={tab.label}
-              icon={tab.icon}
-              sx={{
-                fontWeight: activeTab === tab.id ? 600 : 400,
-                color: activeTab === tab.id ? 'primary.main' : 'text.secondary'
-              }}
-            />
-          ))}
-        </Tabs>
+            }}
+          >
+            {calculatorTabs.map((tab) => (
+              <Tab
+                key={tab.id}
+                value={tab.id}
+                label={tab.label}
+                icon={tab.icon}
+                sx={{
+                  fontWeight: activeTab === tab.id ? 600 : 400,
+                  fontSize: { xs: '0.875rem', md: '1rem' },
+                  color: activeTab === tab.id ? 'white' : getCategoryColors(tab.id).iconColor,
+                  '&.Mui-selected': {
+                    backgroundColor: `${getCategoryColors(tab.id).iconColor} !important`,
+                    color: 'white !important',
+                    '&:hover': {
+                      backgroundColor: `${getCategoryColors(tab.id).iconColor} !important`,
+                    }
+                  },
+                  '&:hover:not(.Mui-selected)': {
+                    backgroundColor: getCategoryColors(tab.id).hoverColor,
+                    color: getCategoryColors(tab.id).iconColor,
+                  }
+                }}
+              />
+            ))}
+          </Tabs>
+        )}
 
         {/* Calculator Form */}
         <Box sx={{ p: { xs: 2, md: 4 } }}>

@@ -224,23 +224,69 @@ onDelete={(event) => {
 ### Select Dropdown Best Practices
 - **Z-index Issues:** Use proper MenuProps to prevent overlay issues
 - **Default Values:** Always show meaningful default values in view mode
+- **Modal Select Issues:** For Selects inside Dialogs/Modals, ALWAYS copy the exact configuration from Profile.tsx
+
+**❌ WRONG APPROACH:**
+- Creating custom z-index solutions
+- Using disablePortal with manual positioning
+- Hardcoding positioning fixes
+- Manual DOM cleanup attempts
+
+**✅ CORRECT APPROACH:**
+When implementing Select in Dialogs/Modals, use the EXACT configuration from `src/pages/Profile.tsx`:
 
 ```tsx
 <TextField
   select
-  value={editing ? formData.field : (user.field || DEFAULT_VALUE)}
+  value={value}
+  onChange={onChange}
   SelectProps={{
     MenuProps: {
       PaperProps: {
         style: {
           maxHeight: 300,
-          zIndex: 1500,
+          zIndex: 1400,
         },
       },
+      // Remove backdrop interference but keep visual appearance
+      BackdropProps: {
+        invisible: true,
+      },
+      // Prevent focus trapping issues
+      disableAutoFocus: true,
+      disableEnforceFocus: true,
+      disableRestoreFocus: true,
+      // Fast exit transition
+      transitionDuration: {
+        enter: 225,
+        exit: 50,
+      },
+      // Force cleanup
+      keepMounted: false,
+    },
+    // Add explicit close handler to force cleanup
+    onClose: () => {
+      // Force focus back to document body to clear any lingering focus issues
+      setTimeout(() => {
+        if (document.activeElement && document.activeElement !== document.body) {
+          (document.activeElement as HTMLElement).blur?.()
+        }
+      }, 100)
     },
   }}
 >
+  <MenuItem value="">
+    <em>Selectează opțiunea</em>
+  </MenuItem>
+  {options.map((option) => (
+    <MenuItem key={option} value={option}>
+      {option}
+    </MenuItem>
+  ))}
+</TextField>
 ```
+
+**Key Principle:** If a pattern works elsewhere in the codebase, copy it exactly instead of reinventing solutions.
 
 ---
 

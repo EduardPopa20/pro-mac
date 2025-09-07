@@ -8,11 +8,8 @@ import {
   Button,
   Box,
   Typography,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Alert
+  Alert,
+  MenuItem
 } from '@mui/material'
 
 interface StockAdjustmentDialogProps {
@@ -68,7 +65,7 @@ export default function StockAdjustmentDialog({
       return
     }
 
-    const finalReason = reason === 'Other' ? customReason : reason
+    const finalReason = reason === 'Altul (specificați)' ? customReason : reason
     if (!finalReason) {
       setError('Vă rugăm să furnizați un motiv')
       return
@@ -99,6 +96,11 @@ export default function StockAdjustmentDialog({
 
   const productName = product.product?.name || 'Produs Necunoscut'
   const currentStock = product.quantity_available || 0
+
+  const reasonOptions = [
+    ...ADJUSTMENT_REASONS[type],
+    'Altul (specificați)'
+  ]
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -136,25 +138,61 @@ export default function StockAdjustmentDialog({
             }
           />
 
-          {/* Reason Select */}
-          <FormControl fullWidth sx={{ mb: 3 }}>
-            <InputLabel>Motiv</InputLabel>
-            <Select
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              label="Motiv"
-            >
-              {ADJUSTMENT_REASONS[type].map((r) => (
-                <MenuItem key={r} value={r}>
-                  {r}
-                </MenuItem>
-              ))}
-              <MenuItem value="Other">Altul (specificați)</MenuItem>
-            </Select>
-          </FormControl>
+          {/* Reason Select - EXACT copy from Profile.tsx */}
+          <TextField
+            select
+            fullWidth
+            label="Motiv"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            sx={{ mb: 3 }}
+            SelectProps={{
+              MenuProps: {
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
+                    zIndex: 1400,
+                  },
+                },
+                // Remove backdrop interference but keep visual appearance
+                BackdropProps: {
+                  invisible: true,
+                },
+                // Prevent focus trapping issues
+                disableAutoFocus: true,
+                disableEnforceFocus: true,
+                disableRestoreFocus: true,
+                // Fast exit transition
+                transitionDuration: {
+                  enter: 225,
+                  exit: 50,
+                },
+                // Force cleanup
+                keepMounted: false,
+              },
+              // Add explicit close handler to force cleanup
+              onClose: () => {
+                // Force focus back to document body to clear any lingering focus issues
+                setTimeout(() => {
+                  if (document.activeElement && document.activeElement !== document.body) {
+                    (document.activeElement as HTMLElement).blur?.()
+                  }
+                }, 100)
+              },
+            }}
+          >
+            <MenuItem value="">
+              <em>Selectează motivul</em>
+            </MenuItem>
+            {reasonOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
 
           {/* Custom Reason */}
-          {reason === 'Other' && (
+          {reason === 'Altul (specificați)' && (
             <TextField
               fullWidth
               label="Specificați Motivul"

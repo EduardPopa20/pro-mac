@@ -16,7 +16,12 @@ import {
   Phone as PhoneIcon,
   Business as BusinessIcon,
   Email as EmailIcon,
-  LocationOn as LocationIcon
+  LocationOn as LocationIcon,
+  Share as ShareIcon,
+  Facebook as FacebookIcon,
+  Instagram as InstagramIcon,
+  VideoLibrary as TikTokIcon,
+  YouTube as YouTubeIcon
 } from '@mui/icons-material'
 import { useSettingsStore } from '../../stores/settings'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
@@ -43,6 +48,14 @@ const Settings: React.FC = () => {
     company_address: ''
   })
 
+  // Social Media Settings Form State
+  const [socialSettings, setSocialSettings] = useState({
+    social_facebook_url: '',
+    social_instagram_url: '',
+    social_tiktok_url: '',
+    social_youtube_url: ''
+  })
+
 
   useEffect(() => {
     fetchSettings()
@@ -56,11 +69,21 @@ const Settings: React.FC = () => {
       company_email: settings.company_email || '',
       company_address: settings.company_address || ''
     })
+    setSocialSettings({
+      social_facebook_url: settings.social_facebook_url || '',
+      social_instagram_url: settings.social_instagram_url || '',
+      social_tiktok_url: settings.social_tiktok_url || '',
+      social_youtube_url: settings.social_youtube_url || ''
+    })
   }, [settings])
 
 
   const handleGeneralSettingsChange = (field: string, value: string) => {
     setGeneralSettings(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSocialSettingsChange = (field: string, value: string) => {
+    setSocialSettings(prev => ({ ...prev, [field]: value }))
   }
 
   const handleSaveGeneralSettings = () => {
@@ -86,6 +109,36 @@ const Settings: React.FC = () => {
           setSuccess('Setările au fost salvate cu succes!')
         } catch (err: any) {
           setError(err.message || 'Eroare la salvarea setărilor')
+        } finally {
+          setSaving(false)
+        }
+      }
+    })
+  }
+
+  const handleSaveSocialSettings = () => {
+    showConfirmation({
+      title: 'Confirmă salvarea setărilor social media',
+      message: 'Ești sigur că vrei să salvezi modificările la linkurile de social media?',
+      type: 'warning',
+      confirmText: 'Salvează',
+      onConfirm: async () => {
+        setSaving(true)
+        setError('')
+        setSuccess('')
+
+        try {
+          // Update all social media settings
+          await Promise.all([
+            updateSetting('social_facebook_url', socialSettings.social_facebook_url),
+            updateSetting('social_instagram_url', socialSettings.social_instagram_url),
+            updateSetting('social_tiktok_url', socialSettings.social_tiktok_url),
+            updateSetting('social_youtube_url', socialSettings.social_youtube_url)
+          ])
+          
+          setSuccess('Setările social media au fost salvate cu succes!')
+        } catch (err: any) {
+          setError(err.message || 'Eroare la salvarea setărilor social media')
         } finally {
           setSaving(false)
         }
@@ -123,9 +176,15 @@ const Settings: React.FC = () => {
         </Alert>
       )}
 
-      {/* Settings Card */}
+      {/* General Settings Card */}
       <Card sx={{ mb: 4 }}>
-          <CardContent>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <BusinessIcon sx={{ fontSize: 28, color: 'primary.main', mr: 2 }} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Setări Generale
+            </Typography>
+          </Box>
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -193,6 +252,90 @@ const Settings: React.FC = () => {
               </Button>
             </Box>
           </CardContent>
+      </Card>
+
+      {/* Social Media Settings Card */}
+      <Card sx={{ mb: 4 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <ShareIcon sx={{ fontSize: 28, color: 'primary.main', mr: 2 }} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Linkuri Social Media
+            </Typography>
+          </Box>
+          
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Link Facebook"
+                placeholder="https://facebook.com/promac.ro"
+                value={socialSettings.social_facebook_url}
+                onChange={(e) => handleSocialSettingsChange('social_facebook_url', e.target.value)}
+                InputProps={{
+                  startAdornment: <FacebookIcon sx={{ color: '#1877F2', mr: 1 }} />
+                }}
+                helperText="Link complet către pagina de Facebook"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Link Instagram"
+                placeholder="https://instagram.com/promac.ro"
+                value={socialSettings.social_instagram_url}
+                onChange={(e) => handleSocialSettingsChange('social_instagram_url', e.target.value)}
+                InputProps={{
+                  startAdornment: <InstagramIcon sx={{ color: '#E4405F', mr: 1 }} />
+                }}
+                helperText="Link complet către pagina de Instagram"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Link TikTok"
+                placeholder="https://tiktok.com/@promac.ro"
+                value={socialSettings.social_tiktok_url}
+                onChange={(e) => handleSocialSettingsChange('social_tiktok_url', e.target.value)}
+                InputProps={{
+                  startAdornment: <TikTokIcon sx={{ color: '#000000', mr: 1 }} />
+                }}
+                helperText="Link complet către contul de TikTok"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Link YouTube"
+                placeholder="https://youtube.com/@promac.ro"
+                value={socialSettings.social_youtube_url}
+                onChange={(e) => handleSocialSettingsChange('social_youtube_url', e.target.value)}
+                InputProps={{
+                  startAdornment: <YouTubeIcon sx={{ color: '#FF0000', mr: 1 }} />
+                }}
+                helperText="Link complet către canalul de YouTube"
+              />
+            </Grid>
+          </Grid>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Box display="flex" justifyContent="flex-end">
+            <Button
+              variant="contained"
+              startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
+              onClick={handleSaveSocialSettings}
+              disabled={saving}
+              size="large"
+            >
+              {saving ? 'Se salvează...' : 'Salvează Linkurile Social Media'}
+            </Button>
+          </Box>
+        </CardContent>
       </Card>
     </Box>
   )

@@ -12,7 +12,8 @@ import {
   Button,
   Tooltip,
   useTheme,
-  IconButton
+  IconButton,
+  Alert
 } from '@mui/material'
 import {
   Store,
@@ -24,13 +25,11 @@ import {
   Save,
   Preview,
   Info,
-  PhotoLibrary,
   Add,
   Delete,
   CloudUpload
 } from '@mui/icons-material'
 import WorkingHoursEditor from './WorkingHoursEditor'
-import ShowroomPhotoManager from './ShowroomPhotoManager'
 
 interface ShowroomFormData {
   name: string
@@ -43,7 +42,6 @@ interface ShowroomFormData {
   description: string
   opening_hours: string
   is_active: boolean
-  photos: string[]
 }
 
 interface EnhancedShowroomFormProps {
@@ -135,10 +133,24 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
     google_maps_url: formData.google_maps_url || '',
     description: formData.description || '',
     opening_hours: formData.opening_hours || '',
-    is_active: formData.is_active ?? true,
-    photos: formData.photos || []
+    is_active: formData.is_active ?? true
   }))
 
+  // Sync local state when parent formData changes
+  React.useEffect(() => {
+    setLocalFormData({
+      name: formData.name || '',
+      city: formData.city || '',
+      address: formData.address || '',
+      phone: formData.phone || '',
+      email: formData.email || '',
+      waze_url: formData.waze_url || '',
+      google_maps_url: formData.google_maps_url || '',
+      description: formData.description || '',
+      opening_hours: formData.opening_hours || '',
+      is_active: formData.is_active ?? true
+    })
+  }, [formData])
 
   const isFormValid = localFormData.name.trim() && localFormData.city.trim() && localFormData.address.trim()
 
@@ -155,6 +167,20 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+      {/* Validation Messages */}
+      {!isFormValid && (
+        <Alert severity="warning" sx={{ mb: 3, borderRadius: 2 }}>
+          <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+            Câmpuri obligatorii lipsă:
+          </Typography>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            {!localFormData.name.trim() && <li>Nume Showroom este obligatoriu</li>}
+            {!localFormData.city.trim() && <li>Oraș este obligatoriu</li>}
+            {!localFormData.address.trim() && <li>Adresa este obligatorie</li>}
+          </ul>
+        </Alert>
+      )}
+
       {/* Action Buttons - Upper Right */}
       <Box 
         sx={{ 
@@ -242,10 +268,12 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                           fullWidth
-                          label="Nume Showroom"
+                          label="Nume Showroom *"
                           value={localFormData.name}
                           onChange={(e) => setLocalFormData(prev => ({ ...prev, name: e.target.value }))}
                           required
+                          error={!localFormData.name.trim() && localFormData.name !== ''}
+                          helperText={!localFormData.name.trim() && localFormData.name !== '' ? 'Câmp obligatoriu' : ''}
                           placeholder="ex: Pro-Mac București"
                           sx={{
                             '& .MuiInputBase-input': {
@@ -258,22 +286,25 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                       <Grid size={{ xs: 12, sm: 6 }}>
                         <TextField
                           fullWidth
-                          label="Oraș"
+                          label="Oraș *"
                           value={localFormData.city}
                           onChange={(e) => setLocalFormData(prev => ({ ...prev, city: e.target.value }))}
                           required
+                          error={!localFormData.city.trim() && localFormData.city !== ''}
+                          helperText={!localFormData.city.trim() && localFormData.city !== '' ? 'Câmp obligatoriu' : ''}
                           placeholder="ex: București"
                         />
                       </Grid>
                     </Grid>
                     <TextField
                       fullWidth
-                      label="Adresa completă"
+                      label="Adresa completă *"
                       value={localFormData.address}
                       onChange={(e) => setLocalFormData(prev => ({ ...prev, address: e.target.value }))}
                       required
+                      error={!localFormData.address.trim() && localFormData.address !== ''}
+                      helperText={!localFormData.address.trim() && localFormData.address !== '' ? 'Câmp obligatoriu' : `${localFormData.address.length}/200 caractere`}
                       placeholder="Strada Principală Nr. 123, Sector 1"
-                      helperText={`${localFormData.address.length}/200 caractere`}
                       inputProps={{ maxLength: 200 }}
                     />
                   </Stack>
@@ -378,23 +409,6 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
               </Grid>
             </Grid>
 
-            {/* Row 3: Photo Management */}
-            <Grid container>
-              <Grid size={12}>
-                <FormSection
-                  icon={<PhotoLibrary />}
-                  title="Fotografii prezentare"
-                  color="info"
-                >
-                  <ShowroomPhotoManager
-                    photos={localFormData.photos}
-                    onChange={(photos) => setLocalFormData(prev => ({ ...prev, photos }))}
-                    maxPhotos={3}
-                    disabled={saving}
-                  />
-                </FormSection>
-              </Grid>
-            </Grid>
 
           </Stack>
         </Grid>

@@ -46,16 +46,24 @@ const CartPopper: React.FC = () => {
     handleClose()
   }
 
-  const handleQuantityChange = (productId: number, newQuantity: number) => {
-    if (newQuantity < 1) {
-      removeItem(productId)
-    } else {
-      updateQuantity(productId, newQuantity)
+  const handleQuantityChange = async (productId: number, newQuantity: number) => {
+    try {
+      if (newQuantity < 1) {
+        await removeItem(productId)
+      } else {
+        await updateQuantity(productId, newQuantity)
+      }
+    } catch (error) {
+      console.error('Error updating cart:', error)
     }
   }
 
-  const handleRemoveItem = (productId: number) => {
-    removeItem(productId)
+  const handleRemoveItem = async (productId: number) => {
+    try {
+      await removeItem(productId)
+    } catch (error) {
+      console.error('Error removing item:', error)
+    }
   }
 
   const formatPrice = (price: number) => {

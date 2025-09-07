@@ -22,6 +22,7 @@ interface User {
 interface AuthState {
   user: User | null
   loading: boolean
+  authenticating: boolean // New flag to track authentication in progress
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, fullName?: string, recaptchaToken?: string) => Promise<{ needsConfirmation: boolean }>
   signOut: () => Promise<void>
@@ -39,52 +40,78 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   loading: true,
+  authenticating: false,
   emailConfirmationPending: null,
 
   signIn: async (email: string, password: string) => {
-    set({ loading: true })
+    set({ authenticating: true })
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.toLowerCase().trim(),
-      password
-    })
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password
+      })
 
-    if (error) {
-      set({ loading: false })
-      switch (error.message) {
-        case 'Invalid login credentials':
-          throw new Error('Email sau parolă incorectă')
-        case 'Email not confirmed':
-          throw new Error('Vă rugăm să confirmați email-ul înainte de a vă autentifica')
-        case 'Too many requests':
-          throw new Error('Prea multe încercări. Încercați din nou mai târziu')
-        default:
-          throw new Error(error.message)
+      if (error) {
+        set({ authenticating: false })
+        // Handle specific Supabase error messages and provide user-friendly Romanian messages
+        let userMessage = 'Eroare la autentificare. Încercați din nou.'
+        
+        if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
+          userMessage = 'Email sau parolă incorectă'
+        } else if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+          userMessage = 'Vă rugăm să confirmați email-ul înainte de a vă autentifica'
+        } else if (error.message.includes('Too many requests') || error.message.includes('too_many_requests')) {
+          userMessage = 'Prea multe încercări. Încercați din nou mai târziu'
+        } else if (error.message.includes('Invalid email') || error.message.includes('invalid_email')) {
+          userMessage = 'Adresa de email nu este validă'
+        } else if (error.message.includes('Password') || error.message.includes('password')) {
+          userMessage = 'Parola introdusă nu este validă'
+        } else if (error.message.includes('Network') || error.message.includes('network')) {
+          userMessage = 'Problemă de conexiune. Verificați internetul și încercați din nou'
+        }
+        
+        throw new Error(userMessage)
       }
-    }
 
-    // Get user profile after successful login
-    if (data.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .single()
+      // Get user profile after successful login
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single()
 
-      if (profile) {
-        set({ 
-          user: {
+        if (profile) {
+          const newUser = {
             id: profile.id,
             email: profile.email,
             full_name: profile.full_name,
-            role: profile.role
-          },
-          loading: false 
-        })
-      } else {
-        set({ loading: false })
-        throw new Error('Profilul utilizatorului nu a fost găsit')
+            role: profile.role,
+            created_at: profile.created_at
+          }
+          
+          set({ 
+            user: newUser,
+            loading: false,
+            authenticating: false
+          })
+
+          // Merge anonymous cart with authenticated user cart
+          try {
+            const { useCartStore } = await import('./cart')
+            await useCartStore.getState().mergeAnonymousCart(newUser)
+          } catch (cartError) {
+            console.warn('Could not merge anonymous cart:', cartError)
+          }
+        } else {
+          set({ authenticating: false })
+          throw new Error('Profilul utilizatorului nu a fost găsit')
+        }
       }
+    } catch (error) {
+      set({ authenticating: false })
+      throw error
     }
   },
 
@@ -117,7 +144,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (error) {
         set({ loading: false })
-        throw new Error(error.message)
+        // Handle signup-specific errors with user-friendly messages
+        let userMessage = 'Eroare la crearea contului. Încercați din nou.'
+        
+        if (error.message.includes('already registered') || error.message.includes('already_exists')) {
+          userMessage = 'Un cont cu acest email există deja'
+        } else if (error.message.includes('Invalid email') || error.message.includes('invalid_email')) {
+          userMessage = 'Adresa de email nu este validă'
+        } else if (error.message.includes('Password') || error.message.includes('password')) {
+          userMessage = 'Parola nu respectă cerințele minime de securitate'
+        } else if (error.message.includes('Network') || error.message.includes('network')) {
+          userMessage = 'Problemă de conexiune. Verificați internetul și încercați din nou'
+        }
+        
+        throw new Error(userMessage)
       }
 
       const needsConfirmation = !data.session && !!data.user && !data.user.email_confirmed_at
@@ -145,7 +185,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               id: profile.id,
               email: profile.email,
               full_name: profile.full_name,
-              role: profile.role
+              role: profile.role,
+              created_at: profile.created_at
             },
             loading: false 
           })
@@ -170,18 +211,44 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const currentUser = get().user
     if (!currentUser) throw new Error('Nu sunteți autentificat')
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', currentUser.id)
+      .select('*')
+      .single()
 
     if (error) {
-      throw new Error('Eroare la actualizarea profilului')
+      console.error('Profile update error:', error)
+      let errorMessage = 'Eroare la actualizarea profilului'
+      
+      if (error.message.includes('duplicate key')) {
+        errorMessage = 'Datele introduse sunt duplicate'
+      } else if (error.message.includes('violates check constraint')) {
+        errorMessage = 'Datele introduse nu sunt valide'
+      } else if (error.message.includes('permission denied')) {
+        errorMessage = 'Nu aveți permisiunea să modificați aceste date'
+      }
+      
+      throw new Error(errorMessage)
     }
 
-    set(state => ({
-      user: state.user ? { ...state.user, ...updates } : null
-    }))
+    if (data) {
+      set(state => ({
+        user: state.user ? {
+          ...state.user,
+          full_name: data.full_name,
+          phone: data.phone,
+          address: data.address,
+          county: data.county,
+          city: data.city,
+          street_address_1: data.street_address_1,
+          street_address_2: data.street_address_2,
+          postal_code: data.postal_code,
+          newsletter_subscribed: data.newsletter_subscribed
+        } : null
+      }))
+    }
   },
 
   deleteAccount: async () => {
@@ -220,6 +287,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   checkAuth: async () => {
+    const { authenticating } = get()
+    
+    if (authenticating) {
+      return
+    }
+    
     try {
       const { data: { session } } = await supabase.auth.getSession()
       
@@ -239,6 +312,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               full_name: profile.full_name,
               phone: profile.phone,
               address: profile.address,
+              county: profile.county,
+              city: profile.city,
+              street_address_1: profile.street_address_1,
+              street_address_2: profile.street_address_2,
+              postal_code: profile.postal_code,
               newsletter_subscribed: profile.newsletter_subscribed,
               role: profile.role,
               created_at: profile.created_at
@@ -268,6 +346,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 full_name: newProfile.full_name,
                 phone: newProfile.phone,
                 address: newProfile.address,
+                county: newProfile.county,
+                city: newProfile.city,
+                street_address_1: newProfile.street_address_1,
+                street_address_2: newProfile.street_address_2,
+                postal_code: newProfile.postal_code,
                 newsletter_subscribed: newProfile.newsletter_subscribed,
                 role: newProfile.role,
                 created_at: newProfile.created_at
@@ -332,7 +415,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             id: profile.id,
             email: profile.email,
             full_name: profile.full_name,
-            role: profile.role
+            role: profile.role,
+            created_at: profile.created_at
           },
           loading: false,
           emailConfirmationPending: null 

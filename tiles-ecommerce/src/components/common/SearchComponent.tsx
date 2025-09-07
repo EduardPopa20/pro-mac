@@ -134,20 +134,30 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     const value = event.target.value
     setQuery(value)
     
-    if (value.length > 0 && !open) {
+    if (value.length > 0) {
       setOpen(true)
+    } else {
+      setOpen(false)
     }
   }
 
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    console.log('Search input focused') // Debug log
     setAnchorEl(event.currentTarget)
     if (query.length > 0) {
       setOpen(true)
     }
   }
 
+  const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
+    console.log('Search input clicked') // Debug log
+    // Don't stop propagation to allow normal input behavior
+    // event.stopPropagation()
+  }
+
   const handleClose = () => {
     setOpen(false)
+    setAnchorEl(null) // Clear anchor element to prevent interference
   }
 
   const handleProductSelect = (product: SearchResult) => {
@@ -173,6 +183,9 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   const clearSearch = () => {
     setQuery('')
     setOpen(false)
+    setAnchorEl(null)
+    setResults([])
+    setCategories([])
   }
 
   const openMobileModal = () => {
@@ -393,187 +406,55 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     )
   }
 
-  // Desktop version - show textfield with popper
-  const DesktopSearch = () => (
-    <ClickAwayListener onClickAway={handleClose}>
-      <Box sx={{ position: 'relative' }}>
-        <TextField
-          value={query}
-          onChange={handleInputChange}
-          onFocus={handleFocus}
-          placeholder={placeholder}
-          size={size}
-          variant="outlined"
-          data-testid="search-input"
-          id="global-search-input"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search sx={{ color: 'text.secondary', fontSize: 20 }} />
-              </InputAdornment>
-            ),
-            endAdornment: query && (
-              <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  onClick={clearSearch}
-                  sx={{ p: 0.5 }}
-                >
-                  <Close sx={{ fontSize: 18 }} />
-                </IconButton>
-              </InputAdornment>
-            ),
-            sx: {
-              backgroundColor: 'background.paper',
-              borderRadius: 2,
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'divider',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'primary.main',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'primary.main',
-                borderWidth: 1
-              }
-            }
-          }}
-          sx={{
-            width: {
-              md: 260, // Medium screens
-              lg: 300, // Desktop
-              xl: 320  // Large desktop
-            }
-          }}
-        />
-
-        <Popper
-          open={open && query.length > 0}
-          anchorEl={anchorEl}
-          placement="bottom-start"
-          transition
+  return (
+    <>
+      {/* Show textfield on desktop, icon on mobile */}
+      {isMobile ? (
+        <IconButton 
+          onClick={() => setMobileModalOpen(true)}
           sx={{ 
-            zIndex: theme.zIndex.dropdown,
-            width: {
-              md: 260,
-              lg: 300,
-              xl: 320
-            }
+            minWidth: 44,
+            minHeight: 44,
+            p: 1.5,
+            color: 'text.primary'
           }}
+          aria-label="Căutare produse"
         >
-          {({ TransitionProps }) => (
-            <Fade {...TransitionProps} timeout={200}>
-              <Paper
-                sx={{
-                  mt: 1,
-                  boxShadow: theme.shadows[8],
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  borderRadius: 2,
-                  overflow: 'hidden',
-                  width: {
-                    md: 260,
-                    lg: 300,
-                    xl: 320
-                  }
-                }}
-              >
-                {renderResults()}
-              </Paper>
-            </Fade>
-          )}
-        </Popper>
-      </Box>
-    </ClickAwayListener>
-  )
-
-  // Mobile version - show icon button that opens modal
-  const MobileSearchIcon = () => (
-    <IconButton 
-      onClick={openMobileModal}
-      sx={{ 
-        minWidth: 44,
-        minHeight: 44,
-        p: 1.5,
-        color: 'text.primary'
-      }}
-      aria-label="Căutare produse"
-    >
-      <Search />
-    </IconButton>
-  )
-
-  // Full-screen search modal for mobile
-  const MobileSearchModal = () => (
-    <Modal
-      open={mobileModalOpen}
-      onClose={closeMobileModal}
-      sx={{
-        zIndex: theme.zIndex.modal
-      }}
-    >
-      <Box
-        sx={{
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'background.paper',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        {/* Modal Header */}
-        <AppBar 
-          position="static" 
-          elevation={1}
-          sx={{ 
-            backgroundColor: 'white', 
-            color: 'black' 
-          }}
-        >
-          <Toolbar>
-            <IconButton
-              edge="start"
-              onClick={closeMobileModal}
-              sx={{ mr: 2 }}
-            >
-              <ArrowBack />
-            </IconButton>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Căutare produse
-            </Typography>
-          </Toolbar>
-        </AppBar>
-
-        {/* Search Input */}
-        <Box sx={{ p: 2 }}>
+          <Search />
+        </IconButton>
+      ) : (
+        <Box sx={{ position: 'relative' }}>
           <TextField
             value={query}
             onChange={handleInputChange}
+            onFocus={handleFocus}
             placeholder={placeholder}
-            size="medium"
+            size={size}
             variant="outlined"
-            fullWidth
-            autoFocus
+            data-testid="search-input"
+            id="global-search-input"
+            autoComplete="off"
+            spellCheck={false}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search sx={{ color: 'text.secondary', fontSize: 24 }} />
+                  <Search sx={{ color: 'text.secondary', fontSize: 20 }} />
                 </InputAdornment>
               ),
               endAdornment: query && (
                 <InputAdornment position="end">
                   <IconButton
+                    size="small"
                     onClick={clearSearch}
-                    sx={{ p: 1 }}
+                    sx={{ p: 0.5 }}
                   >
-                    <Close sx={{ fontSize: 20 }} />
+                    <Close sx={{ fontSize: 18 }} />
                   </IconButton>
                 </InputAdornment>
               ),
               sx: {
                 backgroundColor: 'background.paper',
                 borderRadius: 2,
-                minHeight: 48,
                 '& .MuiOutlinedInput-notchedOutline': {
                   borderColor: 'divider',
                 },
@@ -586,44 +467,183 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
                 }
               }
             }}
+            sx={{
+              width: {
+                md: 260, // Medium screens
+                lg: 300, // Desktop
+                xl: 320  // Large desktop
+              }
+            }}
           />
-        </Box>
 
-        {/* Search Results */}
-        <Box 
-          sx={{ 
-            flex: 1,
-            overflow: 'auto',
-            backgroundColor: '#f5f5f5'
-          }}
-        >
-          {query.length > 0 ? (
-            <Paper sx={{ m: 2, borderRadius: 2 }}>
-              {renderResults()}
-            </Paper>
-          ) : (
-            <Box sx={{ p: 4, textAlign: 'center' }}>
-              <Search sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                Caută prin produsele noastre
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Introdu cel puțin 2 caractere pentru a începe căutarea
-              </Typography>
-            </Box>
-          )}
+          <Popper
+            open={open && query.length > 0}
+            anchorEl={anchorEl}
+            placement="bottom"
+            transition
+            disablePortal={false}
+            modifiers={[
+              {
+                name: 'offset',
+                options: {
+                  offset: [0, 8], // 8px gap below the TextField
+                },
+              },
+              {
+                name: 'preventOverflow',
+                options: {
+                  boundary: 'viewport',
+                  padding: 8,
+                },
+              },
+            ]}
+            sx={{ 
+              zIndex: 1400, // Higher than AppBar and other navbar elements
+              width: {
+                md: 260,
+                lg: 300,
+                xl: 320
+              }
+            }}
+          >
+            {({ TransitionProps }) => (
+              <Fade {...TransitionProps} timeout={200}>
+                <Paper
+                  sx={{
+                    mt: 1,
+                    boxShadow: theme.shadows[8],
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    width: {
+                      md: 260,
+                      lg: 300,
+                      xl: 320
+                    }
+                  }}
+                >
+                  {renderResults()}
+                </Paper>
+              </Fade>
+            )}
+          </Popper>
         </Box>
-      </Box>
-    </Modal>
-  )
-
-  return (
-    <>
-      {/* Show textfield on desktop, icon on mobile */}
-      {isMobile ? <MobileSearchIcon /> : <DesktopSearch />}
+      )}
       
       {/* Mobile search modal */}
-      <MobileSearchModal />
+      <Modal
+        open={mobileModalOpen}
+        onClose={() => setMobileModalOpen(false)}
+        sx={{
+          zIndex: 1400 // Ensure mobile search modal is above everything
+        }}
+      >
+        <Box
+          sx={{
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'background.paper',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          {/* Modal Header */}
+          <AppBar 
+            position="static" 
+            elevation={1}
+            sx={{ 
+              backgroundColor: 'white', 
+              color: 'black' 
+            }}
+          >
+            <Toolbar>
+              <IconButton
+                edge="start"
+                onClick={() => setMobileModalOpen(false)}
+                sx={{ mr: 2 }}
+              >
+                <ArrowBack />
+              </IconButton>
+              <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                Căutare produse
+              </Typography>
+            </Toolbar>
+          </AppBar>
+
+          {/* Search Input */}
+          <Box sx={{ p: 2 }}>
+            <TextField
+              value={query}
+              onChange={handleInputChange}
+              placeholder={placeholder}
+              size="medium"
+              variant="outlined"
+              fullWidth
+              autoFocus
+              autoComplete="off"
+              spellCheck={false}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Search sx={{ color: 'text.secondary', fontSize: 24 }} />
+                  </InputAdornment>
+                ),
+                endAdornment: query && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={clearSearch}
+                      sx={{ p: 1 }}
+                    >
+                      <Close sx={{ fontSize: 20 }} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+                sx: {
+                  backgroundColor: 'background.paper',
+                  borderRadius: 2,
+                  minHeight: 48,
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'divider',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                    borderWidth: 1
+                  }
+                }
+              }}
+            />
+          </Box>
+
+          {/* Search Results */}
+          <Box 
+            sx={{ 
+              flex: 1,
+              overflow: 'auto',
+              backgroundColor: '#f5f5f5'
+            }}
+          >
+            {query.length > 0 ? (
+              <Paper sx={{ m: 2, borderRadius: 2 }}>
+                {renderResults()}
+              </Paper>
+            ) : (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <Search sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Caută prin produsele noastre
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Introdu cel puțin 2 caractere pentru a începe căutarea
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Modal>
     </>
   )
 }

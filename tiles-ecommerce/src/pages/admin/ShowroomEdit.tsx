@@ -35,7 +35,6 @@ const ShowroomEdit: React.FC = () => {
     google_maps_url: '',
     description: '',
     opening_hours: '',
-    photos: [] as string[],
     is_active: true
   })
 
@@ -58,7 +57,6 @@ const ShowroomEdit: React.FC = () => {
           google_maps_url: showroom.google_maps_url || '',
           description: showroom.description || '',
           opening_hours: showroom.opening_hours || '',
-          photos: showroom.photos || [],
           is_active: showroom.is_active
         })
       } else {

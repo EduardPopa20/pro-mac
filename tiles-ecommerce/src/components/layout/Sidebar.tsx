@@ -30,7 +30,6 @@ interface SidebarProps {
 const getStaticNavItems = () => [
   { id: 'home', label: 'Acasă', path: '/' },
   { id: 'showrooms', label: 'Showroomuri', path: '/showroomuri' },
-  { id: 'ideas', label: 'Idei Amenajare', path: '/idei' },
   { id: 'calculator', label: 'Calculator', path: '/calculator' },
   { id: 'contact', label: 'Contact', path: '/contact' }
 ]
@@ -48,15 +47,15 @@ const getNavItems = (user: User | null, categories: any[]) => {
     }))
     
     baseItems.splice(1, 0, {
-      id: 'products',
-      label: 'Produse',
+      id: 'categories',
+      label: 'Categorii',
+      path: '/categorii',
       children: productChildren
     })
   }
   
   if (user) {
-    // Add user-specific items
-    baseItems.push({ id: 'profile', label: 'Profilul meu', path: '/profile' })
+    // Add user-specific items (removed profile entry)
     
     if (user.role === 'admin') {
       baseItems.push({ 

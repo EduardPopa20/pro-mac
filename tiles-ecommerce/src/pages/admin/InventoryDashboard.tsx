@@ -45,6 +45,7 @@ import {
 } from '@mui/icons-material'
 import { useInventoryStore } from '../../stores/inventory'
 import { useProductStore } from '../../stores/products'
+import { supabase } from '../../lib/supabase'
 import StockAdjustmentDialog from '../../components/admin/StockAdjustmentDialog'
 import StockMovementHistory from '../../components/admin/StockMovementHistory'
 
@@ -71,15 +72,58 @@ export default function InventoryDashboard() {
 
   const { products, fetchProducts } = useProductStore()
 
-  // Initial data load
+  // Initial data load and real-time subscriptions
   useEffect(() => {
     fetchInventory()
     fetchActiveAlerts()
     fetchProducts()
+    
+    // Set up real-time subscription for inventory changes
+    const inventoryChannel = supabase
+      .channel('inventory_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'inventory'
+        },
+        (payload) => {
+          console.log('Inventory change detected:', payload)
+          // Refresh inventory data
+          fetchInventory()
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'stock_reservations'
+        },
+        (payload) => {
+          console.log('Reservation change detected:', payload)
+          // Refresh inventory data to update reserved quantities
+          fetchInventory()
+        }
+      )
+      .subscribe()
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(inventoryChannel)
+    }
   }, [])
 
   // Handle refresh
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback(async () => {
+    try {
+      // First sync reserved quantities to fix any inconsistencies
+      await supabase.rpc('sync_reserved_quantities')
+    } catch (error) {
+      console.warn('Could not sync reserved quantities:', error)
+    }
+    
     fetchInventory()
     fetchActiveAlerts()
   }, [fetchInventory, fetchActiveAlerts])

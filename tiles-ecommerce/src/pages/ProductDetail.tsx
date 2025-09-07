@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { useNavigateWithScroll } from '../hooks/useNavigateWithScroll'
 import {
   Box,
   Typography,
@@ -64,11 +65,12 @@ import { generateProductSlug } from '../utils/slugUtils'
 import { useWatchlistStore } from '../stores/watchlist'
 import { useCartStore } from '../stores/cart'
 import { useGlobalAlertStore } from '../stores/globalAlert'
+import { useAuthStore } from '../stores/auth'
 import ProductSpecs from '../components/product/ProductSpecs'
 
 const ProductDetail: React.FC = () => {
   const { productSlug, productId } = useParams<{ productSlug: string; productId: string }>()
-  const navigate = useNavigate()
+  const navigate = useNavigateWithScroll()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
@@ -76,6 +78,7 @@ const ProductDetail: React.FC = () => {
   const { toggleWatchlist, isInWatchlist } = useWatchlistStore()
   const { addItem } = useCartStore()
   const { showAlert } = useGlobalAlertStore()
+  const { user } = useAuthStore()
   const [product, setProduct] = useState<Product | null>(null)
   const [imageDialogOpen, setImageDialogOpen] = useState(false)
   const [fullScreenImage, setFullScreenImage] = useState(false)
@@ -85,7 +88,12 @@ const ProductDetail: React.FC = () => {
   useEffect(() => {
     fetchCategories()
     fetchProducts()
-  }, [fetchCategories, fetchProducts])
+    
+    // Immediately scroll to top on mobile when component mounts
+    if (isMobile) {
+      window.scrollTo(0, 0)
+    }
+  }, [fetchCategories, fetchProducts, isMobile])
 
   useEffect(() => {
     if (!productId || !products.length) return
@@ -109,11 +117,16 @@ const ProductDetail: React.FC = () => {
       
       // Update document title for SEO
       document.title = `${foundProduct.name} | Pro-Mac`
+      
+      // Scroll to top on mobile to prevent auto-scroll to specs
+      if (isMobile) {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     } else if (!loading) {
       // Product not found
       navigate('/', { replace: true })
     }
-  }, [productId, productSlug, products, categories, loading, navigate])
+  }, [productId, productSlug, products, categories, loading, navigate, isMobile])
 
   const handleBack = () => {
     if (product?.category_id) {
@@ -127,19 +140,47 @@ const ProductDetail: React.FC = () => {
   }
 
   const handleShare = async () => {
-    if (navigator.share && product) {
+    if (!product) return
+
+    // Prepare share data
+    const shareData = {
+      title: product.name,
+      text: product.description || `${product.name} - Pro-Mac`,
+      url: window.location.href,
+    }
+
+    // Check if native sharing is available
+    if (navigator.share) {
       try {
-        await navigator.share({
-          title: product.name,
-          text: product.description || `${product.name} - Pro-Mac`,
-          url: window.location.href,
-        })
+        await navigator.share(shareData)
+        // Native sharing succeeded - no alerts needed
       } catch (error) {
-        console.log('Error sharing:', error)
+        // Handle errors - only fallback on real errors, not user cancellation
+        if ((error as Error).name !== 'AbortError') {
+          // Real error occurred - fallback to clipboard
+          try {
+            await navigator.clipboard.writeText(window.location.href)
+            showAlert({ 
+              message: 'Link copiat în clipboard!', 
+              severity: 'success' 
+            })
+          } catch {
+            // Even clipboard failed - silent failure
+          }
+        }
+        // If AbortError (user cancelled), do nothing
       }
     } else {
-      // Fallback: copy URL to clipboard
-      navigator.clipboard.writeText(window.location.href)
+      // Browser doesn't support native sharing - use clipboard
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        showAlert({ 
+          message: 'Link copiat în clipboard!', 
+          severity: 'success' 
+        })
+      } catch {
+        // Clipboard failed - silent failure
+      }
     }
   }
 
@@ -154,16 +195,25 @@ const ProductDetail: React.FC = () => {
     }).format(price)
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product) return
     
-    addItem(product, quantity)
-    showAlert({
-      type: 'success',
-      message: `${product.name} a fost adăugat în coș!`,
-      duration: 3000
-    })
-    setQuantity(1) // Reset quantity after adding
+    try {
+      await addItem(product, quantity)
+      showAlert({
+        type: 'success',
+        message: `${product.name} a fost adăugat în coș!`,
+        duration: 3000
+      })
+      setQuantity(1) // Reset quantity after adding
+    } catch (error) {
+      showAlert({
+        type: 'error',
+        message: 'Eroare la adăugarea în coș. Încercați din nou.',
+        duration: 3000
+      })
+      console.error('Error adding to cart:', error)
+    }
   }
 
   const handleQuantityChange = (newQuantity: number) => {
@@ -331,7 +381,7 @@ const ProductDetail: React.FC = () => {
                 <Box display="flex" gap={1}>
                   <Tooltip title={product && isInWatchlist(product.id) ? 'Elimină din favorite' : 'Adaugă la favorite'}>
                     <IconButton 
-                      onClick={() => product && toggleWatchlist(product)}
+                      onClick={() => product && toggleWatchlist(product, !!user)}
                       color={product && isInWatchlist(product.id) ? 'error' : 'default'}
                     >
                       {product && isInWatchlist(product.id) ? <Favorite /> : <FavoriteBorder />}

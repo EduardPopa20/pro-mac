@@ -1,240 +1,236 @@
-import { Container, Box, Typography, Grid, Card, CardContent, Breadcrumbs, Link, useTheme, useMediaQuery } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
-import { 
-  GridOn as FaiantaIcon,
-  ViewQuilt as GresieIcon,
-  Layers as ParchetIcon,
-  BorderStyle as RiflajeIcon
-} from '@mui/icons-material'
+import React, { useEffect } from 'react'
+import { useNavigateWithScroll } from '../hooks/useNavigateWithScroll'
+import {
+  Container,
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardActionArea,
+  CardContent,
+  useTheme,
+  useMediaQuery,
+  Breadcrumbs,
+  Link,
+  Fade,
+  Zoom
+} from '@mui/material'
+import FaiantaIcon from '../components/icons/FaiantaIcon'
+import GresieIcon from '../components/icons/GresieIcon'
+import ParchetIcon from '../components/icons/ParchetIcon'
+import RiflajeIcon from '../components/icons/RiflajeIcon'
+import { useProductStore } from '../stores/products'
 
-interface CategoryItem {
-  id: string
-  name: string
-  slug: string
-  icon: React.ReactNode
-  color: string
-  description: string
-}
-
-const categories: CategoryItem[] = [
-  {
-    id: 'faianta',
-    name: 'Faianță',
-    slug: 'faianta',
-    icon: <FaiantaIcon sx={{ fontSize: { xs: 48, md: 64 } }} />,
-    color: '#2196f3',
-    description: 'Plăci ceramice pentru pereți interiori'
-  },
-  {
-    id: 'gresie',
-    name: 'Gresie',
-    slug: 'gresie', 
-    icon: <GresieIcon sx={{ fontSize: { xs: 48, md: 64 } }} />,
-    color: '#4caf50',
-    description: 'Plăci ceramice pentru pardoseli'
-  },
-  {
-    id: 'parchet',
-    name: 'Parchet',
-    slug: 'parchet',
-    icon: <ParchetIcon sx={{ fontSize: { xs: 48, md: 64 } }} />,
-    color: '#ff9800',
-    description: 'Pardoseli din lemn natural și laminat'
-  },
-  {
-    id: 'riflaje',
-    name: 'Riflaje',
-    slug: 'riflaje',
-    icon: <RiflajeIcon sx={{ fontSize: { xs: 48, md: 64 } }} />,
-    color: '#9c27b0',
-    description: 'Elemente decorative și finisaje'
-  }
-]
-
-const Categories = () => {
-  const navigate = useNavigate()
+const Categories: React.FC = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const navigate = useNavigateWithScroll()
+  const { categories, fetchCategories } = useProductStore()
 
-  const handleCategoryClick = (slug: string) => {
-    navigate(`/${slug}`)
+  useEffect(() => {
+    fetchCategories()
+  }, [fetchCategories])
+
+  // Definim iconurile și culorile pentru fiecare categorie
+  const categoryIcons = {
+    'faianta': { 
+      icon: FaiantaIcon, 
+      color: '#E3F2FD', 
+      iconColor: '#1976D2',
+      hoverColor: '#BBDEFB'
+    },
+    'gresie': { 
+      icon: GresieIcon, 
+      color: '#F3E5F5', 
+      iconColor: '#7B1FA2',
+      hoverColor: '#E1BEE7'
+    },
+    'parchet': { 
+      icon: ParchetIcon, 
+      color: '#FFF3E0', 
+      iconColor: '#F57C00',
+      hoverColor: '#FFE0B2'
+    },
+    'riflaje': { 
+      icon: RiflajeIcon, 
+      color: '#E8F5E8', 
+      iconColor: '#388E3C',
+      hoverColor: '#C8E6C9'
+    }
   }
+
+  const handleCategoryClick = (categorySlug: string) => {
+    navigate(`/categorii_produse/${categorySlug}`)
+  }
+
+  // Filtrăm categoriile pentru a avea cele 4 principale
+  const mainCategories = categories.filter(cat => 
+    ['faianta', 'gresie', 'parchet', 'riflaje'].includes(cat.slug)
+  )
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Breadcrumbs */}
       <Box sx={{ mb: 4 }}>
         <Breadcrumbs>
-          <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>
-            Acasă
-          </Link>
+          <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>Acasă</Link>
           <Typography color="text.primary">Categorii Produse</Typography>
         </Breadcrumbs>
       </Box>
 
-      {/* Page Title */}
-      <Box sx={{ textAlign: 'center', mb: 6 }}>
-        <Typography 
-          variant="h2" 
-          component="h1" 
-          sx={{ 
-            fontWeight: 700,
-            mb: 2,
-            fontSize: { xs: '2rem', md: '3rem' }
-          }}
-        >
-          Categorii Produse
-        </Typography>
-        <Typography 
-          variant="body1" 
-          color="text.secondary"
-          sx={{ maxWidth: 600, mx: 'auto' }}
-        >
-          Explorați gama noastră completă de produse pentru amenajări interioare și exterioare
-        </Typography>
-      </Box>
+      <Fade in timeout={800}>
+        <Box sx={{ textAlign: 'center', mb: 6 }}>
+          <Typography 
+            variant="h3" 
+            component="h1" 
+            sx={{ 
+              mb: 2, 
+              fontWeight: 700,
+              background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            Categorii Produse
+          </Typography>
+          <Typography 
+            variant="h6" 
+            color="text.secondary"
+            sx={{ maxWidth: 600, mx: 'auto' }}
+          >
+            Descoperă gama noastră completă de materiale pentru construcții și amenajări
+          </Typography>
+        </Box>
+      </Fade>
 
-      {/* Category Grid */}
-      <Grid container spacing={4}>
-        {categories.map((category) => (
-          <Grid item xs={12} sm={6} lg={3} key={category.id}>
-            <Card
-              sx={{
-                height: '100%',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-                borderRadius: 3,
-                transition: 'all 0.3s ease',
-                background: `linear-gradient(135deg, ${category.color}15 0%, ${category.color}05 100%)`,
-                border: '2px solid transparent',
-                '&:hover': {
-                  transform: 'translateY(-8px)',
-                  boxShadow: theme.shadows[12],
-                  borderColor: category.color,
-                  '& .category-icon': {
-                    transform: 'scale(1.1) rotate(5deg)'
-                  }
-                }
-              }}
-              onClick={() => handleCategoryClick(category.slug)}
-            >
-              <CardContent 
-                sx={{ 
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  p: { xs: 3, md: 4 },
-                  minHeight: { xs: 200, md: 280 }
-                }}
-              >
-                {/* Icon */}
-                <Box
-                  className="category-icon"
+      <Grid container spacing={4} sx={{ justifyContent: 'center' }}>
+        {mainCategories.map((category, index) => {
+          const categoryConfig = categoryIcons[category.slug as keyof typeof categoryIcons]
+          const IconComponent = categoryConfig?.icon || FaiantaIcon
+          
+          return (
+            <Grid item xs={12} sm={6} md={3} key={category.id}>
+              <Zoom in timeout={600 + index * 200}>
+                <Card
                   sx={{
-                    color: category.color,
-                    mb: 3,
-                    transition: 'transform 0.3s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  {category.icon}
-                </Box>
-
-                {/* Category Name */}
-                <Typography
-                  variant="h4"
-                  component="h2"
-                  sx={{
-                    fontWeight: 600,
-                    mb: 1.5,
-                    color: 'text.primary',
-                    fontSize: { xs: '1.5rem', md: '1.75rem' }
-                  }}
-                >
-                  {category.name}
-                </Typography>
-
-                {/* Description */}
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    textAlign: 'center',
-                    lineHeight: 1.6,
-                    px: { xs: 0, md: 2 }
-                  }}
-                >
-                  {category.description}
-                </Typography>
-
-                {/* Decorative element */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 4,
-                    background: category.color,
-                    transform: 'scaleX(0)',
-                    transformOrigin: 'left',
-                    transition: 'transform 0.3s ease',
-                    '.MuiCard-root:hover &': {
-                      transform: 'scaleX(1)'
+                    height: '100%',
+                    borderRadius: 3,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    backgroundColor: categoryConfig?.color || '#F5F5F5',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      transform: 'translateY(-8px)',
+                      backgroundColor: categoryConfig?.hoverColor || '#EEEEEE',
+                      borderColor: categoryConfig?.iconColor || theme.palette.primary.main,
+                      boxShadow: theme.shadows[12],
+                      '& .category-icon': {
+                        transform: 'scale(1.1) rotate(5deg)'
+                      },
+                      '& .category-title': {
+                        color: categoryConfig?.iconColor || theme.palette.primary.main
+                      }
                     }
                   }}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                >
+                  <CardActionArea
+                    onClick={() => handleCategoryClick(category.slug)}
+                    sx={{ 
+                      height: '100%',
+                      p: 3,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      minHeight: { xs: 200, md: 250 }
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        mb: 3,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 80,
+                        height: 80,
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      <Box
+                        className="category-icon"
+                        sx={{ 
+                          transition: 'all 0.3s ease',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <IconComponent 
+                          size={40}
+                          color={categoryConfig?.iconColor || theme.palette.primary.main}
+                        />
+                      </Box>
+                    </Box>
+                    
+                    <CardContent sx={{ textAlign: 'center', p: 0 }}>
+                      <Typography 
+                        className="category-title"
+                        variant="h5" 
+                        component="h2"
+                        sx={{ 
+                          mb: 1,
+                          fontWeight: 600,
+                          textTransform: 'capitalize',
+                          transition: 'color 0.3s ease'
+                        }}
+                      >
+                        {category.name}
+                      </Typography>
+                      <Typography 
+                        variant="body1" 
+                        color="text.secondary"
+                        sx={{ mb: 2 }}
+                      >
+                        {category.products_count || 0} produse disponibile
+                      </Typography>
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 3,
+                          backgroundColor: categoryConfig?.iconColor || theme.palette.primary.main,
+                          borderRadius: 2,
+                          mx: 'auto',
+                          transition: 'width 0.3s ease',
+                          '.MuiCardActionArea-root:hover &': {
+                            width: 80
+                          }
+                        }}
+                      />
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Zoom>
+            </Grid>
+          )
+        })}
       </Grid>
 
-      {/* Bottom CTA Section */}
-      <Box 
-        sx={{ 
-          mt: 8,
-          p: { xs: 3, md: 6 },
-          borderRadius: 3,
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
-          textAlign: 'center'
-        }}
-      >
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
-          Nu știți ce să alegeți?
-        </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-          Folosiți calculatorul nostru pentru a estima cantitatea necesară de materiale
-        </Typography>
-        <Box
-          component="button"
-          onClick={() => navigate('/calculator')}
-          sx={{
-            px: 4,
-            py: 1.5,
-            borderRadius: 2,
-            border: 'none',
-            background: theme.palette.primary.main,
-            color: 'white',
-            fontSize: '1rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              background: theme.palette.primary.dark,
-              transform: 'translateY(-2px)',
-              boxShadow: theme.shadows[4]
-            }
-          }}
-        >
-          Deschide Calculator
+      {mainCategories.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 8 }}>
+          <Typography variant="h6" color="text.secondary">
+            Se încarcă categoriile...
+          </Typography>
         </Box>
-      </Box>
+      )}
+
+      <Fade in timeout={1200}>
+        <Box sx={{ mt: 8, textAlign: 'center' }}>
+          <Typography variant="body1" color="text.secondary">
+            Nu găsești ce cauți? Contactează-ne pentru recomandări personalizate!
+          </Typography>
+        </Box>
+      </Fade>
     </Container>
   )
 }

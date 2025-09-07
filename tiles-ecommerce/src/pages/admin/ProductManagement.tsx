@@ -51,9 +51,10 @@ import { useAdminProductStore } from '../../stores/products'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
 import ImageUpload from '../../components/common/ImageUpload'
 import type { Category, Product } from '../../types'
-import EnhancedProductForm from '../../components/admin/EnhancedProductForm'
-import EnhancedParchetForm from '../../components/admin/EnhancedParchetForm'
+import EnhancedProductForm from '../../components/admin/EnhancedProductFormFixed'
+import EnhancedParchetForm from '../../components/admin/EnhancedParchetFormFixed'
 import EnhancedRiflajForm from '../../components/admin/EnhancedRiflajForm'
+import { generateProductSlug } from '../../utils/slugUtils'
 
 type ViewMode = 'categories' | 'category-products' | 'add-category' | 'edit-product' | 'add-product'
 
@@ -375,7 +376,7 @@ const ProductManagement: React.FC = () => {
           // Status
           stock_status: product.stock_status
         })
-        setCurrentImagePath(product.image_path || '')
+        setCurrentImagePath(product.image_url || '')
         setViewMode('edit-product')
         return
     }
@@ -457,13 +458,18 @@ const ProductManagement: React.FC = () => {
         ? productForm.application_areas.split(',').map(area => area.trim()).filter(area => area)
         : []
 
-      const productData = {
+      // Check if this is a parchet product
+      const isParchet = selectedCategory?.slug === 'parchet'
+      
+      const productData: any = {
         // Basic info
         name: productForm.name,
+        slug: generateProductSlug(productForm.name),
         description: productForm.description,
         price: parseFloat(productForm.price),
         category_id: productForm.category_id,
-        image_path: imagePath,
+        image_url: imagePath || null,
+        is_active: true,  // Set product as active by default
         
         // Basic tile properties
         dimensions: productForm.dimensions || null,
@@ -510,29 +516,34 @@ const ProductManagement: React.FC = () => {
         installation_notes: productForm.installation_notes || null,
         care_instructions: productForm.care_instructions || null,
         
-        // Parchet-specific fields
-        thickness_mm: productForm.thickness_mm ? parseFloat(productForm.thickness_mm) : null,
-        width_mm: productForm.width_mm ? parseFloat(productForm.width_mm) : null,
-        length_mm: productForm.length_mm ? parseFloat(productForm.length_mm) : null,
-        traffic_class: productForm.traffic_class || null,
-        floor_type: productForm.floor_type || null,
-        installation_type: productForm.installation_type || null,
-        wood_essence: productForm.wood_essence || null,
-        collection_name: productForm.collection_name || null,
-        core_material: productForm.core_material || null,
-        surface_texture: productForm.surface_texture || null,
-        surface_per_package: productForm.surface_per_package ? parseFloat(productForm.surface_per_package) : null,
-        pieces_per_package: productForm.pieces_per_package ? parseInt(productForm.pieces_per_package) : null,
-        installation_location: productForm.installation_location || null,
-        is_antistatic: productForm.is_antistatic,
-        underfloor_heating_compatible: productForm.underfloor_heating_compatible || null,
-        supplier_code: productForm.supplier_code || null,
-        suitable_areas: productForm.suitable_areas || null,
-        physical_warranty_years: productForm.physical_warranty_years ? parseInt(productForm.physical_warranty_years) : null,
-        juridical_warranty_years: productForm.juridical_warranty_years ? parseInt(productForm.juridical_warranty_years) : null,
-        
         // Status
         stock_status: productForm.stock_status
+      }
+      
+      // Only add parchet-specific fields if this is a parchet product
+      if (isParchet) {
+        Object.assign(productData, {
+          // Parchet-specific fields
+          thickness_mm: productForm.thickness_mm ? parseFloat(productForm.thickness_mm) : null,
+          width_mm: productForm.width_mm ? parseFloat(productForm.width_mm) : null,
+          length_mm: productForm.length_mm ? parseFloat(productForm.length_mm) : null,
+          traffic_class: productForm.traffic_class || null,
+          floor_type: productForm.floor_type || null,
+          installation_type: productForm.installation_type || null,
+          wood_essence: productForm.wood_essence || null,
+          collection_name: productForm.collection_name || null,
+          core_material: productForm.core_material || null,
+          surface_texture: productForm.surface_texture || null,
+          surface_per_package: productForm.surface_per_package ? parseFloat(productForm.surface_per_package) : null,
+          pieces_per_package: productForm.pieces_per_package ? parseInt(productForm.pieces_per_package) : null,
+          installation_location: productForm.installation_location || null,
+          is_antistatic: productForm.is_antistatic,
+          underfloor_heating_compatible: productForm.underfloor_heating_compatible || null,
+          supplier_code: productForm.supplier_code || null,
+          suitable_areas: productForm.suitable_areas || null,
+          physical_warranty_years: productForm.physical_warranty_years ? parseInt(productForm.physical_warranty_years) : null,
+          juridical_warranty_years: productForm.juridical_warranty_years ? parseInt(productForm.juridical_warranty_years) : null,
+        })
       }
 
       if (editingProduct) {
@@ -541,6 +552,11 @@ const ProductManagement: React.FC = () => {
       } else {
         await createProduct(productData)
         setSuccess('Produsul a fost creat cu succes!')
+      }
+      
+      // Refresh products after save
+      if (selectedCategory) {
+        await fetchProductsByCategory(selectedCategory.id)
       }
       
       setTimeout(() => {
@@ -869,80 +885,260 @@ const ProductManagement: React.FC = () => {
               </Button>
             </Box>
           ) : (
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Produs</TableCell>
-                    <TableCell align="center">Preț</TableCell>
-                    <TableCell align="center">Status</TableCell>
-                    <TableCell align="center">Acțiuni</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id} hover>
-                      <TableCell>
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                          <Avatar sx={{ bgcolor: 'secondary.main', width: 40, height: 40 }}>
-                            {product.image_path ? <ImageIcon /> : product.name.charAt(0)}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="subtitle1">
-                              {product.name}
+            <>
+              {/* Desktop Table View */}
+              {!isMobile ? (
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Produs</TableCell>
+                        <TableCell align="center">Preț</TableCell>
+                        <TableCell align="center">Status</TableCell>
+                        <TableCell align="center">Acțiuni</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {products.map((product) => (
+                        <TableRow key={product.id} hover>
+                          <TableCell>
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              {product.image_url ? (
+                                <Box
+                                  component="img"
+                                  src={product.image_url}
+                                  alt={product.name}
+                                  sx={{
+                                    width: 40,
+                                    height: 40,
+                                    objectFit: 'cover',
+                                    borderRadius: 1,
+                                    border: 1,
+                                    borderColor: 'divider'
+                                  }}
+                                />
+                              ) : (
+                                <Avatar sx={{ bgcolor: 'secondary.main', width: 40, height: 40 }}>
+                                  {product.name.charAt(0)}
+                                </Avatar>
+                              )}
+                              <Box>
+                                <Typography variant="subtitle1">
+                                  {product.name}
+                                </Typography>
+                                {product.description && (
+                                  <Typography variant="caption" color="text.secondary">
+                                    {product.description.substring(0, 60)}...
+                                  </Typography>
+                                )}
+                              </Box>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="center">
+                            <Typography variant="subtitle2" color="primary.main">
+                              {product.price.toFixed(2)} lei
                             </Typography>
-                            {product.description && (
-                              <Typography variant="caption" color="text.secondary">
-                                {product.description.substring(0, 60)}...
-                              </Typography>
+                          </TableCell>
+                          <TableCell align="center">
+                            <Chip 
+                              label={product.stock_status === 'available' ? 'Disponibil' : 
+                                     product.stock_status === 'out_of_stock' ? 'Epuizat' :
+                                     product.stock_status === 'coming_soon' ? 'În curând' : 'Discontinued'}
+                              size="small"
+                              color={product.stock_status === 'available' ? 'success' : 
+                                    product.stock_status === 'out_of_stock' ? 'warning' :
+                                    product.stock_status === 'coming_soon' ? 'info' : 'default'}
+                            />
+                          </TableCell>
+                          <TableCell align="center">
+                            <Stack direction="row" spacing={1} justifyContent="center">
+                              <Tooltip title="Editează">
+                                <IconButton 
+                                  size="medium"
+                                  onClick={() => handleEditProduct(product)}
+                                  sx={{ color: '#FFB300' }}
+                                >
+                                  <Edit />
+                                </IconButton>
+                              </Tooltip>
+                              
+                              <Tooltip title="Șterge">
+                                <IconButton 
+                                  size="medium"
+                                  onClick={() => handleDeleteProduct(product)}
+                                  color="error"
+                                >
+                                  <Delete />
+                                </IconButton>
+                              </Tooltip>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                /* Mobile Card View */
+                <Stack spacing={2}>
+                  {products.map((product) => (
+                    <Card 
+                      key={product.id} 
+                      sx={{ 
+                        borderRadius: 3,
+                        border: '1px solid',
+                        borderColor: 'grey.300',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: 'primary.light',
+                          boxShadow: theme.shadows[4],
+                          transform: 'translateY(-2px)'
+                        }
+                      }}
+                    >
+                      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                        <Grid container spacing={2} sx={{ height: '100%' }}>
+                          {/* Row 1: Image + Product Info */}
+                          <Grid item xs={3}>
+                            {product.image_url ? (
+                              <Box
+                                component="img"
+                                src={product.image_url}
+                                alt={product.name}
+                                sx={{
+                                  width: '100%',
+                                  height: 80,
+                                  objectFit: 'cover',
+                                  borderRadius: 2,
+                                  border: 1,
+                                  borderColor: 'divider'
+                                }}
+                              />
+                            ) : (
+                              <Avatar sx={{ 
+                                bgcolor: 'secondary.main', 
+                                width: '100%', 
+                                height: 80,
+                                borderRadius: 2,
+                                fontSize: '1.5rem'
+                              }}>
+                                {product.name.charAt(0)}
+                              </Avatar>
                             )}
-                          </Box>
-                        </Stack>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Typography variant="subtitle2" color="primary.main">
-                          {product.price.toFixed(2)} lei
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Chip 
-                          label={product.stock_status === 'available' ? 'Disponibil' : 
-                                 product.stock_status === 'out_of_stock' ? 'Epuizat' :
-                                 product.stock_status === 'coming_soon' ? 'În curând' : 'Discontinued'}
-                          size="small"
-                          color={product.stock_status === 'available' ? 'success' : 
-                                product.stock_status === 'out_of_stock' ? 'warning' :
-                                product.stock_status === 'coming_soon' ? 'info' : 'default'}
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <Stack direction="row" spacing={1} justifyContent="center">
-                          <Tooltip title="Editează">
-                            <IconButton 
-                              size="medium"
-                              onClick={() => handleEditProduct(product)}
-                              sx={{ color: '#FFB300' }}
-                            >
-                              <Edit />
-                            </IconButton>
-                          </Tooltip>
+                          </Grid>
+                          <Grid item xs={9}>
+                            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                              {/* Product Title */}
+                              <Typography 
+                                variant="subtitle1" 
+                                sx={{ 
+                                  fontWeight: 600,
+                                  lineHeight: 1.2,
+                                  fontSize: '1rem'
+                                }}
+                              >
+                                {product.name}
+                              </Typography>
+                              
+                              {/* Description */}
+                              {product.description && (
+                                <Typography 
+                                  variant="body2" 
+                                  color="text.secondary"
+                                  sx={{
+                                    fontSize: '0.8rem',
+                                    lineHeight: 1.3,
+                                    overflow: 'hidden',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical'
+                                  }}
+                                >
+                                  {product.description}
+                                </Typography>
+                              )}
+                              
+                              {/* Price and Status */}
+                              <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 1.5,
+                                mt: 'auto'
+                              }}>
+                                <Typography 
+                                  variant="h6" 
+                                  color="primary.main"
+                                  sx={{ 
+                                    fontWeight: 700,
+                                    fontSize: '1.1rem'
+                                  }}
+                                >
+                                  {product.price.toFixed(2)} lei
+                                </Typography>
+                                <Chip 
+                                  label={product.stock_status === 'available' ? 'Disponibil' : 
+                                         product.stock_status === 'out_of_stock' ? 'Epuizat' :
+                                         product.stock_status === 'coming_soon' ? 'În curând' : 'Discontinued'}
+                                  size="small"
+                                  color={product.stock_status === 'available' ? 'success' : 
+                                        product.stock_status === 'out_of_stock' ? 'warning' :
+                                        product.stock_status === 'coming_soon' ? 'info' : 'default'}
+                                  sx={{
+                                    fontSize: '0.7rem',
+                                    height: 22
+                                  }}
+                                />
+                              </Box>
+                            </Box>
+                          </Grid>
                           
-                          <Tooltip title="Șterge">
-                            <IconButton 
-                              size="medium"
-                              onClick={() => handleDeleteProduct(product)}
-                              color="error"
-                            >
-                              <Delete />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
+                          {/* Row 2: Actions positioned at bottom right */}
+                          <Grid item xs={12}>
+                            <Box sx={{ 
+                              display: 'flex', 
+                              justifyContent: 'flex-end',
+                              pt: 1,
+                              borderTop: '1px solid',
+                              borderColor: 'grey.200'
+                            }}>
+                              <Stack direction="row" spacing={1}>
+                                <Tooltip title="Editează">
+                                  <IconButton 
+                                    size="medium"
+                                    onClick={() => handleEditProduct(product)}
+                                    sx={{ 
+                                      color: '#FFB300',
+                                      minWidth: 44,
+                                      minHeight: 44
+                                    }}
+                                  >
+                                    <Edit />
+                                  </IconButton>
+                                </Tooltip>
+                                
+                                <Tooltip title="Șterge">
+                                  <IconButton 
+                                    size="medium"
+                                    onClick={() => handleDeleteProduct(product)}
+                                    color="error"
+                                    sx={{
+                                      minWidth: 44,
+                                      minHeight: 44
+                                    }}
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </CardContent>
+                    </Card>
                   ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                </Stack>
+              )}
+            </>
           )}
         </Box>
       )}

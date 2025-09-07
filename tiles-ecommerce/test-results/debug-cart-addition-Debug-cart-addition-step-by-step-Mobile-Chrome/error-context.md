@@ -1,0 +1,234 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - img [ref=e7] [cursor=pointer]
+        - img [ref=e11] [cursor=pointer]
+        - generic [ref=e12]:
+          - button [ref=e13] [cursor=pointer]:
+            - img [ref=e14] [cursor=pointer]
+          - button [ref=e16] [cursor=pointer]:
+            - img [ref=e17] [cursor=pointer]
+          - button [ref=e19] [cursor=pointer]:
+            - img [ref=e20] [cursor=pointer]
+          - button [ref=e22] [cursor=pointer]:
+            - img [ref=e23] [cursor=pointer]
+    - main [ref=e26]:
+      - generic [ref=e28]:
+        - navigation [ref=e30]:
+          - list [ref=e31]:
+            - listitem [ref=e32]:
+              - link [ref=e33] [cursor=pointer]:
+                - /url: /
+                - text: Acasă
+            - listitem [ref=e34]: /
+            - listitem [ref=e35]:
+              - link [ref=e36] [cursor=pointer]:
+                - /url: /faianta
+                - text: Faianță
+            - listitem [ref=e37]: /
+            - listitem [ref=e38]:
+              - paragraph [ref=e39]: Faianță Albă Clasică2225
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - generic [ref=e43]:
+              - img [ref=e44] [cursor=pointer]
+              - button [ref=e45] [cursor=pointer]:
+                - img [ref=e46] [cursor=pointer]
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]:
+                  - heading [level=3] [ref=e52]: Faianță Albă Clasică2225
+                  - generic [ref=e53]:
+                    - button [ref=e54] [cursor=pointer]:
+                      - img [ref=e55] [cursor=pointer]
+                    - button [ref=e57] [cursor=pointer]:
+                      - img [ref=e58] [cursor=pointer]
+                - generic [ref=e61]:
+                  - img [ref=e62]
+                  - generic [ref=e64]: Calitate 1
+                - heading [level=4] [ref=e66]: 46 RON / m²
+              - generic [ref=e67]:
+                - heading [level=6] [ref=e68]: Descriere
+                - paragraph [ref=e69]: Faianță albă de înaltă calitate pentru baie, design clasic și elegant.
+              - generic [ref=e70]:
+                - heading [level=6] [ref=e71]: Cantitate
+                - generic [ref=e72]:
+                  - generic [ref=e73]:
+                    - button [disabled]:
+                      - img
+                    - paragraph [ref=e74]: "1"
+                    - button [ref=e75] [cursor=pointer]:
+                      - img [ref=e76] [cursor=pointer]
+                  - button [ref=e78] [cursor=pointer]:
+                    - img [ref=e80] [cursor=pointer]
+                    - text: Adaugă în coș
+          - generic [ref=e83]:
+            - heading [level=6] [ref=e84]: Specificații tehnice
+            - table [ref=e86]:
+              - rowgroup [ref=e87]:
+                - row [ref=e88]:
+                  - cell [ref=e89]: Dimensiuni
+                  - cell [ref=e90]: 25x40 cm
+                - row [ref=e91]:
+                  - cell [ref=e92]: Clasa de calitate
+                  - cell [ref=e93]: Clasa 1
+                - row [ref=e94]:
+                  - cell [ref=e95]: Potrivit pentru pereți
+                  - cell [ref=e96]: Da
+            - button [ref=e97] [cursor=pointer]:
+              - img [ref=e99] [cursor=pointer]
+              - text: Afișează mai multe specificații
+            - generic [ref=e101]: Butonul va afișa toate specificațiile tehnice ale produsului în format tabelar
+    - contentinfo [ref=e102]:
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - generic [ref=e105]:
+            - heading [level=6] [ref=e106]: Pro-Mac
+            - paragraph [ref=e107]: Magazinul tău de încredere pentru faianta și gresie de calitate superioară. Peste 10 ani de experiență în amenajări interioare și exterioare.
+            - generic [ref=e108]:
+              - link [ref=e109] [cursor=pointer]:
+                - /url: https://www.facebook.com/profile.php?id=100057524437627
+                - img [ref=e110] [cursor=pointer]
+              - link [ref=e112] [cursor=pointer]:
+                - /url: https://instagram.com/promac.ro
+                - img [ref=e113] [cursor=pointer]
+              - link [ref=e115] [cursor=pointer]:
+                - /url: https://tiktok.com/@promac.ro
+                - img [ref=e116] [cursor=pointer]
+              - link [ref=e118] [cursor=pointer]:
+                - /url: https://youtube.com/@promac.ro
+                - img [ref=e119] [cursor=pointer]
+          - generic [ref=e121]:
+            - heading [level=6] [ref=e122]: Produse
+            - generic [ref=e123]:
+              - link [ref=e124] [cursor=pointer]:
+                - /url: "#"
+                - text: Gresie
+              - link [ref=e125] [cursor=pointer]:
+                - /url: "#"
+                - text: Faianta
+              - link [ref=e126] [cursor=pointer]:
+                - /url: "#"
+                - text: Parchet
+              - link [ref=e127] [cursor=pointer]:
+                - /url: "#"
+                - text: Riflaje
+          - generic [ref=e128]:
+            - heading [level=6] [ref=e129]: Servicii
+            - generic [ref=e130]:
+              - link [ref=e131] [cursor=pointer]:
+                - /url: "#"
+                - text: Calculator
+              - link [ref=e132] [cursor=pointer]:
+                - /url: "#"
+                - text: Transport
+              - link [ref=e133] [cursor=pointer]:
+                - /url: "#"
+                - text: Montaj
+              - link [ref=e134] [cursor=pointer]:
+                - /url: "#"
+                - text: Consultanță
+          - generic [ref=e135]:
+            - heading [level=6] [ref=e136]: Contact
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - img [ref=e139]
+                - paragraph [ref=e141]: +40 123 456 789
+              - generic [ref=e142]:
+                - img [ref=e143]
+                - paragraph [ref=e145]: contact@tilestore.ro
+              - generic [ref=e146]:
+                - img [ref=e147]
+                - paragraph [ref=e149]: București, România
+        - separator [ref=e150]
+        - generic [ref=e151]:
+          - paragraph [ref=e152]: © 2024 Pro-Mac. Toate drepturile rezervate.
+          - generic [ref=e153]:
+            - link [ref=e154] [cursor=pointer]:
+              - /url: "#"
+              - text: Termeni și Condiții
+            - link [ref=e155] [cursor=pointer]:
+              - /url: "#"
+              - text: Politica de Confidențialitate
+            - link [ref=e156] [cursor=pointer]:
+              - /url: "#"
+              - text: GDPR
+    - button [ref=e157] [cursor=pointer]:
+      - img [ref=e158] [cursor=pointer]
+  - generic [ref=e160]:
+    - generic [ref=e162]:
+      - img [ref=e163]
+      - heading [level=6] [ref=e164]: Pro-Mac
+    - list [ref=e166]:
+      - listitem [ref=e168]:
+        - button [ref=e169] [cursor=pointer]:
+          - img [ref=e171] [cursor=pointer]
+          - paragraph [ref=e181] [cursor=pointer]: Acasă
+      - generic [ref=e182]:
+        - listitem [ref=e183]:
+          - button [ref=e184] [cursor=pointer]:
+            - img [ref=e186] [cursor=pointer]
+            - paragraph [ref=e208] [cursor=pointer]: Categorii
+        - generic [ref=e209]:
+          - listitem [ref=e211]:
+            - button [ref=e212] [cursor=pointer]:
+              - img [ref=e214] [cursor=pointer]
+              - paragraph [ref=e237] [cursor=pointer]: Faianță (5)
+          - listitem [ref=e239]:
+            - button [ref=e240] [cursor=pointer]:
+              - img [ref=e242] [cursor=pointer]
+              - paragraph [ref=e265] [cursor=pointer]: Gresie (21)
+          - listitem [ref=e267]:
+            - button [ref=e268] [cursor=pointer]:
+              - img [ref=e270] [cursor=pointer]
+              - paragraph [ref=e298] [cursor=pointer]: Parchet (27)
+          - listitem [ref=e300]:
+            - button [ref=e301] [cursor=pointer]:
+              - img [ref=e303] [cursor=pointer]
+              - paragraph [ref=e331] [cursor=pointer]: Riflaje (24)
+      - listitem [ref=e333]:
+        - button [ref=e334] [cursor=pointer]:
+          - img [ref=e336] [cursor=pointer]
+          - paragraph [ref=e345] [cursor=pointer]: Showroomuri
+      - listitem [ref=e347]:
+        - button [ref=e348] [cursor=pointer]:
+          - img [ref=e350] [cursor=pointer]
+          - paragraph [ref=e371] [cursor=pointer]: Calculator
+      - listitem [ref=e373]:
+        - button [ref=e374] [cursor=pointer]:
+          - img [ref=e376] [cursor=pointer]
+          - paragraph [ref=e388] [cursor=pointer]: Contact
+    - button [ref=e390] [cursor=pointer]:
+      - img [ref=e392] [cursor=pointer]
+      - text: Autentificare
+  - dialog [ref=e396]:
+    - button [ref=e397] [cursor=pointer]:
+      - img [ref=e398] [cursor=pointer]
+    - generic [ref=e400]:
+      - img [ref=e402]
+      - heading "Rămâi la curent!" [level=5] [ref=e404]
+      - paragraph [ref=e405]: Primește oferte exclusive, noutăți despre produse și sfaturi de amenajare direct în emailul tău.
+      - generic [ref=e406]:
+        - generic [ref=e407]: "Ce vei primi:"
+        - list [ref=e408]:
+          - listitem [ref=e409]: 🏷️ Reduceri exclusive pentru abonați
+          - listitem [ref=e410]: 📦 Primul la noutățile din gama Pro-Mac
+          - listitem [ref=e411]: 💡 Idei și tendințe în amenajări
+          - listitem [ref=e412]: 📧 Maxim 2 emailuri pe lună
+      - generic [ref=e413]:
+        - generic [ref=e414]:
+          - generic: Adresa ta de email
+          - generic [ref=e415]:
+            - textbox "Adresa ta de email" [ref=e416]
+            - group:
+              - generic: Adresa ta de email
+        - generic [ref=e417]: Prin abonare, accepți să primești emailuri promoționale de la Pro-Mac. Te poți dezabona oricând cu un click.
+    - generic [ref=e418]:
+      - button "Mai târziu" [ref=e419] [cursor=pointer]
+      - button "Abonează-te" [disabled]
+```

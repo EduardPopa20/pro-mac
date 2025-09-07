@@ -26,8 +26,6 @@ import {
   AccessTime, 
   Phone, 
   Email,
-  Navigation,
-  Directions,
   Store,
   CheckCircle,
   Business as BusinessIcon
@@ -213,29 +211,55 @@ const PublicShowrooms: React.FC = () => {
                       <Typography 
                         variant="h4" 
                         sx={{ 
-                          fontWeight: 600, 
-                          color: 'text.primary', 
+                          fontWeight: 700, 
                           mb: 2,
                           fontSize: { xs: '1.5rem', md: '2rem' },
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.dark} 90%)`,
+                          backgroundClip: 'text',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent'
                         }}
                       >
                         {showroom.name}
                       </Typography>
 
-                      {/* Rand 2: Adresa + Telefon centrate */}
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 6, mb: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <LocationOn sx={{ fontSize: 20, color: 'primary.main' }} />
-                          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                      {/* Rand 2: Adresa + Telefon pentru mobile și desktop */}
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'center', sm: 'center' },
+                        gap: { xs: 2, sm: 6 }, 
+                        mb: 3, 
+                        justifyContent: 'center', 
+                        width: '100%'
+                      }}>
+                        <Box display="flex" alignItems="center" gap={1} sx={{ 
+                          justifyContent: { xs: 'center', sm: 'flex-start' },
+                          textAlign: { xs: 'center', sm: 'left' },
+                          width: { xs: '100%', sm: 'auto' }
+                        }}>
+                          <LocationOn sx={{ fontSize: 20, color: 'primary.main', flexShrink: 0 }} />
+                          <Typography variant="body2" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            fontSize: { xs: '0.875rem', md: '0.875rem' },
+                            lineHeight: 1.4,
+                            wordBreak: 'break-word'
+                          }}>
                             {showroom.address}
                           </Typography>
                         </Box>
                         
                         {showroom.phone && (
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Phone sx={{ fontSize: 20, color: 'primary.main' }} />
-                            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                          <Box display="flex" alignItems="center" gap={1} sx={{
+                            justifyContent: { xs: 'center', sm: 'flex-start' },
+                            width: { xs: '100%', sm: 'auto' }
+                          }}>
+                            <Phone sx={{ fontSize: 20, color: 'primary.main', flexShrink: 0 }} />
+                            <Typography variant="body2" color="text.secondary" sx={{ 
+                              fontWeight: 600,
+                              fontSize: { xs: '0.875rem', md: '0.875rem' }
+                            }}>
                               {showroom.phone}
                             </Typography>
                           </Box>
@@ -267,25 +291,18 @@ const PublicShowrooms: React.FC = () => {
                           }}
                         >
                           <BusinessIcon sx={{ fontSize: 60, color: 'white', opacity: 0.3 }} />
-                          {showroom.photos && showroom.photos.length > 0 && (
-                            <Box
-                              component="img"
-                              src={showroom.photos[0]}
-                              alt={showroom.name}
-                              sx={{
-                                position: 'absolute',
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                borderRadius: 2
-                              }}
-                            />
-                          )}
                         </Box>
 
                         {/* Program de lucru */}
                         <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1, justifyContent: 'center' }}>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            mb: 2, 
+                            gap: 1, 
+                            justifyContent: { xs: 'flex-start', md: 'center' },
+                            pl: { xs: 1, md: 0 }
+                          }}>
                             <AccessTime sx={{ fontSize: 20, color: 'primary.main' }} />
                             <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
                               Program de lucru
@@ -298,7 +315,8 @@ const PublicShowrooms: React.FC = () => {
                               flexDirection: 'column',
                               backgroundColor: 'grey.50',
                               borderRadius: 2,
-                              p: 1.5
+                              p: { xs: 2, md: 1.5 },
+                              gap: { xs: 1, md: 0.5 }
                             }}
                           >
                             {schedule.map((item, index) => (
@@ -308,16 +326,23 @@ const PublicShowrooms: React.FC = () => {
                                     display: 'flex', 
                                     justifyContent: 'space-between', 
                                     alignItems: 'center', 
-                                    py: 0.5,
-                                    px: 1,
+                                    py: { xs: 1, md: 0.5 },
+                                    px: { xs: 1.5, md: 1 },
                                     borderRadius: 1,
                                     transition: 'background-color 0.2s',
+                                    minHeight: { xs: 36, md: 'auto' },
                                     '&:hover': {
                                       backgroundColor: 'action.hover'
                                     }
                                   }}
                                 >
-                                  <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 80, color: 'text.primary' }}>
+                                  <Typography variant="body2" sx={{ 
+                                    fontWeight: 500, 
+                                    minWidth: { xs: 50, md: 80 },
+                                    color: 'text.primary',
+                                    fontSize: { xs: '0.875rem', md: '0.875rem' },
+                                    flex: 1
+                                  }}>
                                     {item.day}
                                   </Typography>
                                   <Typography 
@@ -325,7 +350,11 @@ const PublicShowrooms: React.FC = () => {
                                     color={item.hours === 'Închis' ? 'error.main' : 'text.primary'}
                                     sx={{ 
                                       fontWeight: item.hours === 'Închis' ? 600 : 500,
-                                      textAlign: 'right'
+                                      textAlign: 'right',
+                                      fontSize: { xs: '0.875rem', md: '0.875rem' },
+                                      flex: 1,
+                                      display: 'flex',
+                                      justifyContent: 'flex-end'
                                     }}
                                   >
                                     {item.hours}
@@ -335,7 +364,7 @@ const PublicShowrooms: React.FC = () => {
                                   <Box sx={{ 
                                     borderBottom: '1px solid',
                                     borderColor: 'divider',
-                                    my: 0.5,
+                                    my: { xs: 1, md: 0.5 },
                                     width: '100%',
                                     opacity: 0.5
                                   }} />
@@ -356,27 +385,36 @@ const PublicShowrooms: React.FC = () => {
                       
                       {/* Rand 4: Butoanele Google Maps si Waze centrate */}
                       <Box sx={{ display: 'flex', gap: 6, justifyContent: 'center', alignItems: 'center' }}>
+                        {/* Google Maps Icon */}
                         <Box
-                          component="a"
-                          href={showroom.google_maps_url || `https://maps.google.com/?q=${encodeURIComponent(showroom.address)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          component={showroom.google_maps_url ? "a" : "div"}
+                          href={showroom.google_maps_url || undefined}
+                          target={showroom.google_maps_url ? "_blank" : undefined}
+                          rel={showroom.google_maps_url ? "noopener noreferrer" : undefined}
+                          onClick={!showroom.google_maps_url ? (e) => {
+                            e.preventDefault()
+                            const fallbackUrl = `https://maps.google.com/?q=${encodeURIComponent(showroom.address)}`
+                            window.open(fallbackUrl, '_blank', 'noopener,noreferrer')
+                          } : undefined}
                           sx={{
                             display: 'block',
-                            width: { xs: 44, md: 50 },
-                            height: { xs: 44, md: 50 },
+                            width: { xs: 48, md: 56 },
+                            height: { xs: 48, md: 56 },
                             borderRadius: 2,
                             overflow: 'hidden',
-                            transition: 'transform 0.2s ease',
+                            transition: 'all 0.2s ease',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
                             '&:hover': {
-                              transform: 'scale(1.05)'
-                            },
-                            cursor: 'pointer'
+                              transform: 'scale(1.05)',
+                              boxShadow: theme.shadows[4]
+                            }
                           }}
+                          title="Deschide în Google Maps"
                         >
                           <Box
                             component="img"
-                            src="google-map-icon.png"
+                            src="/google-map-icon.png"
                             alt="Google Maps"
                             sx={{
                               width: '100%',
@@ -386,27 +424,36 @@ const PublicShowrooms: React.FC = () => {
                           />
                         </Box>
 
+                        {/* Waze Icon */}
                         <Box
-                          component="a"
-                          href={showroom.waze_url || `https://waze.com/ul?q=${encodeURIComponent(showroom.address)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          component={showroom.waze_url ? "a" : "div"}
+                          href={showroom.waze_url || undefined}
+                          target={showroom.waze_url ? "_blank" : undefined}
+                          rel={showroom.waze_url ? "noopener noreferrer" : undefined}
+                          onClick={!showroom.waze_url ? (e) => {
+                            e.preventDefault()
+                            const fallbackUrl = `https://waze.com/ul?q=${encodeURIComponent(showroom.address)}`
+                            window.open(fallbackUrl, '_blank', 'noopener,noreferrer')
+                          } : undefined}
                           sx={{
                             display: 'block',
-                            width: { xs: 56, md: 64 },
-                            height: { xs: 56, md: 64 },
+                            width: { xs: 48, md: 56 },
+                            height: { xs: 48, md: 56 },
                             borderRadius: 2,
                             overflow: 'hidden',
-                            transition: 'transform 0.2s ease',
+                            transition: 'all 0.2s ease',
+                            cursor: 'pointer',
+                            textDecoration: 'none',
                             '&:hover': {
-                              transform: 'scale(1.05)'
-                            },
-                            cursor: 'pointer'
+                              transform: 'scale(1.05)',
+                              boxShadow: theme.shadows[4]
+                            }
                           }}
+                          title="Deschide în Waze"
                         >
                           <Box
                             component="img"
-                            src="download.png"
+                            src="/waze.png"
                             alt="Waze"
                             sx={{
                               width: '100%',
@@ -415,7 +462,7 @@ const PublicShowrooms: React.FC = () => {
                             }}
                           />
                         </Box>
-                        </Box>
+                      </Box>
                     </Box>
                   </Box>
                 </Box>

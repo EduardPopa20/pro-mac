@@ -187,8 +187,27 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose, onSubs
                 px: isSmallMobile ? 0 : 2
               }}
             >
-              Abonează-te la newsletter-ul Pro-Mac și fii primul care află despre ofertele speciale, produsele noi și promoțiile exclusive pentru faianta și gresie.
+              Primește oferte exclusive, noutăți despre produse și sfaturi de amenajare direct în emailul tău.
             </Typography>
+            
+            {/* Benefits List */}
+            <Box sx={{ mb: 3, textAlign: 'left' }}>
+              <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, color: 'primary.main' }}>
+                Ce vei primi:
+              </Typography>
+              <Box component="ul" sx={{ 
+                fontSize: isSmallMobile ? '0.75rem' : '0.8rem',
+                color: 'text.secondary',
+                pl: 2,
+                m: 0,
+                '& li': { mb: 0.5 }
+              }}>
+                <li>🏷️ Reduceri exclusive pentru abonați</li>
+                <li>📦 Primul la noutățile din gama Pro-Mac</li>
+                <li>💡 Idei și tendințe în amenajări</li>
+                <li>📧 Maxim 2 emailuri pe lună</li>
+              </Box>
+            </Box>
 
             {/* Email Form */}
             <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
@@ -231,6 +250,21 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose, onSubs
                   {success}
                 </Alert>
               )}
+              
+              {/* Privacy Notice */}
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  display: 'block',
+                  textAlign: 'center',
+                  color: 'text.disabled',
+                  fontSize: '0.7rem',
+                  mt: 2
+                }}
+              >
+                Prin abonare, accepți să primești emailuri promoționale de la Pro-Mac. 
+                Te poți dezabona oricând cu un click.
+              </Typography>
             </Box>
           </>
         ) : (
@@ -258,10 +292,23 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose, onSubs
               sx={{ 
                 color: 'text.secondary',
                 textAlign: 'center',
-                lineHeight: 1.6
+                lineHeight: 1.6,
+                mb: 2
               }}
             >
-              Te-ai abonat cu succes la newsletter-ul Pro-Mac. Vei primi ofertele noastre speciale direct în email.
+              Bine ai venit în familia Pro-Mac! 🎉
+            </Typography>
+            
+            <Typography 
+              variant="caption"
+              sx={{ 
+                color: 'text.secondary',
+                textAlign: 'center',
+                display: 'block'
+              }}
+            >
+              Vei primi primul email cu ofertele noastre în următoarele zile. 
+              Verifică și folderul de spam pentru siguranță.
             </Typography>
           </Box>
         )}

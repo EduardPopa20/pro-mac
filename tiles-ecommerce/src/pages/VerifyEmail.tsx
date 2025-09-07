@@ -119,7 +119,7 @@ const VerifyEmail: React.FC = () => {
       </Typography>
       <Button
         variant="contained"
-        onClick={() => navigate('/auth')}
+        onClick={() => navigate('/conectare')}
         sx={{ mt: 2 }}
       >
         Înapoi la autentificare
@@ -164,7 +164,7 @@ const VerifyEmail: React.FC = () => {
           
           <Button
             variant="outlined"
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/conectare')}
             sx={{ mt: 2 }}
           >
             Înapoi la autentificare

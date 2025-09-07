@@ -1,9 +1,20 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useNavigateWithScroll } from './hooks/useNavigateWithScroll'
+import HomeIcon from './components/icons/HomeIcon'
+import ContactIcon from './components/icons/ContactIcon'
+import ShowroomIcon from './components/icons/ShowroomIcon'
+import CalculatorIcon from './components/icons/CalculatorIcon'
+import CategoriesIcon from './components/icons/CategoriesIcon'
+import FaiantaIcon from './components/icons/FaiantaIcon'
+import GresieIcon from './components/icons/GresieIcon'
+import ParchetIcon from './components/icons/ParchetIcon'
+import RiflajeIcon from './components/icons/RiflajeIcon'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from './stores/auth'
 import { useWatchlistStore } from './stores/watchlist'
 import { useProductStore } from './stores/products'
+import { useCartStore } from './stores/cart'
 // import { useRealTimeSync } from './hooks/useRealTimeSync'
 import {
   ThemeProvider,
@@ -44,7 +55,8 @@ import Cart from './pages/Cart'
 import Billing from './pages/Billing'
 import Checkout from './pages/Checkout'
 import PaymentSimulator from './pages/PaymentSimulator'
-import Auth from './pages/Auth'
+import Conectare from './pages/Conectare'
+import CreeazaCont from './pages/CreeazaCont'
 import Profile from './pages/Profile'
 import VerifyEmail from './pages/VerifyEmail'
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -67,8 +79,16 @@ import HomePage from './pages/HomePage'
 import Categories from './pages/Categories'
 import Unsubscribe from './pages/Unsubscribe'
 import AuthCallback from './pages/AuthCallback'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import NotFoundPage from './components/common/NotFoundPage'
+import CartRecover from './pages/CartRecover'
+import ScrollToTop from './components/common/ScrollToTop'
+// import { cartSyncService } from './services/cartSync' // Disabled - conflicts with reservation system
+import NewsletterModal from './components/common/NewsletterModal'
+import { useNewsletterModal, markUserAsSubscribed } from './hooks/useNewsletterModal'
+import { supabase } from './lib/supabase'
 
 // Theme is now imported from separate file
 
@@ -79,12 +99,10 @@ const queryClient = new QueryClient()
 
 // Get navigation items based on user authentication state and products
 const getStaticNavItems = () => [
-  { id: 'home', label: 'Acasă', path: '/' },
-  { id: 'showrooms', label: 'Showroomuri', path: '/showroom-uri' },
-  { id: 'offers', label: 'Oferte Speciale', path: '/oferte' },
-  { id: 'ideas', label: 'Idei Amenajare', path: '/idei' },
-  { id: 'calculator', label: 'Calculator', path: '/calculator' },
-  { id: 'contact', label: 'Contact', path: '/contact' }
+  { id: 'home', label: 'Acasă', path: '/', icon: <HomeIcon size={24} color="#2196F3" /> },
+  { id: 'showrooms', label: 'Showroomuri', path: '/showroom-uri', icon: <ShowroomIcon size={24} color="#FF9800" /> },
+  { id: 'calculator', label: 'Calculator', path: '/calculator', icon: <CalculatorIcon size={24} color="#4CAF50" /> },
+  { id: 'contact', label: 'Contact', path: '/contact', icon: <ContactIcon size={24} color="#9C27B0" /> }
 ]
 
 interface Category {
@@ -103,22 +121,38 @@ const getNavItems = (user: User | null, categories: Category[]) => {
   
   // Add products section with categories
   if (categories.length > 0) {
-    const productChildren = categories.map(category => ({
-      id: `category-${category.id}`,
-      label: `${category.name} (${category.products_count || 0})`,
-      path: `/${category.slug}`
-    }))
+    const productChildren = categories.map(category => {
+      // Get the appropriate icon based on category name/slug
+      let categoryIcon = <CategoriesIcon size={20} color="#757575" />
+      
+      if (category.slug === 'faianta' || category.name.toLowerCase().includes('faianta')) {
+        categoryIcon = <FaiantaIcon size={20} color="#E53E3E" />
+      } else if (category.slug === 'gresie' || category.name.toLowerCase().includes('gresie')) {
+        categoryIcon = <GresieIcon size={20} color="#8B5A2B" />
+      } else if (category.slug === 'parchet' || category.name.toLowerCase().includes('parchet')) {
+        categoryIcon = <ParchetIcon size={20} color="#D69E2E" />
+      } else if (category.slug === 'riflaje' || category.name.toLowerCase().includes('riflaj')) {
+        categoryIcon = <RiflajeIcon size={20} color="#2B6CB0" />
+      }
+
+      return {
+        id: `category-${category.id}`,
+        label: `${category.name} (${category.products_count || 0})`,
+        path: `/categorii_produse/${category.slug}`,
+        icon: categoryIcon
+      }
+    })
     
     baseItems.splice(1, 0, {
-      id: 'products',
-      label: 'Produse',
+      id: 'categories',
+      label: 'Categorii',
+      path: '/categorii_produse',
+      icon: <CategoriesIcon size={24} color="#F56565" />,
       children: productChildren
     })
   }
   
   if (user) {
-    baseItems.push({ id: 'profile', label: 'Profilul meu', path: '/profile' })
-    
     if (user.role === 'admin') {
       baseItems.push({ 
         id: 'admin', 
@@ -136,7 +170,7 @@ const getNavItems = (user: User | null, categories: Category[]) => {
 const HamburgerMenu: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
-  const navigate = useNavigate()
+  const navigate = useNavigateWithScroll()
   const { user, signOut } = useAuthStore()
   const { categories, fetchCategories } = useProductStore()
 
@@ -171,7 +205,7 @@ const HamburgerMenu: React.FC = () => {
         console.error('Error signing out:', error)
       }
     } else {
-      navigate('/auth')
+      navigate('/conectare')
     }
     handleDrawerClose()
   }
@@ -180,50 +214,101 @@ const HamburgerMenu: React.FC = () => {
     id: string
     label: string
     path?: string
+    icon?: React.ReactNode
     children?: NavItem[]
     isAdmin?: boolean
   }
 
-  const renderNavItem = (item: NavItem, depth = 0) => (
-    <Box key={item.id}>
-      <ListItem disablePadding sx={{ pl: depth * 2 }}>
-        <ListItemButton
-          onClick={() => {
-            if (item.children) {
-              handleExpandClick(item.id)
-            } else if (item.path) {
-              navigate(item.path)
-              handleDrawerClose()
-            }
-          }}
-          sx={{ 
-            minHeight: 56,
-            px: 2.5
-          }}
-        >
-          <ListItemText 
-            primary={item.label}
-            primaryTypographyProps={{
-              variant: 'body1'
-            }}
-          />
-          {item.children && (
-            <Box>
-              {expandedItems.includes(item.id) ? <ExpandLess /> : <ExpandMore />}
-            </Box>
-          )}
-        </ListItemButton>
-      </ListItem>
-      
-      {item.children && (
-        <Collapse in={expandedItems.includes(item.id)} timeout="auto" unmountOnExit>
+  const renderNavItem = (item: NavItem, depth = 0) => {
+    // Tratament special pentru secțiunea "Categorii" - va fi permanent deschisă
+    if (item.id === 'categories' && item.children) {
+      return (
+        <Box key={item.id}>
+          {/* Titlul "Categorii" clickable */}
+          <ListItem disablePadding sx={{ pl: depth * 2 }}>
+            <ListItemButton
+              onClick={() => {
+                if (item.path) {
+                  navigate(item.path)
+                  handleDrawerClose()
+                }
+              }}
+              sx={{ 
+                minHeight: 56,
+                px: 2.5,
+                fontWeight: 600
+              }}
+            >
+              {item.icon && (
+                <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                  {item.icon}
+                </Box>
+              )}
+              <ListItemText 
+                primary={item.label}
+                primaryTypographyProps={{
+                  variant: 'body1',
+                  sx: { fontWeight: 600 }
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+          
+          {/* Subcategoriile - permanent deschise */}
           <List component="div" disablePadding>
             {item.children.map((child) => renderNavItem(child, depth + 1))}
           </List>
-        </Collapse>
-      )}
-    </Box>
-  )
+        </Box>
+      )
+    }
+
+    // Pentru alte elemente, comportamentul normal
+    return (
+      <Box key={item.id}>
+        <ListItem disablePadding sx={{ pl: depth * 2 }}>
+          <ListItemButton
+            onClick={() => {
+              if (item.children && item.id !== 'categories') {
+                handleExpandClick(item.id)
+              } else if (item.path) {
+                navigate(item.path)
+                handleDrawerClose()
+              }
+            }}
+            sx={{ 
+              minHeight: 56,
+              px: 2.5
+            }}
+          >
+            {item.icon && (
+              <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                {item.icon}
+              </Box>
+            )}
+            <ListItemText 
+              primary={item.label}
+              primaryTypographyProps={{
+                variant: 'body1'
+              }}
+            />
+            {item.children && item.id !== 'categories' && (
+              <Box>
+                {expandedItems.includes(item.id) ? <ExpandLess /> : <ExpandMore />}
+              </Box>
+            )}
+          </ListItemButton>
+        </ListItem>
+        
+        {item.children && item.id !== 'categories' && (
+          <Collapse in={expandedItems.includes(item.id)} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {item.children.map((child) => renderNavItem(child, depth + 1))}
+            </List>
+          </Collapse>
+        )}
+      </Box>
+    )
+  }
 
   return (
     <>
@@ -462,6 +547,15 @@ const AppContent: React.FC = () => {
     checkAuth()
   }, [checkAuth])
 
+  // Initialize cart synchronization service
+  // useEffect(() => {
+  //   cartSyncService.initialize()
+  //   
+  //   // Cleanup on unmount
+  //   return () => {
+  //     cartSyncService.cleanup()
+  //   }
+  // }, []) // Disabled - conflicts with reservation system
 
   if (loading) {
     return (
@@ -483,10 +577,17 @@ const AppContent: React.FC = () => {
   if (user?.role === 'admin') {
     return (
       <ErrorBoundary>
+        <ScrollToTop />
         <Routes>
-          <Route path="/auth" element={
+          <Route path="/conectare" element={
             <ProtectedRoute requireAuth={false}>
-              <Auth />
+              <Conectare />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/creeaza-cont" element={
+            <ProtectedRoute requireAuth={false}>
+              <CreeazaCont />
             </ProtectedRoute>
           } />
           
@@ -496,7 +597,21 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           } />
           
+          <Route path="/forgot-password" element={
+            <ProtectedRoute requireAuth={false}>
+              <ForgotPassword />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/auth/reset-password" element={
+            <ProtectedRoute requireAuth={false}>
+              <ResetPassword />
+            </ProtectedRoute>
+          } />
+          
           <Route path="/auth/callback" element={<AuthCallback />} />
+          
+          <Route path="/cart/recover" element={<CartRecover />} />
           
           {/* Admin routes - redirect root to admin dashboard */}
           <Route path="/" element={
@@ -556,10 +671,138 @@ interface NormalUserLayoutProps {
 const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
   isMobile
 }) => {
-  const navigate = useNavigate()
+  const navigate = useNavigateWithScroll()
+  const { user } = useAuthStore()
+  const { syncReservations, releaseExpiredReservations } = useCartStore()
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [checkingSubscription, setCheckingSubscription] = useState(true)
+  
+  // Check if user is subscribed to newsletter
+  useEffect(() => {
+    const checkNewsletterStatus = async () => {
+      if (user?.email) {
+        try {
+          const { data, error } = await supabase
+            .from('newsletter_subscribers')
+            .select('id, is_active')
+            .eq('email', user.email.toLowerCase())
+            .single()
+          
+          if (data && data.is_active) {
+            setIsSubscribed(true)
+            markUserAsSubscribed() // Mark in localStorage too
+          }
+        } catch (error) {
+          console.error('Error checking newsletter status:', error)
+        }
+      } else {
+        // For anonymous users, no need to check database - set as not subscribed
+        setIsSubscribed(false)
+      }
+      setCheckingSubscription(false)
+    }
+
+    checkNewsletterStatus()
+  }, [user])
+
+  // Initialize cart reservations and cleanup expired ones
+  useEffect(() => {
+    const initializeCart = async () => {
+      if (user) {
+        try {
+          // Sync existing reservations
+          await syncReservations()
+          // Clean up any expired reservations
+          await releaseExpiredReservations()
+        } catch (error) {
+          console.warn('Error initializing cart reservations:', error)
+        }
+      }
+    }
+
+    initializeCart()
+  }, [user, syncReservations, releaseExpiredReservations])
+
+  // Use newsletter modal hook with conditions
+  const { showModal, setShowModal } = useNewsletterModal()
+  
+  // Don't show modal if user is authenticated and subscribed
+  const shouldShowNewsletterModal = !checkingSubscription && showModal && (!user || !isSubscribed)
+  
+  // Handle newsletter subscription
+  const handleNewsletterSubscribe = async (email: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      // Check if already subscribed
+      const { data: existing } = await supabase
+        .from('newsletter_subscribers')
+        .select('id, is_active')
+        .eq('email', email.toLowerCase())
+        .single()
+
+      if (existing) {
+        if (existing.is_active) {
+          return { 
+            success: false, 
+            message: 'Această adresă de email este deja abonată la newsletter.' 
+          }
+        } else {
+          // Reactivate subscription
+          const { error } = await supabase
+            .from('newsletter_subscribers')
+            .update({ 
+              is_active: true,
+              unsubscribed_at: null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existing.id)
+
+          if (error) throw error
+
+          markUserAsSubscribed()
+          setIsSubscribed(true)
+          return { 
+            success: true, 
+            message: 'Abonarea ta a fost reactivată cu succes!' 
+          }
+        }
+      }
+
+      // Create new subscription
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert({
+          email: email.toLowerCase(),
+          source: 'popup',
+          is_active: true
+        })
+
+      if (error) {
+        if (error.code === '23505') { // Duplicate key
+          return { 
+            success: false, 
+            message: 'Această adresă de email este deja abonată.' 
+          }
+        }
+        throw error
+      }
+
+      markUserAsSubscribed()
+      setIsSubscribed(true)
+      return { 
+        success: true, 
+        message: 'Te-ai abonat cu succes la newsletter!' 
+      }
+    } catch (error) {
+      return { 
+        success: false, 
+        message: 'A apărut o eroare. Te rugăm să încerci din nou.' 
+      }
+    }
+  }
 
   return (
     <ErrorBoundary>
+      <ScrollToTop />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {/* AppBar */}
         <AppBar 
@@ -576,38 +819,46 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
             {/* Hamburger Menu - Always visible */}
             <HamburgerMenu />
             
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                flexGrow: 1,
-                cursor: 'pointer',
-                // Even more aggressive reduction for iPhone
-                ml: { xs: -3, sm: -2, md: 0 },
-                mr: { xs: -2, md: 0 } // More aggressive right margin reduction
-              }}
-              onClick={() => navigate('/homepage')}
-            >
-              <img 
-                src="/pro-mac-logo.png" 
-                alt="Pro-Mac" 
-                style={{ height: 48, marginRight: isMobile ? 0 : 16 }} // Remove all margin on mobile
-              />
-              {/* Hide company name on mobile */}
-              <Typography 
-                variant="h6" 
-                component="h1" 
+            <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+              <Box 
                 sx={{ 
-                  fontWeight: 600,
-                  display: { xs: 'none', md: 'block' }
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  cursor: 'pointer',
+                  // Even more aggressive reduction for iPhone
+                  ml: { xs: -3, sm: -2, md: 0 },
+                  mr: { xs: -2, md: 2 } // More aggressive right margin reduction
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate('/homepage')
                 }}
               >
-                Pro-Mac
-              </Typography>
+                <img 
+                  src="/pro-mac-logo.png" 
+                  alt="Pro-Mac" 
+                  style={{ height: 48, marginRight: isMobile ? 0 : 16 }} // Remove all margin on mobile
+                />
+                {/* Hide company name on mobile */}
+                <Typography 
+                  variant="h6" 
+                  component="h1" 
+                  sx={{ 
+                    fontWeight: 600,
+                    display: { xs: 'none', md: 'block' }
+                  }}
+                >
+                  Pro-Mac
+                </Typography>
+              </Box>
             </Box>
 
             {/* Search, Watchlist, Cart and Mobile Auth */}
-            <Box sx={{ display: 'flex', gap: { xs: 0.5, md: 1 }, alignItems: 'center' }}>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: { xs: 0.5, md: 1 }, 
+              alignItems: 'center'
+            }}>
               <SearchComponent size="small" />
               <WatchlistPopper />
               <CartPopper />
@@ -647,9 +898,15 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
                 <Route path="/" element={<HomePage />} />
                 <Route path="/homepage" element={<HomePage />} />
                 
-                <Route path="/auth" element={
+                <Route path="/conectare" element={
                   <ProtectedRoute requireAuth={false}>
-                    <Auth />
+                    <Conectare />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/creeaza-cont" element={
+                  <ProtectedRoute requireAuth={false}>
+                    <CreeazaCont />
                   </ProtectedRoute>
                 } />
                 
@@ -659,9 +916,21 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
                   </ProtectedRoute>
                 } />
                 
+                <Route path="/forgot-password" element={
+                  <ProtectedRoute requireAuth={false}>
+                    <ForgotPassword />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/auth/reset-password" element={
+                  <ProtectedRoute requireAuth={false}>
+                    <ResetPassword />
+                  </ProtectedRoute>
+                } />
+                
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 
-                <Route path="/profile" element={
+                <Route path="/profil" element={
                   <ProtectedRoute>
                     <Profile />
                   </ProtectedRoute>
@@ -670,18 +939,26 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
                 <Route path="/showroom-uri" element={<PublicShowrooms />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/categories" element={<Categories />} />
+                <Route path="/categorii_produse" element={<Categories />} />
+                {/* Backward compatibility */}
+                <Route path="/categorii" element={<Categories />} />
                 <Route path="/favorite" element={<Watchlist />} />
                 <Route path="/cos" element={<Cart />} />
+                <Route path="/cart/recover" element={<CartRecover />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/payment-simulator" element={<PaymentSimulator />} />
                 <Route path="/finalizare-comanda" element={<Billing />} />
                 <Route path="/unsubscribe" element={<Unsubscribe />} />
                 
-                {/* Product detail routes - must come before category routes */}
-                <Route path="/:categorySlug/:productSlug/:productId" element={<ProductDetail />} />
+                {/* Product detail routes - nested under categorii_produse */}
+                <Route path="/categorii_produse/:categorySlug/:productSlug/:productId" element={<ProductDetail />} />
                 
-                {/* Category-specific product routes */}
+                {/* Category-specific product routes - nested under categorii_produse */}
+                <Route path="/categorii_produse/:categorySlug" element={<Products />} />
                 <Route path="/calculator" element={<Calculator />} />
+                
+                {/* Backward compatibility routes for old URLs */}
+                <Route path="/:categorySlug/:productSlug/:productId" element={<ProductDetail />} />
                 <Route path="/:categorySlug" element={<Products />} />
                 
               {/* 404 catch-all route for normal users */}
@@ -694,14 +971,14 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
         <Footer />
         
         {/* Global WhatsApp Floating Button */}
-        <WhatsAppButton phoneNumber="0729926085" />
+        <WhatsAppButton />
         
         {/* Newsletter Modal - Global */}
-        {/* <NewsletterModal
-          open={showModal}
+        <NewsletterModal
+          open={shouldShowNewsletterModal}
           onClose={() => setShowModal(false)}
           onSubscribe={handleNewsletterSubscribe}
-        /> */}
+        />
         
         {/* Global Alert System */}
         <GlobalAlert />
@@ -713,19 +990,14 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
 
 // Main App component
 function App() {
-  const content = (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <AppContent />
-      </Router>
-    </QueryClientProvider>
-  )
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      
-          {content}
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <AppContent />
+        </Router>
+      </QueryClientProvider>
     </ThemeProvider>
   )
 }

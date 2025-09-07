@@ -65,6 +65,19 @@
       .fonts-loaded * {
         visibility: visible;
       }
+      
+      /* Fix reCAPTCHA v2 z-index interference */
+      div[style*="z-index: 2000000000"] {
+        z-index: 1200 !important;
+      }
+      
+      iframe[title*="recaptcha challenge"] {
+        z-index: 1201 !important;
+      }
+      
+      .g-recaptcha-bubble-arrow {
+        z-index: 1202 !important;
+      }
     </style>
     
     <title>Pro-Mac</title>

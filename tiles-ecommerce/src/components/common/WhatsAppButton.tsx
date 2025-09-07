@@ -21,18 +21,20 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down('md')) // < 960px
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm')) // < 600px
   
-  const { settings, fetchSettings } = useSettingsStore()
+  const { settings, loading, fetchSettings } = useSettingsStore()
   
   // Fetch settings on component mount
   useEffect(() => {
-    if (Object.keys(settings).length === 0) {
-      fetchSettings()
-    }
-  }, [settings, fetchSettings])
+    fetchSettings()
+  }, [])
+
+  // Don't render until settings are loaded
+  if (loading) {
+    return null
+  }
   
   // Use phone from settings or fallback to prop or default
   const effectivePhoneNumber = phoneNumber || settings.whatsapp_phone || "0729926085"
-
   const handleWhatsAppClick = () => {
     // Remove any non-digit characters and format for WhatsApp
     const formattedPhone = effectivePhoneNumber.replace(/\D/g, '')

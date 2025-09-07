@@ -36,7 +36,6 @@ export interface Product {
   category_id: number | null
   category?: Category
   image_url?: string
-  image_path?: string // calea în Supabase Storage
   
   // Basic tile-specific fields
   dimensions?: string

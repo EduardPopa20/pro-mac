@@ -103,7 +103,8 @@ const Profile: React.FC = () => {
       setSuccess('Profil actualizat cu succes!')
       setEditing(false)
     } catch (err: any) {
-      setError(err.message)
+      console.error('Profile update error details:', err)
+      setError(err.message || 'Eroare necunoscută la actualizarea profilului')
     } finally {
       setLoading(false)
     }
@@ -126,7 +127,12 @@ const Profile: React.FC = () => {
       {/* Breadcrumbs */}
       <Box sx={{ mb: 4 }}>
         <Breadcrumbs>
-          <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>
+          <Link 
+            component="button" 
+            color="inherit" 
+            onClick={() => navigate('/')}
+            sx={{ textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
             Acasă
           </Link>
           <Typography color="text.primary">Profilul meu</Typography>
@@ -218,9 +224,33 @@ const Profile: React.FC = () => {
                   PaperProps: {
                     style: {
                       maxHeight: 300,
-                      zIndex: 1500,
+                      zIndex: 1400,
                     },
                   },
+                  // Remove backdrop interference but keep visual appearance
+                  BackdropProps: {
+                    invisible: true,
+                  },
+                  // Prevent focus trapping issues
+                  disableAutoFocus: true,
+                  disableEnforceFocus: true,
+                  disableRestoreFocus: true,
+                  // Fast exit transition
+                  transitionDuration: {
+                    enter: 225,
+                    exit: 50,
+                  },
+                  // Force cleanup
+                  keepMounted: false,
+            sT    },
+                // Add explicit close handler to force cleanup
+                onClose: () => {
+                  // Force focus back to document body to clear any lingering focus issues
+                  setTimeout(() => {
+                    if (document.activeElement && document.activeElement !== document.body) {
+                      (document.activeElement as HTMLElement).blur?.()
+                    }
+                  }, 100)
                 },
               }}
               InputProps={{

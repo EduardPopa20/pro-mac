@@ -12,8 +12,10 @@ import {
   Stack
 } from '@mui/material'
 import { ArrowBack, Save } from '@mui/icons-material'
-import EnhancedProductForm from '../../../components/admin/EnhancedProductForm'
+import EnhancedProductForm from '../../../components/admin/EnhancedProductFormFixed'
 import { useProductStore } from '../../../stores/products'
+import { showSuccessAlert, showErrorAlert } from '../../../stores/globalAlert'
+import { supabase } from '../../../lib/supabase'
 import type { Product } from '../../../types'
 
 const GresieEdit: React.FC = () => {
@@ -23,6 +25,65 @@ const GresieEdit: React.FC = () => {
   
   const [product, setProduct] = useState<Product | null>(null)
   const [saving, setSaving] = useState(false)
+  
+  // Handle image upload with cleanup of old image
+  const handleImageUpload = async (imagePath: string) => {
+    try {
+      // Clean up old image if exists
+      if (productForm.image_url) {
+        await cleanupOldImage(productForm.image_url)
+      }
+      
+      // Get the public URL and store it
+      const { data } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(imagePath)
+      
+      setProductForm(prev => ({
+        ...prev,
+        image_url: data.publicUrl // Store the full public URL in image_url
+      }))
+      
+      // Show success message for image upload
+      showSuccessAlert(
+        'Imaginea a fost încărcată cu succes și va fi vizibilă după salvarea produsului.',
+        'Imagine încărcată'
+      )
+    } catch (error) {
+      console.error('Error in image upload process:', error)
+      showErrorAlert(
+        'A apărut o eroare la procesarea imaginii. Imaginea nouă a fost încărcată dar cea veche nu a putut fi ștearsă.',
+        'Avertisment procesare imagine'
+      )
+    }
+  }
+  
+  // Helper function to clean up old images
+  const cleanupOldImage = async (imageUrl: string) => {
+    if (!imageUrl) return
+    
+    try {
+      // Extract the storage path from the full URL
+      // URL format: https://PROJECT.supabase.co/storage/v1/object/public/product-images/products/filename.jpg
+      const urlParts = imageUrl.split('/storage/v1/object/public/product-images/')
+      if (urlParts.length > 1) {
+        const storagePath = urlParts[1]
+        
+        // Delete the old image from storage
+        const { error } = await supabase.storage
+          .from('product-images')
+          .remove([storagePath])
+          
+        if (error) {
+          console.warn('Could not delete old image:', error)
+        } else {
+          console.log('Successfully deleted old image:', storagePath)
+        }
+      }
+    } catch (error) {
+      console.warn('Error cleaning up old image:', error)
+    }
+  }
   const [productForm, setProductForm] = useState({
     // Basic Info
     name: '',
@@ -40,15 +101,15 @@ const GresieEdit: React.FC = () => {
     usage_area: '',
     
     // Technical specifications
-    thickness: 0,
+    thickness: null,
     surface_finish: '',
     texture: '',
     quality_grade: 1,
     
     // Physical properties
-    weight_per_box: 0,
-    area_per_box: 0,
-    tiles_per_box: 0,
+    weight_per_box: null,
+    area_per_box: null,
+    tiles_per_box: null,
     origin_country: '',
     
     // Technical capabilities
@@ -73,8 +134,7 @@ const GresieEdit: React.FC = () => {
     is_featured: false,
     
     // Images
-    image_url: '',
-    image_path: ''
+    image_url: ''
   })
 
   useEffect(() => {
@@ -100,13 +160,13 @@ const GresieEdit: React.FC = () => {
           finish: foundProduct.finish || '',
           color: foundProduct.color || '',
           usage_area: foundProduct.usage_area || '',
-          thickness: foundProduct.thickness || 0,
+          thickness: foundProduct.thickness || null,
           surface_finish: foundProduct.surface_finish || '',
           texture: foundProduct.texture || '',
           quality_grade: foundProduct.quality_grade || 1,
-          weight_per_box: foundProduct.weight_per_box || 0,
-          area_per_box: foundProduct.area_per_box || 0,
-          tiles_per_box: foundProduct.tiles_per_box || 0,
+          weight_per_box: foundProduct.weight_per_box || null,
+          area_per_box: foundProduct.area_per_box || null,
+          tiles_per_box: foundProduct.tiles_per_box || null,
           origin_country: foundProduct.origin_country || '',
           is_rectified: foundProduct.is_rectified || false,
           is_frost_resistant: foundProduct.is_frost_resistant || false,
@@ -121,8 +181,7 @@ const GresieEdit: React.FC = () => {
           price_unit: foundProduct.price_unit || 'mp',
           stock_status: foundProduct.stock_status || 'available',
           is_featured: foundProduct.is_featured || false,
-          image_url: foundProduct.image_url || '',
-          image_path: foundProduct.image_path || ''
+          image_url: foundProduct.image_url || ''
         })
       }
     }
@@ -140,9 +199,20 @@ const GresieEdit: React.FC = () => {
         material: productForm.material || 'Ceramică'
       })
       
-      navigate('/admin/categorii_produse')
+      // Show success alert
+      showSuccessAlert(
+        `Produsul "${productForm.name}" a fost actualizat cu succes.`,
+        'Salvare reușită'
+      )
+      
+      // Navigate back to gresie category page
+      navigate('/admin/categorii_produse/gresie')
     } catch (error) {
       console.error('Error saving product:', error)
+      showErrorAlert(
+        'A apărut o eroare la salvarea produsului. Vă rugăm să încercați din nou.',
+        'Eroare la salvare'
+      )
     } finally {
       setSaving(false)
     }
@@ -251,6 +321,10 @@ const GresieEdit: React.FC = () => {
         setProductForm={setProductForm}
         categoryType="gresie"
         hideCategories={true} // Hide category selector since this is gresie-specific
+        currentImagePath={productForm.image_url}
+        onImageUpload={handleImageUpload}
+        onImageRemove={() => setProductForm(prev => ({ ...prev, image_url: '' }))}
+        removeFromStorage={false} // Only remove from state, not storage until save
       />
     </Container>
   )

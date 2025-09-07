@@ -250,8 +250,31 @@ export default function BillingForm({ data, onChange }: BillingFormProps) {
                         minHeight: 36,
                       }
                     }
-                  }
-                }
+                  },
+                  // Prevent backdrop interference
+                  BackdropProps: {
+                    invisible: true,
+                  },
+                  // Prevent focus trapping issues
+                  disableAutoFocus: true,
+                  disableEnforceFocus: true,
+                  disableRestoreFocus: true,
+                  // Fast exit transition
+                  transitionDuration: {
+                    enter: 225,
+                    exit: 50,
+                  },
+                  // Force cleanup
+                  keepMounted: false,
+                },
+                // Add explicit close handler to force cleanup
+                onClose: () => {
+                  setTimeout(() => {
+                    if (document.activeElement && document.activeElement !== document.body) {
+                      (document.activeElement as HTMLElement).blur?.()
+                    }
+                  }, 100)
+                },
               }}
             >
               {ROMANIAN_COUNTIES.map((county) => (

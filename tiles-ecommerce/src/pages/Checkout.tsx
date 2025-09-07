@@ -153,7 +153,7 @@ export default function Checkout() {
   const handleNext = useCallback(() => {
     if (activeStep === steps.length - 1) {
       // Final step - redirect to home or orders
-      navigate(user ? '/profile/orders' : '/')
+      navigate(user ? '/profil/orders' : '/')
     } else {
       setActiveStep(prev => prev + 1)
     }

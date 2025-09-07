@@ -18,10 +18,7 @@ export const useWatchlistStore = create<WatchlistState>()(
       items: [],
 
       addToWatchlist: (product: Product, isAuthenticated?: boolean) => {
-        // Check if user is authenticated (fallback to localStorage if not provided)
-        const userIsAuth = isAuthenticated ?? !!JSON.parse(localStorage.getItem('sb-zrluhnqksnnqtjhbxcql-auth-token') || '{}')?.user
-        
-        if (!userIsAuth) {
+        if (!isAuthenticated) {
           showErrorAlert(
             'Pentru a adăuga produse la favorite, trebuie să vă conectați la cont.',
             'Autentificare necesară'
@@ -74,10 +71,7 @@ export const useWatchlistStore = create<WatchlistState>()(
       },
 
       toggleWatchlist: (product: Product, isAuthenticated?: boolean) => {
-        // Check if user is authenticated before any watchlist operation
-        const userIsAuth = isAuthenticated ?? !!JSON.parse(localStorage.getItem('sb-zrluhnqksnnqtjhbxcql-auth-token') || '{}')?.user
-        
-        if (!userIsAuth) {
+        if (!isAuthenticated) {
           showErrorAlert(
             'Pentru a gestiona lista de favorite, trebuie să vă conectați la cont.',
             'Autentificare necesară'
@@ -90,7 +84,7 @@ export const useWatchlistStore = create<WatchlistState>()(
         if (items.find(item => item.id === product.id)) {
           removeFromWatchlist(product.id)
         } else {
-          addToWatchlist(product, userIsAuth)
+          addToWatchlist(product, isAuthenticated)
         }
       }
     }),

@@ -1,0 +1,2581 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - img [ref=e7] [cursor=pointer]
+        - generic [ref=e10] [cursor=pointer]:
+          - img [ref=e11] [cursor=pointer]
+          - heading [level=1] [ref=e12] [cursor=pointer]: Pro-Mac
+        - generic [ref=e13]:
+          - generic [ref=e16]:
+            - img [ref=e18]
+            - textbox [ref=e20]
+            - group
+          - button [ref=e21] [cursor=pointer]:
+            - img [ref=e22] [cursor=pointer]
+          - button [ref=e24] [cursor=pointer]:
+            - img [ref=e25] [cursor=pointer]
+          - button [ref=e27] [cursor=pointer]:
+            - img [ref=e28] [cursor=pointer]
+    - main [ref=e31]:
+      - generic [ref=e33]:
+        - generic [ref=e39]:
+          - img [ref=e41]
+          - heading [level=1] [ref=e43]: "-25%"
+          - heading [level=3] [ref=e44]: Reducere de Sezon
+          - heading [level=5] [ref=e45]: La toată gama de gresie porțelanată
+          - generic [ref=e46]:
+            - img [ref=e47]
+            - paragraph [ref=e49]: 31 Ianuarie 2024
+          - button [ref=e50] [cursor=pointer]:
+            - text: Vezi Oferta
+            - img [ref=e52] [cursor=pointer]
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - heading [level=2] [ref=e62]: Faianță
+              - paragraph [ref=e63]:
+                - img [ref=e64]
+                - text: 5 produse disponibile
+            - button [ref=e68] [cursor=pointer]:
+              - text: Vezi toate
+              - img [ref=e70] [cursor=pointer]
+          - generic [ref=e73]:
+            - button [ref=e74] [cursor=pointer]: ← Previous
+            - generic [ref=e76]:
+              - button [ref=e81] [cursor=pointer]:
+                - img [ref=e83] [cursor=pointer]
+                - generic [ref=e84] [cursor=pointer]:
+                  - paragraph [ref=e85] [cursor=pointer]: Faianță Albastru Ocean
+                  - generic [ref=e86] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e87] [cursor=pointer]: (4.5)
+                  - generic [ref=e88] [cursor=pointer]: 20x30 cm
+                  - heading [level=6] [ref=e89] [cursor=pointer]: 52.60 RON/mp
+              - button [ref=e94] [cursor=pointer]:
+                - img [ref=e96] [cursor=pointer]
+                - generic [ref=e97] [cursor=pointer]:
+                  - paragraph [ref=e98] [cursor=pointer]: Faianță Beige Naturală
+                  - generic [ref=e99] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e100] [cursor=pointer]: (4.5)
+                  - generic [ref=e101] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e102] [cursor=pointer]: 44.20 RON/mp
+              - button [ref=e107] [cursor=pointer]:
+                - img [ref=e109] [cursor=pointer]
+                - generic [ref=e110] [cursor=pointer]:
+                  - paragraph [ref=e111] [cursor=pointer]: Faianță Crem Elegantă
+                  - generic [ref=e112] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e113] [cursor=pointer]: (4.5)
+                  - generic [ref=e114] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e115] [cursor=pointer]: 42.80 RON/mp
+              - button [ref=e120] [cursor=pointer]:
+                - img [ref=e122] [cursor=pointer]
+                - generic [ref=e123] [cursor=pointer]:
+                  - paragraph [ref=e124] [cursor=pointer]: Faianță Gri Urban
+                  - generic [ref=e125] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e126] [cursor=pointer]: (4.5)
+                  - generic [ref=e127] [cursor=pointer]: 30x60 cm
+                  - heading [level=6] [ref=e128] [cursor=pointer]: 48.90 RON/mp
+              - button [ref=e133] [cursor=pointer]:
+                - img [ref=e135] [cursor=pointer]
+                - generic [ref=e136] [cursor=pointer]:
+                  - paragraph [ref=e137] [cursor=pointer]: Faianță Albă Clasică2225
+                  - generic [ref=e138] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e139] [cursor=pointer]: (4.5)
+                  - generic [ref=e140] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e141] [cursor=pointer]: 45.50 RON/mp
+              - button [ref=e146] [cursor=pointer]:
+                - img [ref=e148] [cursor=pointer]
+                - generic [ref=e149] [cursor=pointer]:
+                  - paragraph [ref=e150] [cursor=pointer]: Faianță Albastru Ocean
+                  - generic [ref=e151] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e152] [cursor=pointer]: (4.5)
+                  - generic [ref=e153] [cursor=pointer]: 20x30 cm
+                  - heading [level=6] [ref=e154] [cursor=pointer]: 52.60 RON/mp
+              - button [ref=e159] [cursor=pointer]:
+                - img [ref=e161] [cursor=pointer]
+                - generic [ref=e162] [cursor=pointer]:
+                  - paragraph [ref=e163] [cursor=pointer]: Faianță Beige Naturală
+                  - generic [ref=e164] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e165] [cursor=pointer]: (4.5)
+                  - generic [ref=e166] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e167] [cursor=pointer]: 44.20 RON/mp
+              - button [ref=e172] [cursor=pointer]:
+                - img [ref=e174] [cursor=pointer]
+                - generic [ref=e175] [cursor=pointer]:
+                  - paragraph [ref=e176] [cursor=pointer]: Faianță Crem Elegantă
+                  - generic [ref=e177] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e178] [cursor=pointer]: (4.5)
+                  - generic [ref=e179] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e180] [cursor=pointer]: 42.80 RON/mp
+              - button [ref=e185] [cursor=pointer]:
+                - img [ref=e187] [cursor=pointer]
+                - generic [ref=e188] [cursor=pointer]:
+                  - paragraph [ref=e189] [cursor=pointer]: Faianță Gri Urban
+                  - generic [ref=e190] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e191] [cursor=pointer]: (4.5)
+                  - generic [ref=e192] [cursor=pointer]: 30x60 cm
+                  - heading [level=6] [ref=e193] [cursor=pointer]: 48.90 RON/mp
+              - button [ref=e198] [cursor=pointer]:
+                - img [ref=e200] [cursor=pointer]
+                - generic [ref=e201] [cursor=pointer]:
+                  - paragraph [ref=e202] [cursor=pointer]: Faianță Albă Clasică2225
+                  - generic [ref=e203] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e204] [cursor=pointer]: (4.5)
+                  - generic [ref=e205] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e206] [cursor=pointer]: 45.50 RON/mp
+              - button [ref=e211] [cursor=pointer]:
+                - img [ref=e213] [cursor=pointer]
+                - generic [ref=e214] [cursor=pointer]:
+                  - paragraph [ref=e215] [cursor=pointer]: Faianță Albastru Ocean
+                  - generic [ref=e216] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e217] [cursor=pointer]: (4.5)
+                  - generic [ref=e218] [cursor=pointer]: 20x30 cm
+                  - heading [level=6] [ref=e219] [cursor=pointer]: 52.60 RON/mp
+              - button [ref=e224] [cursor=pointer]:
+                - img [ref=e226] [cursor=pointer]
+                - generic [ref=e227] [cursor=pointer]:
+                  - paragraph [ref=e228] [cursor=pointer]: Faianță Beige Naturală
+                  - generic [ref=e229] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e230] [cursor=pointer]: (4.5)
+                  - generic [ref=e231] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e232] [cursor=pointer]: 44.20 RON/mp
+              - button [ref=e237] [cursor=pointer]:
+                - img [ref=e239] [cursor=pointer]
+                - generic [ref=e240] [cursor=pointer]:
+                  - paragraph [ref=e241] [cursor=pointer]: Faianță Crem Elegantă
+                  - generic [ref=e242] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e243] [cursor=pointer]: (4.5)
+                  - generic [ref=e244] [cursor=pointer]: 25x40 cm
+                  - heading [level=6] [ref=e245] [cursor=pointer]: 42.80 RON/mp
+            - button [ref=e246] [cursor=pointer]: → Next
+            - list [ref=e247]:
+              - listitem [ref=e248] [cursor=pointer]:
+                - button [ref=e249] [cursor=pointer]: • 1
+              - listitem [ref=e250] [cursor=pointer]:
+                - button [ref=e251] [cursor=pointer]: • 2
+              - listitem [ref=e252] [cursor=pointer]:
+                - button [ref=e253] [cursor=pointer]: • 3
+              - listitem [ref=e254] [cursor=pointer]:
+                - button [ref=e255] [cursor=pointer]: • 4
+              - listitem [ref=e256] [cursor=pointer]:
+                - button [ref=e257] [cursor=pointer]: • 5
+        - generic [ref=e259]:
+          - generic [ref=e260]:
+            - generic [ref=e261]:
+              - heading [level=2] [ref=e262]: Gresie
+              - paragraph [ref=e263]:
+                - img [ref=e264]
+                - text: 21 produse disponibile
+            - button [ref=e268] [cursor=pointer]:
+              - text: Vezi toate
+              - img [ref=e270] [cursor=pointer]
+          - generic [ref=e273]:
+            - button [ref=e274] [cursor=pointer]: ← Previous
+            - generic [ref=e276]:
+              - button [ref=e281] [cursor=pointer]:
+                - img [ref=e283] [cursor=pointer]
+                - generic [ref=e284] [cursor=pointer]:
+                  - paragraph [ref=e285] [cursor=pointer]: Complete Test Product 1757164017697
+                  - generic [ref=e286] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e287] [cursor=pointer]: (4.5)
+                  - generic [ref=e288] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e289] [cursor=pointer]: 150.00 RON/mp
+              - button [ref=e294] [cursor=pointer]:
+                - img [ref=e296] [cursor=pointer]
+                - generic [ref=e297] [cursor=pointer]:
+                  - paragraph [ref=e298] [cursor=pointer]: Debug Test 1757162206690
+                  - generic [ref=e299] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e300] [cursor=pointer]: (4.5)
+                  - generic [ref=e301] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e302] [cursor=pointer]: 100.00 RON/mp
+              - button [ref=e307] [cursor=pointer]:
+                - img [ref=e309] [cursor=pointer]
+                - generic [ref=e310] [cursor=pointer]:
+                  - paragraph [ref=e311] [cursor=pointer]: Debug Test 1757162243194
+                  - generic [ref=e312] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e313] [cursor=pointer]: (4.5)
+                  - generic [ref=e314] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e315] [cursor=pointer]: 100.00 RON/mp
+              - button [ref=e320] [cursor=pointer]:
+                - img [ref=e322] [cursor=pointer]
+                - generic [ref=e323] [cursor=pointer]:
+                  - paragraph [ref=e324] [cursor=pointer]: Fixed Test Product 1757162124281
+                  - generic [ref=e325] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e326] [cursor=pointer]: (4.5)
+                  - generic [ref=e327] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e328] [cursor=pointer]: 199.99 RON/mp
+              - button [ref=e333] [cursor=pointer]:
+                - img [ref=e335] [cursor=pointer]
+                - generic [ref=e336] [cursor=pointer]:
+                  - paragraph [ref=e337] [cursor=pointer]: Automated Test Product 1757163982094
+                  - generic [ref=e338] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e339] [cursor=pointer]: (4.5)
+                  - generic [ref=e340] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e341] [cursor=pointer]: 199.99 RON/mp
+              - button [ref=e346] [cursor=pointer]:
+                - img [ref=e348] [cursor=pointer]
+                - generic [ref=e349] [cursor=pointer]:
+                  - paragraph [ref=e350] [cursor=pointer]: Automated Test Product 1757163982270
+                  - generic [ref=e351] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e352] [cursor=pointer]: (4.5)
+                  - generic [ref=e353] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e354] [cursor=pointer]: 199.99 RON/mp
+              - button [ref=e359] [cursor=pointer]:
+                - img [ref=e361] [cursor=pointer]
+                - generic [ref=e362] [cursor=pointer]:
+                  - paragraph [ref=e363] [cursor=pointer]: Complete Test Product 1757162312710
+                  - generic [ref=e364] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e365] [cursor=pointer]: (4.5)
+                  - generic [ref=e366] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e367] [cursor=pointer]: 150.00 RON/mp
+              - button [ref=e372] [cursor=pointer]:
+                - img [ref=e374] [cursor=pointer]
+                - generic [ref=e375] [cursor=pointer]:
+                  - paragraph [ref=e376] [cursor=pointer]: Complete Test Product 1757164017584
+                  - generic [ref=e377] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e378] [cursor=pointer]: (4.5)
+                  - generic [ref=e379] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e380] [cursor=pointer]: 150.00 RON/mp
+              - button [ref=e385] [cursor=pointer]:
+                - img [ref=e387] [cursor=pointer]
+                - generic [ref=e388] [cursor=pointer]:
+                  - paragraph [ref=e389] [cursor=pointer]: Complete Test Product 1757164017697
+                  - generic [ref=e390] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e391] [cursor=pointer]: (4.5)
+                  - generic [ref=e392] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e393] [cursor=pointer]: 150.00 RON/mp
+              - button [ref=e398] [cursor=pointer]:
+                - img [ref=e400] [cursor=pointer]
+                - generic [ref=e401] [cursor=pointer]:
+                  - paragraph [ref=e402] [cursor=pointer]: Debug Test 1757162206690
+                  - generic [ref=e403] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e404] [cursor=pointer]: (4.5)
+                  - generic [ref=e405] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e406] [cursor=pointer]: 100.00 RON/mp
+              - button [ref=e411] [cursor=pointer]:
+                - img [ref=e413] [cursor=pointer]
+                - generic [ref=e414] [cursor=pointer]:
+                  - paragraph [ref=e415] [cursor=pointer]: Debug Test 1757162243194
+                  - generic [ref=e416] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e417] [cursor=pointer]: (4.5)
+                  - generic [ref=e418] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e419] [cursor=pointer]: 100.00 RON/mp
+              - button [ref=e424] [cursor=pointer]:
+                - img [ref=e426] [cursor=pointer]
+                - generic [ref=e427] [cursor=pointer]:
+                  - paragraph [ref=e428] [cursor=pointer]: Fixed Test Product 1757162124281
+                  - generic [ref=e429] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e430] [cursor=pointer]: (4.5)
+                  - generic [ref=e431] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e432] [cursor=pointer]: 199.99 RON/mp
+              - button [ref=e437] [cursor=pointer]:
+                - img [ref=e439] [cursor=pointer]
+                - generic [ref=e440] [cursor=pointer]:
+                  - paragraph [ref=e441] [cursor=pointer]: Automated Test Product 1757163982094
+                  - generic [ref=e442] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e443] [cursor=pointer]: (4.5)
+                  - generic [ref=e444] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e445] [cursor=pointer]: 199.99 RON/mp
+              - button [ref=e450] [cursor=pointer]:
+                - img [ref=e452] [cursor=pointer]
+                - generic [ref=e453] [cursor=pointer]:
+                  - paragraph [ref=e454] [cursor=pointer]: Automated Test Product 1757163982270
+                  - generic [ref=e455] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e456] [cursor=pointer]: (4.5)
+                  - generic [ref=e457] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e458] [cursor=pointer]: 199.99 RON/mp
+              - button [ref=e463] [cursor=pointer]:
+                - img [ref=e465] [cursor=pointer]
+                - generic [ref=e466] [cursor=pointer]:
+                  - paragraph [ref=e467] [cursor=pointer]: Complete Test Product 1757162312710
+                  - generic [ref=e468] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e469] [cursor=pointer]: (4.5)
+                  - generic [ref=e470] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e471] [cursor=pointer]: 150.00 RON/mp
+              - button [ref=e476] [cursor=pointer]:
+                - img [ref=e478] [cursor=pointer]
+                - generic [ref=e479] [cursor=pointer]:
+                  - paragraph [ref=e480] [cursor=pointer]: Complete Test Product 1757164017584
+                  - generic [ref=e481] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e482] [cursor=pointer]: (4.5)
+                  - generic [ref=e483] [cursor=pointer]: Dimensiuni multiple
+                  - heading [level=6] [ref=e484] [cursor=pointer]: 150.00 RON/mp
+            - button [ref=e485] [cursor=pointer]: → Next
+            - list [ref=e486]:
+              - listitem [ref=e487] [cursor=pointer]:
+                - button [ref=e488] [cursor=pointer]: • 1
+              - listitem [ref=e489] [cursor=pointer]:
+                - button [ref=e490] [cursor=pointer]: • 2
+              - listitem [ref=e491] [cursor=pointer]:
+                - button [ref=e492] [cursor=pointer]: • 3
+              - listitem [ref=e493] [cursor=pointer]:
+                - button [ref=e494] [cursor=pointer]: • 4
+              - listitem [ref=e495] [cursor=pointer]:
+                - button [ref=e496] [cursor=pointer]: • 5
+              - listitem [ref=e497] [cursor=pointer]:
+                - button [ref=e498] [cursor=pointer]: • 6
+              - listitem [ref=e499] [cursor=pointer]:
+                - button [ref=e500] [cursor=pointer]: • 7
+              - listitem [ref=e501] [cursor=pointer]:
+                - button [ref=e502] [cursor=pointer]: • 8
+        - generic [ref=e504]:
+          - generic [ref=e505]:
+            - generic [ref=e506]:
+              - heading [level=2] [ref=e507]: Parchet
+              - paragraph [ref=e508]:
+                - img [ref=e509]
+                - text: 27 produse disponibile
+            - button [ref=e513] [cursor=pointer]:
+              - text: Vezi toate
+              - img [ref=e515] [cursor=pointer]
+          - generic [ref=e518]:
+            - button [ref=e519] [cursor=pointer]: ← Previous
+            - generic [ref=e521]:
+              - button [ref=e526] [cursor=pointer]:
+                - img [ref=e528] [cursor=pointer]
+                - generic [ref=e529] [cursor=pointer]:
+                  - paragraph [ref=e530] [cursor=pointer]: Parchet Laminat Classen Sono Forest Stejar Gri
+                  - generic [ref=e531] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e532] [cursor=pointer]: (4.5)
+                  - generic [ref=e533] [cursor=pointer]: 193x1380x8 mm
+                  - heading [level=6] [ref=e534] [cursor=pointer]: 118.95 RON/mp
+              - button [ref=e539] [cursor=pointer]:
+                - img [ref=e541] [cursor=pointer]
+                - generic [ref=e542] [cursor=pointer]:
+                  - paragraph [ref=e543] [cursor=pointer]: Parchet Laminat Classen Visiogrande Stejar Auriu
+                  - generic [ref=e544] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e545] [cursor=pointer]: (4.5)
+                  - generic [ref=e546] [cursor=pointer]: 246x1845x12 mm
+                  - heading [level=6] [ref=e547] [cursor=pointer]: 176.30 RON/mp
+              - button [ref=e552] [cursor=pointer]:
+                - img [ref=e554] [cursor=pointer]
+                - generic [ref=e555] [cursor=pointer]:
+                  - paragraph [ref=e556] [cursor=pointer]: Parchet Laminat Egger Aqua Plus Stejar Halifax
+                  - generic [ref=e557] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e558] [cursor=pointer]: (4.5)
+                  - generic [ref=e559] [cursor=pointer]: 193x1292x8 mm
+                  - heading [level=6] [ref=e560] [cursor=pointer]: 167.40 RON/mp
+              - button [ref=e565] [cursor=pointer]:
+                - img [ref=e567] [cursor=pointer]
+                - generic [ref=e568] [cursor=pointer]:
+                  - paragraph [ref=e569] [cursor=pointer]: Parchet Laminat Egger Classic Brad Scandinav
+                  - generic [ref=e570] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e571] [cursor=pointer]: (4.5)
+                  - generic [ref=e572] [cursor=pointer]: 194x1288x7 mm
+                  - heading [level=6] [ref=e573] [cursor=pointer]: 67.99 RON/mp
+              - button [ref=e578] [cursor=pointer]:
+                - img [ref=e580] [cursor=pointer]
+                - generic [ref=e581] [cursor=pointer]:
+                  - paragraph [ref=e582] [cursor=pointer]: Parchet Laminat Balterio Grande Narrow Stejar Bleached
+                  - generic [ref=e583] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e584] [cursor=pointer]: (4.5)
+                  - generic [ref=e585] [cursor=pointer]: 134x1261x11 mm
+                  - heading [level=6] [ref=e586] [cursor=pointer]: 189.60 RON/mp
+              - button [ref=e591] [cursor=pointer]:
+                - img [ref=e593] [cursor=pointer]
+                - generic [ref=e594] [cursor=pointer]:
+                  - paragraph [ref=e595] [cursor=pointer]: Parchet Laminat Balterio Tradition Quattro Stejar Vintage
+                  - generic [ref=e596] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e597] [cursor=pointer]: (4.5)
+                  - generic [ref=e598] [cursor=pointer]: 190x1261x9 mm
+                  - heading [level=6] [ref=e599] [cursor=pointer]: 156.80 RON/mp
+              - button [ref=e604] [cursor=pointer]:
+                - img [ref=e606] [cursor=pointer]
+                - generic [ref=e607] [cursor=pointer]:
+                  - paragraph [ref=e608] [cursor=pointer]: Parchet Laminat Berry Alloc Original Stejar Naturel
+                  - generic [ref=e609] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e610] [cursor=pointer]: (4.5)
+                  - generic [ref=e611] [cursor=pointer]: 188x1288x11 mm
+                  - heading [level=6] [ref=e612] [cursor=pointer]: 112.75 RON/mp
+              - button [ref=e617] [cursor=pointer]:
+                - img [ref=e619] [cursor=pointer]
+                - generic [ref=e620] [cursor=pointer]:
+                  - paragraph [ref=e621] [cursor=pointer]: Parchet Laminat Berry Alloc Pure Click Stejar Naturel
+                  - generic [ref=e622] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e623] [cursor=pointer]: (4.5)
+                  - generic [ref=e624] [cursor=pointer]: 149x1316x4.5 mm
+                  - heading [level=6] [ref=e625] [cursor=pointer]: 145.60 RON/mp
+              - button [ref=e630] [cursor=pointer]:
+                - img [ref=e632] [cursor=pointer]
+                - generic [ref=e633] [cursor=pointer]:
+                  - paragraph [ref=e634] [cursor=pointer]: Parchet Laminat Classen Sono Forest Stejar Gri
+                  - generic [ref=e635] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e636] [cursor=pointer]: (4.5)
+                  - generic [ref=e637] [cursor=pointer]: 193x1380x8 mm
+                  - heading [level=6] [ref=e638] [cursor=pointer]: 118.95 RON/mp
+              - button [ref=e643] [cursor=pointer]:
+                - img [ref=e645] [cursor=pointer]
+                - generic [ref=e646] [cursor=pointer]:
+                  - paragraph [ref=e647] [cursor=pointer]: Parchet Laminat Classen Visiogrande Stejar Auriu
+                  - generic [ref=e648] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e649] [cursor=pointer]: (4.5)
+                  - generic [ref=e650] [cursor=pointer]: 246x1845x12 mm
+                  - heading [level=6] [ref=e651] [cursor=pointer]: 176.30 RON/mp
+              - button [ref=e656] [cursor=pointer]:
+                - img [ref=e658] [cursor=pointer]
+                - generic [ref=e659] [cursor=pointer]:
+                  - paragraph [ref=e660] [cursor=pointer]: Parchet Laminat Egger Aqua Plus Stejar Halifax
+                  - generic [ref=e661] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e662] [cursor=pointer]: (4.5)
+                  - generic [ref=e663] [cursor=pointer]: 193x1292x8 mm
+                  - heading [level=6] [ref=e664] [cursor=pointer]: 167.40 RON/mp
+              - button [ref=e669] [cursor=pointer]:
+                - img [ref=e671] [cursor=pointer]
+                - generic [ref=e672] [cursor=pointer]:
+                  - paragraph [ref=e673] [cursor=pointer]: Parchet Laminat Egger Classic Brad Scandinav
+                  - generic [ref=e674] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e675] [cursor=pointer]: (4.5)
+                  - generic [ref=e676] [cursor=pointer]: 194x1288x7 mm
+                  - heading [level=6] [ref=e677] [cursor=pointer]: 67.99 RON/mp
+              - button [ref=e682] [cursor=pointer]:
+                - img [ref=e684] [cursor=pointer]
+                - generic [ref=e685] [cursor=pointer]:
+                  - paragraph [ref=e686] [cursor=pointer]: Parchet Laminat Balterio Grande Narrow Stejar Bleached
+                  - generic [ref=e687] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e688] [cursor=pointer]: (4.5)
+                  - generic [ref=e689] [cursor=pointer]: 134x1261x11 mm
+                  - heading [level=6] [ref=e690] [cursor=pointer]: 189.60 RON/mp
+              - button [ref=e695] [cursor=pointer]:
+                - img [ref=e697] [cursor=pointer]
+                - generic [ref=e698] [cursor=pointer]:
+                  - paragraph [ref=e699] [cursor=pointer]: Parchet Laminat Balterio Tradition Quattro Stejar Vintage
+                  - generic [ref=e700] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e701] [cursor=pointer]: (4.5)
+                  - generic [ref=e702] [cursor=pointer]: 190x1261x9 mm
+                  - heading [level=6] [ref=e703] [cursor=pointer]: 156.80 RON/mp
+              - button [ref=e708] [cursor=pointer]:
+                - img [ref=e710] [cursor=pointer]
+                - generic [ref=e711] [cursor=pointer]:
+                  - paragraph [ref=e712] [cursor=pointer]: Parchet Laminat Berry Alloc Original Stejar Naturel
+                  - generic [ref=e713] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e714] [cursor=pointer]: (4.5)
+                  - generic [ref=e715] [cursor=pointer]: 188x1288x11 mm
+                  - heading [level=6] [ref=e716] [cursor=pointer]: 112.75 RON/mp
+              - button [ref=e721] [cursor=pointer]:
+                - img [ref=e723] [cursor=pointer]
+                - generic [ref=e724] [cursor=pointer]:
+                  - paragraph [ref=e725] [cursor=pointer]: Parchet Laminat Berry Alloc Pure Click Stejar Naturel
+                  - generic [ref=e726] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e727] [cursor=pointer]: (4.5)
+                  - generic [ref=e728] [cursor=pointer]: 149x1316x4.5 mm
+                  - heading [level=6] [ref=e729] [cursor=pointer]: 145.60 RON/mp
+            - button [ref=e730] [cursor=pointer]: → Next
+            - list [ref=e731]:
+              - listitem [ref=e732] [cursor=pointer]:
+                - button [ref=e733] [cursor=pointer]: • 1
+              - listitem [ref=e734] [cursor=pointer]:
+                - button [ref=e735] [cursor=pointer]: • 2
+              - listitem [ref=e736] [cursor=pointer]:
+                - button [ref=e737] [cursor=pointer]: • 3
+              - listitem [ref=e738] [cursor=pointer]:
+                - button [ref=e739] [cursor=pointer]: • 4
+              - listitem [ref=e740] [cursor=pointer]:
+                - button [ref=e741] [cursor=pointer]: • 5
+              - listitem [ref=e742] [cursor=pointer]:
+                - button [ref=e743] [cursor=pointer]: • 6
+              - listitem [ref=e744] [cursor=pointer]:
+                - button [ref=e745] [cursor=pointer]: • 7
+              - listitem [ref=e746] [cursor=pointer]:
+                - button [ref=e747] [cursor=pointer]: • 8
+        - generic [ref=e749]:
+          - generic [ref=e750]:
+            - generic [ref=e751]:
+              - heading [level=2] [ref=e752]: Riflaje
+              - paragraph [ref=e753]:
+                - img [ref=e754]
+                - text: 24 produse disponibile
+            - button [ref=e758] [cursor=pointer]:
+              - text: Vezi toate
+              - img [ref=e760] [cursor=pointer]
+          - generic [ref=e763]:
+            - button [ref=e764] [cursor=pointer]: ← Previous
+            - generic [ref=e766]:
+              - button [ref=e771] [cursor=pointer]:
+                - img [ref=e773] [cursor=pointer]
+                - generic [ref=e774] [cursor=pointer]:
+                  - paragraph [ref=e775] [cursor=pointer]: Panou Riflaj Designer Inspiro Auriu
+                  - generic [ref=e776] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e777] [cursor=pointer]: (4.5)
+                  - generic [ref=e778] [cursor=pointer]: 45x2750x20 mm
+                  - heading [level=6] [ref=e779] [cursor=pointer]: 178.50 RON/mp
+              - button [ref=e784] [cursor=pointer]:
+                - img [ref=e786] [cursor=pointer]
+                - generic [ref=e787] [cursor=pointer]:
+                  - paragraph [ref=e788] [cursor=pointer]: Panou Riflaj Designer Nova Antracit
+                  - generic [ref=e789] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e790] [cursor=pointer]: (4.5)
+                  - generic [ref=e791] [cursor=pointer]: 50x2600x18 mm
+                  - heading [level=6] [ref=e792] [cursor=pointer]: 134.80 RON/mp
+              - button [ref=e797] [cursor=pointer]:
+                - img [ref=e799] [cursor=pointer]
+                - generic [ref=e800] [cursor=pointer]:
+                  - paragraph [ref=e801] [cursor=pointer]: Panou Riflaj Designer Surf Ocean
+                  - generic [ref=e802] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e803] [cursor=pointer]: (4.5)
+                  - generic [ref=e804] [cursor=pointer]: 65x2500x16 mm
+                  - heading [level=6] [ref=e805] [cursor=pointer]: 156.90 RON/mp
+              - button [ref=e810] [cursor=pointer]:
+                - img [ref=e812] [cursor=pointer]
+                - generic [ref=e813] [cursor=pointer]:
+                  - paragraph [ref=e814] [cursor=pointer]: Panou Riflaj DIY Starter Kit
+                  - generic [ref=e815] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e816] [cursor=pointer]: (4.5)
+                  - generic [ref=e817] [cursor=pointer]: 35x2000x10 mm + Kit
+                  - heading [level=6] [ref=e818] [cursor=pointer]: 67.45 RON/mp
+              - button [ref=e823] [cursor=pointer]:
+                - img [ref=e825] [cursor=pointer]
+                - generic [ref=e826] [cursor=pointer]:
+                  - paragraph [ref=e827] [cursor=pointer]: Panou Riflaj Acustic Compact Tec
+                  - generic [ref=e828] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e829] [cursor=pointer]: (4.5)
+                  - generic [ref=e830] [cursor=pointer]: 600x600x21 mm
+                  - heading [level=6] [ref=e831] [cursor=pointer]: 156.80 RON/mp
+              - button [ref=e836] [cursor=pointer]:
+                - img [ref=e838] [cursor=pointer]
+                - generic [ref=e839] [cursor=pointer]:
+                  - paragraph [ref=e840] [cursor=pointer]: Panou Riflaj Acustic Premium Gri Glacier
+                  - generic [ref=e841] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e842] [cursor=pointer]: (4.5)
+                  - generic [ref=e843] [cursor=pointer]: 245x2650x22 mm
+                  - heading [level=6] [ref=e844] [cursor=pointer]: 198.45 RON/mp
+              - button [ref=e849] [cursor=pointer]:
+                - img [ref=e851] [cursor=pointer]
+                - generic [ref=e852] [cursor=pointer]:
+                  - paragraph [ref=e853] [cursor=pointer]: Panou Riflaj Acustic Professional Stejar
+                  - generic [ref=e854] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e855] [cursor=pointer]: (4.5)
+                  - generic [ref=e856] [cursor=pointer]: 134x2600x21 mm
+                  - heading [level=6] [ref=e857] [cursor=pointer]: 189.99 RON/mp
+              - button [ref=e862] [cursor=pointer]:
+                - img [ref=e864] [cursor=pointer]
+                - generic [ref=e865] [cursor=pointer]:
+                  - paragraph [ref=e866] [cursor=pointer]: Panou Riflaj Contemporan Roz Pudră
+                  - generic [ref=e867] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e868] [cursor=pointer]: (4.5)
+                  - generic [ref=e869] [cursor=pointer]: 40x2300x14 mm
+                  - heading [level=6] [ref=e870] [cursor=pointer]: 89.95 RON/mp
+              - button [ref=e875] [cursor=pointer]:
+                - img [ref=e877] [cursor=pointer]
+                - generic [ref=e878] [cursor=pointer]:
+                  - paragraph [ref=e879] [cursor=pointer]: Panou Riflaj Designer Inspiro Auriu
+                  - generic [ref=e880] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e881] [cursor=pointer]: (4.5)
+                  - generic [ref=e882] [cursor=pointer]: 45x2750x20 mm
+                  - heading [level=6] [ref=e883] [cursor=pointer]: 178.50 RON/mp
+              - button [ref=e888] [cursor=pointer]:
+                - img [ref=e890] [cursor=pointer]
+                - generic [ref=e891] [cursor=pointer]:
+                  - paragraph [ref=e892] [cursor=pointer]: Panou Riflaj Designer Nova Antracit
+                  - generic [ref=e893] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e894] [cursor=pointer]: (4.5)
+                  - generic [ref=e895] [cursor=pointer]: 50x2600x18 mm
+                  - heading [level=6] [ref=e896] [cursor=pointer]: 134.80 RON/mp
+              - button [ref=e901] [cursor=pointer]:
+                - img [ref=e903] [cursor=pointer]
+                - generic [ref=e904] [cursor=pointer]:
+                  - paragraph [ref=e905] [cursor=pointer]: Panou Riflaj Designer Surf Ocean
+                  - generic [ref=e906] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e907] [cursor=pointer]: (4.5)
+                  - generic [ref=e908] [cursor=pointer]: 65x2500x16 mm
+                  - heading [level=6] [ref=e909] [cursor=pointer]: 156.90 RON/mp
+              - button [ref=e914] [cursor=pointer]:
+                - img [ref=e916] [cursor=pointer]
+                - generic [ref=e917] [cursor=pointer]:
+                  - paragraph [ref=e918] [cursor=pointer]: Panou Riflaj DIY Starter Kit
+                  - generic [ref=e919] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e920] [cursor=pointer]: (4.5)
+                  - generic [ref=e921] [cursor=pointer]: 35x2000x10 mm + Kit
+                  - heading [level=6] [ref=e922] [cursor=pointer]: 67.45 RON/mp
+              - button [ref=e927] [cursor=pointer]:
+                - img [ref=e929] [cursor=pointer]
+                - generic [ref=e930] [cursor=pointer]:
+                  - paragraph [ref=e931] [cursor=pointer]: Panou Riflaj Acustic Compact Tec
+                  - generic [ref=e932] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e933] [cursor=pointer]: (4.5)
+                  - generic [ref=e934] [cursor=pointer]: 600x600x21 mm
+                  - heading [level=6] [ref=e935] [cursor=pointer]: 156.80 RON/mp
+              - button [ref=e940] [cursor=pointer]:
+                - img [ref=e942] [cursor=pointer]
+                - generic [ref=e943] [cursor=pointer]:
+                  - paragraph [ref=e944] [cursor=pointer]: Panou Riflaj Acustic Premium Gri Glacier
+                  - generic [ref=e945] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e946] [cursor=pointer]: (4.5)
+                  - generic [ref=e947] [cursor=pointer]: 245x2650x22 mm
+                  - heading [level=6] [ref=e948] [cursor=pointer]: 198.45 RON/mp
+              - button [ref=e953] [cursor=pointer]:
+                - img [ref=e955] [cursor=pointer]
+                - generic [ref=e956] [cursor=pointer]:
+                  - paragraph [ref=e957] [cursor=pointer]: Panou Riflaj Acustic Professional Stejar
+                  - generic [ref=e958] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e959] [cursor=pointer]: (4.5)
+                  - generic [ref=e960] [cursor=pointer]: 134x2600x21 mm
+                  - heading [level=6] [ref=e961] [cursor=pointer]: 189.99 RON/mp
+              - button [ref=e966] [cursor=pointer]:
+                - img [ref=e968] [cursor=pointer]
+                - generic [ref=e969] [cursor=pointer]:
+                  - paragraph [ref=e970] [cursor=pointer]: Panou Riflaj Contemporan Roz Pudră
+                  - generic [ref=e971] [cursor=pointer]:
+                    - img:
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - img
+                        - generic:
+                          - generic:
+                            - img
+                      - generic:
+                        - generic:
+                          - generic:
+                            - img
+                        - generic:
+                          - generic:
+                            - img
+                    - generic [ref=e972] [cursor=pointer]: (4.5)
+                  - generic [ref=e973] [cursor=pointer]: 40x2300x14 mm
+                  - heading [level=6] [ref=e974] [cursor=pointer]: 89.95 RON/mp
+            - button [ref=e975] [cursor=pointer]: → Next
+            - list [ref=e976]:
+              - listitem [ref=e977] [cursor=pointer]:
+                - button [ref=e978] [cursor=pointer]: • 1
+              - listitem [ref=e979] [cursor=pointer]:
+                - button [ref=e980] [cursor=pointer]: • 2
+              - listitem [ref=e981] [cursor=pointer]:
+                - button [ref=e982] [cursor=pointer]: • 3
+              - listitem [ref=e983] [cursor=pointer]:
+                - button [ref=e984] [cursor=pointer]: • 4
+              - listitem [ref=e985] [cursor=pointer]:
+                - button [ref=e986] [cursor=pointer]: • 5
+              - listitem [ref=e987] [cursor=pointer]:
+                - button [ref=e988] [cursor=pointer]: • 6
+              - listitem [ref=e989] [cursor=pointer]:
+                - button [ref=e990] [cursor=pointer]: • 7
+              - listitem [ref=e991] [cursor=pointer]:
+                - button [ref=e992] [cursor=pointer]: • 8
+        - generic [ref=e994]:
+          - heading [level=2] [ref=e996]: Vizitează-ne
+          - generic [ref=e997]:
+            - generic [ref=e998]:
+              - generic [ref=e999]:
+                - img [ref=e1001]
+                - generic [ref=e1003]:
+                  - heading [level=5] [ref=e1004]: Showroom București22255
+                  - generic [ref=e1005]:
+                    - generic [ref=e1006]:
+                      - img [ref=e1007]
+                      - paragraph [ref=e1009]: Strada Principală Nr. 123, Sector 1
+                    - generic [ref=e1010]:
+                      - img [ref=e1011]
+                      - paragraph [ref=e1013]: 021-123-4567
+                    - generic [ref=e1014]:
+                      - img [ref=e1015]
+                      - paragraph [ref=e1018]: "Luni - Vineri: 08:00 - 18:00"
+                    - generic [ref=e1019]:
+                      - img [ref=e1020]
+                      - paragraph [ref=e1022]: contact@promac.ro
+              - heading [level=6] [ref=e1023]: Showroom Principal
+            - generic [ref=e1024]:
+              - heading [level=4] [ref=e1025]: Descoperă Experiența Pro-Mac
+              - paragraph [ref=e1026]: În showroom-urile noastre vei găsi o selecție curatoriată de materiale ceramice premium. Poți atinge texturile, vedea culorile reale și te poți inspira din amenajările noastre pentru proiectul tău perfect.
+              - paragraph [ref=e1027]: Consultanții noștri specializați îți vor oferi sfaturi personalizate și te vor ghida în alegerea celor mai potrivite soluții pentru casa ta. Fiecare vizită este o oportunitate de a-ți transforma viziunea în realitate.
+              - button [ref=e1028] [cursor=pointer]:
+                - text: Găsește Showroom-ul Cel Mai Apropiat
+                - img [ref=e1030] [cursor=pointer]
+        - generic [ref=e1035]:
+          - generic [ref=e1036]:
+            - generic [ref=e1037]: AVANTAJELE NOASTRE
+            - heading [level=2] [ref=e1038]: De ce să alegi Pro-Mac?
+            - paragraph [ref=e1039]: Experiență, calitate și dedicare pentru proiectul tău perfect
+          - generic [ref=e1041]:
+            - generic [ref=e1042]:
+              - img [ref=e1043]
+              - generic [ref=e1045]:
+                - generic [ref=e1046]:
+                  - heading [level=4] [ref=e1047]: 25+
+                  - generic [ref=e1048]: Ani Experiență
+                - generic [ref=e1049]:
+                  - heading [level=4] [ref=e1050]: 50K+
+                  - generic [ref=e1051]: Clienți Mulțumiți
+                - generic [ref=e1052]:
+                  - heading [level=4] [ref=e1053]: 100+
+                  - generic [ref=e1054]: Branduri Premium
+            - generic [ref=e1055]:
+              - generic [ref=e1057] [cursor=pointer]:
+                - img [ref=e1059] [cursor=pointer]
+                - generic [ref=e1061] [cursor=pointer]:
+                  - generic [ref=e1062] [cursor=pointer]: Peste 25 de ani de excelență
+                  - generic [ref=e1063] [cursor=pointer]: Suntem lideri pe piața românească cu experiență vastă în materiale ceramice premium.
+              - generic [ref=e1065] [cursor=pointer]:
+                - img [ref=e1067] [cursor=pointer]
+                - generic [ref=e1069] [cursor=pointer]:
+                  - generic [ref=e1070] [cursor=pointer]: Colecții exclusive din Italia și Spania
+                  - generic [ref=e1071] [cursor=pointer]: Colaborăm cu producători renumiți pentru design-uri unice și tendințe actuale.
+              - generic [ref=e1073] [cursor=pointer]:
+                - img [ref=e1075] [cursor=pointer]
+                - generic [ref=e1077] [cursor=pointer]:
+                  - generic [ref=e1078] [cursor=pointer]: Livrare rapidă și sigură
+                  - generic [ref=e1079] [cursor=pointer]: Transport profesional în toată țara cu manipulare atentă a produselor.
+              - generic [ref=e1081] [cursor=pointer]:
+                - img [ref=e1083] [cursor=pointer]
+                - generic [ref=e1085] [cursor=pointer]:
+                  - generic [ref=e1086] [cursor=pointer]: Garanție și certificare
+                  - generic [ref=e1087] [cursor=pointer]: Toate produsele sunt certificate CE și beneficiază de garanție extinsă.
+        - generic [ref=e1089]:
+          - heading [level=2] [ref=e1090]: Ne găsești și pe Social Media
+          - generic [ref=e1091]:
+            - link [ref=e1092] [cursor=pointer]:
+              - /url: https://www.facebook.com/profile.php?id=100057524437627
+              - img [ref=e1093] [cursor=pointer]
+            - link [ref=e1095] [cursor=pointer]:
+              - /url: https://instagram.com/promac.ro
+              - img [ref=e1096] [cursor=pointer]
+            - link [ref=e1098] [cursor=pointer]:
+              - /url: https://youtube.com/@promac.ro
+              - img [ref=e1099] [cursor=pointer]
+            - link [ref=e1101] [cursor=pointer]:
+              - /url: https://tiktok.com/@promac.ro
+              - img [ref=e1102] [cursor=pointer]
+    - contentinfo [ref=e1104]:
+      - generic [ref=e1105]:
+        - generic [ref=e1106]:
+          - generic [ref=e1107]:
+            - heading [level=6] [ref=e1108]: Pro-Mac
+            - paragraph [ref=e1109]: Magazinul tău de încredere pentru faianta și gresie de calitate superioară. Peste 10 ani de experiență în amenajări interioare și exterioare.
+            - generic [ref=e1110]:
+              - link [ref=e1111] [cursor=pointer]:
+                - /url: https://www.facebook.com/profile.php?id=100057524437627
+                - img [ref=e1112] [cursor=pointer]
+              - link [ref=e1114] [cursor=pointer]:
+                - /url: https://instagram.com/promac.ro
+                - img [ref=e1115] [cursor=pointer]
+              - link [ref=e1117] [cursor=pointer]:
+                - /url: https://tiktok.com/@promac.ro
+                - img [ref=e1118] [cursor=pointer]
+              - link [ref=e1120] [cursor=pointer]:
+                - /url: https://youtube.com/@promac.ro
+                - img [ref=e1121] [cursor=pointer]
+          - generic [ref=e1123]:
+            - heading [level=6] [ref=e1124]: Produse
+            - generic [ref=e1125]:
+              - link [ref=e1126] [cursor=pointer]:
+                - /url: "#"
+                - text: Gresie
+              - link [ref=e1127] [cursor=pointer]:
+                - /url: "#"
+                - text: Faianta
+              - link [ref=e1128] [cursor=pointer]:
+                - /url: "#"
+                - text: Parchet
+              - link [ref=e1129] [cursor=pointer]:
+                - /url: "#"
+                - text: Riflaje
+          - generic [ref=e1130]:
+            - heading [level=6] [ref=e1131]: Servicii
+            - generic [ref=e1132]:
+              - link [ref=e1133] [cursor=pointer]:
+                - /url: "#"
+                - text: Calculator
+              - link [ref=e1134] [cursor=pointer]:
+                - /url: "#"
+                - text: Transport
+              - link [ref=e1135] [cursor=pointer]:
+                - /url: "#"
+                - text: Montaj
+              - link [ref=e1136] [cursor=pointer]:
+                - /url: "#"
+                - text: Consultanță
+          - generic [ref=e1137]:
+            - heading [level=6] [ref=e1138]: Contact
+            - generic [ref=e1139]:
+              - generic [ref=e1140]:
+                - img [ref=e1141]
+                - paragraph [ref=e1143]: +40 123 456 789
+              - generic [ref=e1144]:
+                - img [ref=e1145]
+                - paragraph [ref=e1147]: contact@tilestore.ro
+              - generic [ref=e1148]:
+                - img [ref=e1149]
+                - paragraph [ref=e1151]: București, România
+        - separator [ref=e1152]
+        - generic [ref=e1153]:
+          - paragraph [ref=e1154]: © 2024 Pro-Mac. Toate drepturile rezervate.
+          - generic [ref=e1155]:
+            - link [ref=e1156] [cursor=pointer]:
+              - /url: "#"
+              - text: Termeni și Condiții
+            - link [ref=e1157] [cursor=pointer]:
+              - /url: "#"
+              - text: Politica de Confidențialitate
+            - link [ref=e1158] [cursor=pointer]:
+              - /url: "#"
+              - text: GDPR
+    - button [ref=e1159] [cursor=pointer]:
+      - img [ref=e1160] [cursor=pointer]
+  - generic [ref=e1162]:
+    - generic [ref=e1164]:
+      - img [ref=e1165]
+      - heading [level=6] [ref=e1166]: Pro-Mac
+    - list [ref=e1168]:
+      - listitem [ref=e1170]:
+        - button [ref=e1171] [cursor=pointer]:
+          - img [ref=e1173] [cursor=pointer]
+          - paragraph [ref=e1183] [cursor=pointer]: Acasă
+      - generic [ref=e1184]:
+        - listitem [ref=e1185]:
+          - button [ref=e1186] [cursor=pointer]:
+            - img [ref=e1188] [cursor=pointer]
+            - paragraph [ref=e1210] [cursor=pointer]: Categorii
+        - generic [ref=e1211]:
+          - listitem [ref=e1213]:
+            - button [ref=e1214] [cursor=pointer]:
+              - img [ref=e1216] [cursor=pointer]
+              - paragraph [ref=e1239] [cursor=pointer]: Faianță (5)
+          - listitem [ref=e1241]:
+            - button [ref=e1242] [cursor=pointer]:
+              - img [ref=e1244] [cursor=pointer]
+              - paragraph [ref=e1267] [cursor=pointer]: Gresie (21)
+          - listitem [ref=e1269]:
+            - button [ref=e1270] [cursor=pointer]:
+              - img [ref=e1272] [cursor=pointer]
+              - paragraph [ref=e1300] [cursor=pointer]: Parchet (27)
+          - listitem [ref=e1302]:
+            - button [ref=e1303] [cursor=pointer]:
+              - img [ref=e1305] [cursor=pointer]
+              - paragraph [ref=e1333] [cursor=pointer]: Riflaje (24)
+      - listitem [ref=e1335]:
+        - button [ref=e1336] [cursor=pointer]:
+          - img [ref=e1338] [cursor=pointer]
+          - paragraph [ref=e1347] [cursor=pointer]: Showroomuri
+      - listitem [ref=e1349]:
+        - button [ref=e1350] [cursor=pointer]:
+          - img [ref=e1352] [cursor=pointer]
+          - paragraph [ref=e1373] [cursor=pointer]: Calculator
+      - listitem [ref=e1375]:
+        - button [ref=e1376] [cursor=pointer]:
+          - img [ref=e1378] [cursor=pointer]
+          - paragraph [ref=e1390] [cursor=pointer]: Contact
+    - button [ref=e1392] [cursor=pointer]:
+      - img [ref=e1394] [cursor=pointer]
+      - text: Autentificare
+  - dialog [ref=e1398]:
+    - button [ref=e1399] [cursor=pointer]:
+      - img [ref=e1400] [cursor=pointer]
+    - generic [ref=e1402]:
+      - img [ref=e1404]
+      - heading "Rămâi la curent!" [level=4] [ref=e1406]
+      - paragraph [ref=e1407]: Primește oferte exclusive, noutăți despre produse și sfaturi de amenajare direct în emailul tău.
+      - generic [ref=e1408]:
+        - generic [ref=e1409]: "Ce vei primi:"
+        - list [ref=e1410]:
+          - listitem [ref=e1411]: 🏷️ Reduceri exclusive pentru abonați
+          - listitem [ref=e1412]: 📦 Primul la noutățile din gama Pro-Mac
+          - listitem [ref=e1413]: 💡 Idei și tendințe în amenajări
+          - listitem [ref=e1414]: 📧 Maxim 2 emailuri pe lună
+      - generic [ref=e1415]:
+        - generic [ref=e1416]:
+          - generic: Adresa ta de email
+          - generic [ref=e1417]:
+            - textbox "Adresa ta de email" [ref=e1418]
+            - group:
+              - generic: Adresa ta de email
+        - generic [ref=e1419]: Prin abonare, accepți să primești emailuri promoționale de la Pro-Mac. Te poți dezabona oricând cu un click.
+    - generic [ref=e1420]:
+      - button "Mai târziu" [ref=e1421] [cursor=pointer]
+      - button "Abonează-te" [disabled]
+```

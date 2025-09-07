@@ -25,7 +25,7 @@ const AuthCallback: React.FC = () => {
         
         // Redirect to auth page after a delay
         setTimeout(() => {
-          navigate('/auth', { replace: true })
+          navigate('/conectare', { replace: true })
         }, 3000)
       }
     }

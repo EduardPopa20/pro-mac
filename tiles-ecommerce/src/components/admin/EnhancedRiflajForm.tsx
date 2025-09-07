@@ -19,7 +19,8 @@ import {
   Card,
   CardContent,
   Tooltip,
-  IconButton
+  IconButton,
+  CircularProgress
 } from '@mui/material'
 import {
   Save as SaveIcon,
@@ -36,6 +37,8 @@ import {
   Assignment as AssignmentIcon
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
+import { FormSection } from './SharedFormComponents'
+import { FormFieldWithIcon } from './FieldIcons'
 
 interface RiflajFormData {
   // Basic Info
@@ -169,42 +172,7 @@ const EnhancedRiflajForm: React.FC<EnhancedRiflajFormProps> = ({
   }
 
   // Form sections data
-  const FormSection: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode; color?: string }> = ({ 
-    icon, title, children, color = 'primary' 
-  }) => (
-    <Paper 
-      elevation={2} 
-      sx={{ 
-        p: 3, 
-        border: '1px solid',
-        borderColor: `${color}.light`,
-        borderRadius: 2,
-        '&:hover': {
-          borderColor: `${color}.main`,
-          boxShadow: theme.shadows[4]
-        }
-      }}
-    >
-      <Box display="flex" alignItems="center" gap={2} mb={3}>
-        <Box sx={{ 
-          p: 1.5, 
-          borderRadius: '50%', 
-          backgroundColor: `${color}.light`,
-          color: `${color}.contrastText`
-        }}>
-          {icon}
-        </Box>
-        <Typography variant="h5" sx={{ 
-          fontWeight: 700,
-          color: `${color}.main`
-        }}>
-          {title}
-        </Typography>
-      </Box>
-      <Divider sx={{ mb: 3, borderColor: `${color}.light` }} />
-      {children}
-    </Paper>
-  )
+  // FormSection component moved to SharedFormComponents
 
   // Quick Preview Sidebar
   const QuickPreview = () => (
@@ -821,8 +789,31 @@ const EnhancedRiflajForm: React.FC<EnhancedRiflajFormProps> = ({
                               minHeight: 36,
                             }
                           }
-                        }
-                      }
+                        },
+                        // Prevent backdrop interference
+                        BackdropProps: {
+                          invisible: true,
+                        },
+                        // Prevent focus trapping issues
+                        disableAutoFocus: true,
+                        disableEnforceFocus: true,
+                        disableRestoreFocus: true,
+                        // Fast exit transition
+                        transitionDuration: {
+                          enter: 225,
+                          exit: 50,
+                        },
+                        // Force cleanup
+                        keepMounted: false,
+                      },
+                      // Add explicit close handler to force cleanup
+                      onClose: () => {
+                        setTimeout(() => {
+                          if (document.activeElement && document.activeElement !== document.body) {
+                            (document.activeElement as HTMLElement).blur?.()
+                          }
+                        }, 100)
+                      },
                     }}
                   >
                     <MenuItem value="available">Disponibil</MenuItem>
@@ -841,6 +832,41 @@ const EnhancedRiflajForm: React.FC<EnhancedRiflajFormProps> = ({
           <QuickPreview />
         </Grid>
       </Grid>
+
+      {/* Action Buttons */}
+      <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
+          Acțiuni
+        </Typography>
+        <Stack spacing={2}>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={onSave}
+            disabled={loading || !productForm.name || String(productForm.name).trim().length === 0 || !productForm.price || String(productForm.price).trim().length === 0 || Number(productForm.price) <= 0}
+            startIcon={loading ? <CircularProgress size={20} /> : undefined}
+            sx={{ 
+              minHeight: 48,
+              fontWeight: 600
+            }}
+          >
+            {loading ? 'Se salvează...' : 'Salvează'} Riflaj
+          </Button>
+          
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={onCancel}
+            disabled={loading}
+            sx={{ 
+              minHeight: 48,
+              fontWeight: 600
+            }}
+          >
+            Anulează
+          </Button>
+        </Stack>
+      </Paper>
     </Box>
   )
 }

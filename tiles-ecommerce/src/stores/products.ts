@@ -4,6 +4,67 @@ import { realTimeEvents } from '../lib/realTimeEvents'
 import type { Product, Category } from '../types'
 import type { ProductFilters } from '../components/product/ProductFilter'
 
+// Helper function to convert technical errors to user-friendly messages
+const getErrorMessage = (error: any): string => {
+  const message = error?.message || error?.toString() || 'Eroare necunoscută'
+  
+  // Database schema errors
+  if (message.includes('image_path') && message.includes('schema cache')) {
+    return 'Eroare la procesarea imaginii. Vă rugăm să încercați din nou.'
+  }
+  
+  if (message.includes('is_featured') && message.includes('schema cache')) {
+    return 'Schema de date nu este actualizată. Vă rugăm să contactați administratorul pentru a actualiza coloana is_featured.'
+  }
+  
+  if (message.includes('stock_status') && message.includes('schema cache')) {
+    return 'Schema de date nu este actualizată. Vă rugăm să contactați administratorul pentru a actualiza coloana stock_status.'
+  }
+  
+  if (message.includes('column') && message.includes('does not exist')) {
+    return 'Schema bazei de date necesită actualizare. Vă rugăm să contactați administratorul.'
+  }
+  
+  if (message.includes('violates not-null constraint')) {
+    return 'Toate câmpurile obligatorii trebuie completate.'
+  }
+  
+  // Check constraint violations
+  if (message.includes('check_area_positive') || message.includes('check_weight_positive') || message.includes('check_thickness_positive')) {
+    return 'Valorile pentru dimensiuni și greutăți trebuie să fie pozitive sau să rămână necompletate.'
+  }
+  
+  if (message.includes('violates check constraint')) {
+    return 'Una dintre valorile introduse nu respectă restricțiile bazei de date.'
+  }
+  
+  // Storage errors
+  if (message.includes('bucket') && message.includes('not found')) {
+    return 'Sistemul de stocare nu este configurat corect. Vă rugăm să contactați administratorul.'
+  }
+  
+  if (message.includes('storage')) {
+    return 'Eroare la încărcarea imaginii. Vă rugăm să încercați din nou.'
+  }
+  
+  // Network errors
+  if (message.includes('fetch') || message.includes('network')) {
+    return 'Problemă de conectare. Vă rugăm să verificați conexiunea la internet.'
+  }
+  
+  // Generic database errors
+  if (message.includes('duplicate key') || message.includes('unique constraint')) {
+    return 'Un produs cu aceste detalii există deja.'
+  }
+  
+  // Fallback for unknown errors (don't show technical details)
+  if (message.length > 100 || message.includes('Error:') || message.includes('at ')) {
+    return 'A apărut o eroare. Vă rugăm să încercați din nou sau să contactați suportul.'
+  }
+  
+  return message
+}
+
 interface PaginationMeta {
   page: number
   pageSize: number
@@ -71,7 +132,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
       set({ products: data || [], loading: false })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching products:', error)
     }
   },
@@ -112,7 +173,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
       set({ categories: categoriesWithCount, loading: false })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching categories:', error)
     }
   },
@@ -134,6 +195,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
           category:categories(*)
         `, { count: 'exact' })
         .eq('category_id', categoryId)
+        .eq('is_active', true)  // Only show active products in public view
         // Include all products for testing - UI will handle stock display
         // .in('stock_status', ['available', 'coming_soon'])
 
@@ -190,7 +252,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         }
       })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching products by category:', error)
     }
   },
@@ -242,7 +304,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         await realTimeEvents.emitEvent('products', 'create', data[0])
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error creating product:', error)
       throw error
     }
@@ -277,7 +339,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         await realTimeEvents.emitEvent('products', 'update', data[0])
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error updating product:', error)
       throw error
     }
@@ -303,7 +365,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
       // Emit real-time event for product deletion
       await realTimeEvents.emitEvent('products', 'delete', { id })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error deleting product:', error)
       throw error
     }
@@ -336,7 +398,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         })
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error creating category:', error)
       throw error
     }
@@ -364,7 +426,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         })
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error updating category:', error)
       throw error
     }
@@ -387,7 +449,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         loading: false 
       })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error deleting category:', error)
       throw error
     }
@@ -436,7 +498,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
 
       set({ products: data || [], loading: false })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching products:', error)
     }
   },
@@ -455,7 +517,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
 
       set({ categories: data || [], loading: false })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching categories:', error)
     }
   },
@@ -476,7 +538,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
 
       set({ products: data || [], loading: false })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching products by category:', error)
     }
   },
@@ -524,7 +586,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
         })
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error creating product:', error)
       throw error
     }
@@ -555,7 +617,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
         })
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error updating product:', error)
       throw error
     }
@@ -578,7 +640,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
         loading: false 
       })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error deleting product:', error)
       throw error
     }
@@ -602,7 +664,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
         })
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error creating category:', error)
       throw error
     }
@@ -630,7 +692,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
         })
       }
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error updating category:', error)
       throw error
     }
@@ -653,7 +715,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
         loading: false 
       })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error deleting category:', error)
       throw error
     }
@@ -686,7 +748,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
 
       set({ products: data || [], loading: false })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching all products:', error)
     }
   },
@@ -727,7 +789,7 @@ export const useAdminProductStore = create<AdminProductState>((set) => ({
 
       set({ categories: categoriesWithCount, loading: false })
     } catch (error: any) {
-      set({ error: error.message, loading: false })
+      set({ error: getErrorMessage(error), loading: false })
       console.error('Error fetching all categories:', error)
     }
   }

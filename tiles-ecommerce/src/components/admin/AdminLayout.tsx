@@ -96,7 +96,7 @@ const AdminLayout: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut()
-      navigate('/auth')
+      navigate('/conectare')
     } catch (error) {
       console.error('Error signing out:', error)
     }
@@ -105,12 +105,32 @@ const AdminLayout: React.FC = () => {
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Logo and Brand */}
-      <Box sx={{ p: 3, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
-        <AdminIcon sx={{ fontSize: '2.5rem', mb: 1 }} />
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+      <Box sx={{ 
+        p: { xs: 2, sm: 2.5, md: 3 }, 
+        textAlign: 'center', 
+        bgcolor: 'primary.main', 
+        color: 'white' 
+      }}>
+        <AdminIcon sx={{ 
+          fontSize: { xs: '2rem', sm: '2.25rem', md: '2.5rem' }, 
+          mb: 1 
+        }} />
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 700,
+            fontSize: { xs: '1.1rem', sm: '1.15rem', md: '1.25rem' }
+          }}
+        >
           Pro-Mac Admin
         </Typography>
-        <Typography variant="caption" sx={{ opacity: 0.8 }}>
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            opacity: 0.8,
+            fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' }
+          }}
+        >
           Dashboard Administrare
         </Typography>
       </Box>
@@ -129,14 +149,16 @@ const AdminLayout: React.FC = () => {
             <ListItem key={item.text} disablePadding sx={{ px: 2, mb: 1 }}>
               <ListItemButton
                 onClick={() => handleNavigate(item.path)}
+                data-testid={`nav-${item.text.toLowerCase().replace(' ', '-')}`}
                 sx={{
                   borderRadius: 2,
                   backgroundColor: isActive ? 'primary.light' : 'transparent',
                   color: isActive ? 'primary.contrastText' : 'text.primary',
+                  minHeight: { xs: 48, sm: 44, md: 40 },
                   '&:hover': {
                     backgroundColor: isActive ? 'primary.main' : 'action.hover',
                   },
-                  py: 1.5
+                  py: { xs: 2, sm: 1.75, md: 1.5 }
                 }}
               >
                 <ListItemIcon sx={{ 
@@ -150,7 +172,7 @@ const AdminLayout: React.FC = () => {
                   sx={{
                     '& .MuiListItemText-primary': {
                       fontWeight: isActive ? 600 : 500,
-                      fontSize: '1rem'
+                      fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' }
                     }
                   }}
                 />
@@ -173,14 +195,25 @@ const AdminLayout: React.FC = () => {
       {/* User Info and Logout */}
       <Box sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>
+          <Avatar sx={{ 
+            bgcolor: 'primary.main', 
+            width: { xs: 36, sm: 38, md: 40 }, 
+            height: { xs: 36, sm: 38, md: 40 } 
+          }}>
             {user?.full_name?.[0] || user?.email?.[0] || 'A'}
           </Avatar>
           <Box sx={{ ml: 2, flexGrow: 1 }}>
-            <Typography variant="subtitle2">
+            <Typography 
+              variant="subtitle2"
+              sx={{ fontSize: { xs: '0.85rem', sm: '0.9rem', md: '0.95rem' } }}
+            >
               {user?.full_name || 'Administrator'}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography 
+              variant="caption" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.72rem', md: '0.75rem' } }}
+            >
               {user?.email}
             </Typography>
           </Box>
@@ -189,8 +222,11 @@ const AdminLayout: React.FC = () => {
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <IconButton
             onClick={handleSignOut}
+            data-testid="logout-button"
             sx={{
               color: 'error.main',
+              minWidth: { xs: 44, sm: 40, md: 36 },
+              minHeight: { xs: 44, sm: 40, md: 36 },
               '&:hover': {
                 backgroundColor: 'error.main',
                 color: 'white'
@@ -198,7 +234,7 @@ const AdminLayout: React.FC = () => {
             }}
             title="Deconectare"
           >
-            <LogoutIcon />
+            <LogoutIcon sx={{ fontSize: { xs: '1.4rem', sm: '1.3rem', md: '1.2rem' } }} />
           </IconButton>
         </Box>
       </Box>
@@ -230,15 +266,6 @@ const AdminLayout: React.FC = () => {
             }
           }}
         >
-          {/* Mobile header with menu button */}
-          <Box sx={{ p: 2, backgroundColor: 'primary.main', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Pro-Mac Admin
-            </Typography>
-            <IconButton onClick={handleDrawerToggle} sx={{ color: 'white' }}>
-              <MenuIcon />
-            </IconButton>
-          </Box>
           {drawer}
         </Drawer>
 
@@ -280,23 +307,31 @@ const AdminLayout: React.FC = () => {
         <Box 
           sx={{ 
             display: { xs: 'flex', md: 'none' }, 
-            p: 1, 
+            p: { xs: 1.5, sm: 1 }, 
             backgroundColor: 'background.paper',
             borderBottom: 1,
             borderColor: 'divider',
             flexShrink: 0
           }}
         >
-          <IconButton onClick={handleDrawerToggle}>
-            <MenuIcon />
+          <IconButton 
+            onClick={handleDrawerToggle}
+            data-testid="mobile-menu-button"
+            sx={{
+              minWidth: 44,
+              minHeight: 44,
+              p: 1
+            }}
+          >
+            <MenuIcon sx={{ fontSize: '1.5rem' }} />
           </IconButton>
         </Box>
         
         <Box sx={{ 
-          p: 3, 
+          p: { xs: 1.5, sm: 2, md: 3 }, 
           flexGrow: 1, 
           overflow: 'auto', 
-          height: { xs: 'calc(100vh - 120px)', md: '100vh' }, 
+          height: 'fit-content',
           minHeight: { xs: 'calc(100vh - 120px)', md: '100vh' }
         }}>
           <Outlet />

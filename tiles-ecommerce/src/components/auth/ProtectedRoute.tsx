@@ -14,7 +14,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requireAuth = true,
   requireRole,
-  redirectTo = '/auth'
+  redirectTo = '/conectare'
 }) => {
   const { user, loading } = useAuthStore()
   const location = useLocation()

@@ -19,8 +19,7 @@ import {
   Person,
   Email,
   Phone,
-  Home,
-  Settings
+  Home
 } from '@mui/icons-material'
 import { useAuthStore } from '../../stores/auth'
 
@@ -48,7 +47,7 @@ const UserProfilePopper: React.FC = () => {
   const handleSignOut = async () => {
     try {
       await signOut()
-      navigate('/auth')
+      navigate('/conectare')
       handleClose()
     } catch (error) {
       console.error('Sign out error:', error)
@@ -65,8 +64,7 @@ const UserProfilePopper: React.FC = () => {
           minHeight: { xs: 44, md: 40 },
           color: user ? 'primary.main' : 'text.primary',
           '&:hover': {
-            backgroundColor: user ? 'primary.light' : 'action.hover',
-            color: user ? 'primary.dark' : 'text.primary'
+            backgroundColor: 'transparent'
           }
         }}
       >
@@ -154,7 +152,7 @@ const UserProfilePopper: React.FC = () => {
                           fullWidth
                           variant="text"
                           startIcon={<Person />}
-                          onClick={() => handleNavigation('/profile')}
+                          onClick={() => handleNavigation('/profil')}
                           sx={{
                             justifyContent: 'flex-start',
                             px: 2,
@@ -167,22 +165,6 @@ const UserProfilePopper: React.FC = () => {
                           Profilul meu
                         </Button>
 
-                        <Button
-                          fullWidth
-                          variant="text"
-                          startIcon={<Settings />}
-                          onClick={() => handleNavigation('/profile')}
-                          sx={{
-                            justifyContent: 'flex-start',
-                            px: 2,
-                            py: 1.5,
-                            minHeight: { xs: 44, md: 40 },
-                            borderRadius: 0,
-                            '&:hover': { backgroundColor: 'action.hover' }
-                          }}
-                        >
-                          Setări cont
-                        </Button>
 
                         <Divider sx={{ my: 1 }} />
 
@@ -225,7 +207,7 @@ const UserProfilePopper: React.FC = () => {
                           variant="contained"
                           size="large"
                           startIcon={<Login />}
-                          onClick={() => handleNavigation('/auth')}
+                          onClick={() => handleNavigation('/conectare')}
                           sx={{
                             mb: 2,
                             minHeight: { xs: 48, md: 48 }
@@ -239,7 +221,7 @@ const UserProfilePopper: React.FC = () => {
                           variant="outlined"
                           size="large"
                           startIcon={<PersonAdd />}
-                          onClick={() => handleNavigation('/auth?mode=signup')}
+                          onClick={() => handleNavigation('/creeaza-cont')}
                           sx={{
                             minHeight: { xs: 48, md: 48 }
                           }}
