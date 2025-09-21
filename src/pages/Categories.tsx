@@ -103,13 +103,13 @@ const Categories: React.FC = () => {
         </Box>
       </Fade>
 
-      <Grid container spacing={{ xs: 2, md: 4 }} sx={{ justifyContent: { xs: 'flex-start', md: 'center' } }}>
+      <Grid container spacing={{ xs: 2, md: 4 }} sx={{ justifyContent: { xs: 'center', md: 'center' } }}>
         {mainCategories.map((category, index) => {
           const categoryConfig = categoryIcons[category.slug as keyof typeof categoryIcons]
           const IconComponent = categoryConfig?.icon || FaiantaIcon
-          
+
           return (
-            <Grid item xs={6} sm={6} md={3} key={category.id} sx={{ maxWidth: { xs: '50%', sm: '50%', md: '25%' } }}>
+            <Grid item xs={6} sm={6} md={3} key={category.id}>
               <Zoom in timeout={600 + index * 200}>
                 <Card
                   sx={{
