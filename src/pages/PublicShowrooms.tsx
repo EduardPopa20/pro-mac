@@ -426,7 +426,11 @@ const PublicShowrooms: React.FC = () => {
                                 }}
                               >
                                 {schedule.map((item, index) => {
-                                  const isToday = new Date().getDay() === index;
+                                  // Fix: getDay() returns 0=Sunday, 1=Monday... but schedule starts with Monday
+                                  // Map getDay() values: 0(Sun)=6, 1(Mon)=0, 2(Tue)=1, 3(Wed)=2, 4(Thu)=3, 5(Fri)=4, 6(Sat)=5
+                                  const today = new Date().getDay();
+                                  const scheduleIndex = today === 0 ? 6 : today - 1; // Convert Sunday(0) to last index(6), others shift by -1
+                                  const isToday = scheduleIndex === index;
                                   const isClosed = item.hours === "Închis";
 
                                   return (
@@ -512,56 +516,94 @@ const PublicShowrooms: React.FC = () => {
                                   gap: 0.5,
                                 }}
                               >
-                                {schedule.map((item, index) => (
-                                  <Box key={index}>
-                                    <Box
-                                      sx={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        alignItems: "center",
-                                        py: 0.75,
-                                        px: 1.5,
-                                        borderRadius: 1,
-                                        transition: "background-color 0.2s",
-                                        minHeight: 40,
-                                        "&:hover": {
-                                          backgroundColor: "action.hover",
-                                        },
-                                      }}
-                                    >
-                                      <Typography
-                                        variant="body2"
+                                {schedule.map((item, index) => {
+                                  // Fix: Same logic for desktop as mobile
+                                  const today = new Date().getDay();
+                                  const scheduleIndex = today === 0 ? 6 : today - 1;
+                                  const isToday = scheduleIndex === index;
+                                  const isClosed = item.hours === "Închis";
+
+                                  return (
+                                    <Box key={index}>
+                                      <Box
                                         sx={{
-                                          fontWeight: 500,
-                                          minWidth: 80,
-                                          color: "text.primary",
-                                          fontSize: "0.875rem",
-                                          lineHeight: 1.4,
-                                          flex: 1,
-                                        }}
-                                      >
-                                        {item.day}
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        color={
-                                          item.hours === "Închis"
-                                            ? "error.main"
-                                            : "text.primary"
-                                        }
-                                        sx={{
-                                          fontWeight:
-                                            item.hours === "Închis" ? 600 : 500,
-                                          textAlign: "right",
-                                          fontSize: "0.875rem",
-                                          lineHeight: 1.4,
-                                          flex: 1,
                                           display: "flex",
-                                          justifyContent: "flex-end",
+                                          justifyContent: "space-between",
+                                          alignItems: "center",
+                                          py: 0.75,
+                                          px: 1.5,
+                                          borderRadius: 1,
+                                          transition: "background-color 0.2s",
+                                          minHeight: 40,
+                                          backgroundColor: isToday ? "primary.50" : "transparent",
+                                          position: "relative",
+                                          "&:hover": {
+                                            backgroundColor: isToday ? "primary.100" : "action.hover",
+                                          },
                                         }}
                                       >
-                                        {item.hours}
-                                      </Typography>
+                                        {isToday && (
+                                          <Box
+                                            sx={{
+                                              position: "absolute",
+                                              left: 0,
+                                              top: "50%",
+                                              transform: "translateY(-50%)",
+                                              width: 3,
+                                              height: "70%",
+                                              backgroundColor: "primary.main",
+                                              borderRadius: "0 2px 2px 0",
+                                            }}
+                                          />
+                                        )}
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            fontWeight: isToday ? 600 : 500,
+                                            minWidth: 80,
+                                            color: isToday ? "primary.main" : "text.primary",
+                                            fontSize: "0.875rem",
+                                            lineHeight: 1.4,
+                                            flex: 1,
+                                            pl: isToday ? 1 : 0,
+                                          }}
+                                        >
+                                          {item.day}
+                                          {isToday && (
+                                            <Typography
+                                              component="span"
+                                              sx={{
+                                                fontSize: "0.75rem",
+                                                color: "primary.main",
+                                                fontWeight: 400,
+                                                ml: 0.5,
+                                              }}
+                                            >
+                                              (Astăzi)
+                                            </Typography>
+                                          )}
+                                        </Typography>
+                                        <Typography
+                                          variant="body2"
+                                          color={
+                                            isClosed
+                                              ? "error.main"
+                                              : isToday
+                                              ? "primary.dark"
+                                              : "text.primary"
+                                          }
+                                          sx={{
+                                            fontWeight: isClosed ? 600 : isToday ? 600 : 500,
+                                            textAlign: "right",
+                                            fontSize: "0.875rem",
+                                            lineHeight: 1.4,
+                                            flex: 1,
+                                            display: "flex",
+                                            justifyContent: "flex-end",
+                                          }}
+                                        >
+                                          {item.hours}
+                                        </Typography>
                                     </Box>
                                     {index < schedule.length - 1 && (
                                       <Box
