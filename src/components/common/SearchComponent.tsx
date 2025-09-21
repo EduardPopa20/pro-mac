@@ -142,10 +142,12 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   }
 
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    console.log('Search input focused') // Debug log
-    setAnchorEl(event.currentTarget)
-    if (query.length > 0) {
-      setOpen(true)
+    const target = event.currentTarget
+    if (target) {
+      setAnchorEl(target)
+      if (query.length > 0) {
+        setOpen(true)
+      }
     }
   }
 
@@ -155,10 +157,13 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     // event.stopPropagation()
   }
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpen(false)
-    setAnchorEl(null) // Clear anchor element to prevent interference
-  }
+    // Use setTimeout to ensure DOM updates complete before clearing anchorEl
+    setTimeout(() => {
+      setAnchorEl(null)
+    }, 100)
+  }, [])
 
   const handleProductSelect = (product: SearchResult) => {
     setQuery('')
@@ -180,13 +185,12 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
     window.location.href = `/${category.slug}`
   }
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setQuery('')
-    setOpen(false)
-    setAnchorEl(null)
     setResults([])
     setCategories([])
-  }
+    handleClose()
+  }, [handleClose])
 
   const openMobileModal = () => {
     setMobileModalOpen(true)
@@ -464,60 +468,63 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
             }}
           />
 
-          <Popper
-            open={open && query.length > 0}
-            anchorEl={anchorEl}
-            placement="bottom"
-            transition
-            disablePortal={false}
-            modifiers={[
-              {
-                name: 'offset',
-                options: {
-                  offset: [0, 8], // 8px gap below the TextField
+          <ClickAwayListener onClickAway={handleClose}>
+            <Popper
+              open={open && query.length > 0 && Boolean(anchorEl)}
+              anchorEl={anchorEl}
+              placement="bottom"
+              transition
+              disablePortal={false}
+              keepMounted={false}
+              modifiers={[
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [0, 8], // 8px gap below the TextField
+                  },
                 },
-              },
-              {
-                name: 'preventOverflow',
-                options: {
-                  boundary: 'viewport',
-                  padding: 8,
+                {
+                  name: 'preventOverflow',
+                  options: {
+                    boundary: 'viewport',
+                    padding: 8,
+                  },
                 },
-              },
-            ]}
-            sx={{ 
-              zIndex: 1400, // Higher than AppBar and other navbar elements
-              width: {
-                md: 260,
-                lg: 300,
-                xl: 320
-              }
-            }}
-          >
-            {({ TransitionProps }) => (
-              <Fade {...TransitionProps} timeout={200}>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <Paper
-                    sx={{
-                      mt: 1,
-                      boxShadow: theme.shadows[8],
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      borderRadius: 2,
-                      overflow: 'hidden',
-                      width: {
-                        md: 260,
-                        lg: 300,
-                        xl: 320
-                      }
-                    }}
-                  >
-                    {renderResults()}
-                  </Paper>
-                </ClickAwayListener>
-              </Fade>
-            )}
-          </Popper>
+              ]}
+              sx={{
+                zIndex: 1400, // Higher than AppBar and other navbar elements
+                width: {
+                  md: 260,
+                  lg: 300,
+                  xl: 320
+                }
+              }}
+            >
+              {({ TransitionProps }) => (
+                <Fade {...TransitionProps} timeout={200}>
+                  <div>
+                    <Paper
+                      sx={{
+                        mt: 1,
+                        boxShadow: theme.shadows[8],
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        width: {
+                          md: 260,
+                          lg: 300,
+                          xl: 320
+                        }
+                      }}
+                    >
+                      {renderResults()}
+                    </Paper>
+                  </div>
+                </Fade>
+              )}
+            </Popper>
+          </ClickAwayListener>
         </Box>
       )}
       
