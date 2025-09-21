@@ -1,0 +1,610 @@
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { useNavigateWithScroll } from '../hooks/useNavigateWithScroll'
+import { FEATURES, PRESENTATION_MESSAGES } from '../config/features'
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  Button,
+  Paper,
+  Skeleton,
+  Container,
+  Breadcrumbs,
+  Link,
+  Stack,
+  Divider,
+  useTheme,
+  useMediaQuery,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Grid
+} from '@mui/material'
+import {
+  Category,
+  Image,
+  AspectRatio,
+  Palette,
+  FilterList,
+  TrendingUp,
+  TrendingDown,
+  SortByAlpha
+} from '@mui/icons-material'
+import { Pagination } from '@mui/material'
+import { useProductStore } from '../stores/products'
+import type { Product } from '../types'
+import ProductFilter, { type ProductFilters } from '../components/product/ProductFilter'
+import { getCategoryFilters } from '../components/product/CategoryFilters'
+import { sortProducts, type SortOption } from '../utils/productFilters'
+import { generateProductSlug } from '../utils/slugUtils'
+
+const Products: React.FC = () => {
+  const { categorySlug } = useParams<{ categorySlug: string }>()
+  const navigate = useNavigateWithScroll()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  
+  const { 
+    products, 
+    categories,
+    allCategoryProducts,
+    loading,
+    pagination,
+    fetchCategories,
+    fetchProductsByCategory,
+    fetchAllCategoryProducts
+  } = useProductStore()
+  
+  const [sortBy, setSortBy] = useState<SortOption>('name-asc')
+  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null)
+  const [filters, setFilters] = useState<ProductFilters>({
+    priceRange: [0, 0],
+    colors: []
+  })
+  const [currentPage, setCurrentPage] = useState(1)
+  const [initialLoading, setInitialLoading] = useState(true)
+
+  // Load categories on mount
+  useEffect(() => {
+    if (categories.length === 0) {
+      fetchCategories()
+    }
+  }, [fetchCategories])
+
+  // Load page data when category changes or categories are loaded
+  useEffect(() => {
+    if (!categorySlug) {
+      navigate('/')
+      return
+    }
+
+    if (categories.length === 0) {
+      setInitialLoading(true)
+      return // Wait for categories to load
+    }
+
+    const category = categories.find(cat => cat.slug === categorySlug)
+    if (!category) {
+      navigate('/')
+      return
+    }
+
+    const loadProducts = async () => {
+      try {
+        setInitialLoading(true)
+        await Promise.all([
+          fetchProductsByCategory(category.id, currentPage, 12, filters),
+          fetchAllCategoryProducts(category.id)
+        ])
+      } finally {
+        setInitialLoading(false)
+      }
+    }
+
+    loadProducts()
+  }, [categorySlug, categories, currentPage, filters, navigate])
+
+  // Handle filters change
+  const handleFiltersChange = (newFilters: ProductFilters) => {
+    setFilters(newFilters)
+    setCurrentPage(1) // Reset to first page when filters change
+    // The useEffect will handle re-fetching products
+  }
+
+  // Handle page change
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page)
+    // The useEffect will handle re-fetching products
+  }
+
+  const currentCategory = categories.find(cat => cat.slug === categorySlug)
+
+  // Get category-specific filter options
+  const customFilters = React.useMemo(() => {
+    if (!categorySlug || allCategoryProducts.length === 0) return []
+    return getCategoryFilters(categorySlug, allCategoryProducts)
+  }, [categorySlug, allCategoryProducts])
+
+  // Products are already filtered and paginated from backend
+  // Just apply sorting on the current page results
+  const sortedProducts = React.useMemo(() => {
+    if (products.length === 0) return []
+    return sortProducts(products, sortBy)
+  }, [products, sortBy])
+
+  const handleSortClick = (event: React.MouseEvent<HTMLElement>) => {
+    setSortAnchorEl(event.currentTarget)
+  }
+
+  const handleSortClose = () => {
+    setSortAnchorEl(null)
+  }
+
+  const handleSortSelect = (sortOption: SortOption) => {
+    setSortBy(sortOption)
+    handleSortClose()
+  }
+
+  const generateProductUrl = (product: Product) => {
+    const category = categories.find(c => c.id === product.category_id)
+    if (!category) return '#'
+    
+    const productSlug = generateProductSlug(product.name)
+    return `/${category.slug}/${productSlug}/${product.id}`
+  }
+
+  const ProductCard: React.FC<{ product: Product }> = React.memo(({ product }) => (
+    <Card
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: theme.shadows[8],
+          cursor: 'pointer'
+        },
+        borderRadius: 3,
+        overflow: 'hidden'
+      }}
+      onClick={() => navigate(generateProductUrl(product))}
+    >
+        {/* Product Image */}
+        <Box sx={{ position: 'relative', paddingBottom: '60%' }}>
+          {product.image_url ? (
+            <CardMedia
+              component="img"
+              image={product.image_url}
+              alt={product.name}
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover'
+              }}
+            />
+          ) : (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: 'grey.100'
+              }}
+            >
+              <Image sx={{ fontSize: 48, color: 'grey.400' }} />
+            </Box>
+          )}
+          
+        </Box>
+
+        {/* Product Info */}
+        <CardContent sx={{ flexGrow: 1, p: 2 }}>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 600, 
+              mb: 1,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}
+          >
+            {product.name}
+          </Typography>
+          
+          <Box display="flex" alignItems="center" mb={2}>
+            <Typography
+              variant="h5"
+              color="primary.main"
+              sx={{ fontWeight: 700 }}
+            >
+              {FEATURES.SHOW_PRICES ? `${product.price.toFixed(2)} RON` : PRESENTATION_MESSAGES.PRICE_REQUEST}
+            </Typography>
+          </Box>
+
+          {/* Quick specs */}
+          <Stack spacing={0.5} mb={2}>
+            {product.dimensions && (
+              <Box display="flex" alignItems="center" gap={0.5}>
+                <AspectRatio sx={{ fontSize: 16, color: 'black' }} />
+                <Typography variant="caption" color="primary.main">
+                  {product.dimensions}
+                </Typography>
+              </Box>
+            )}
+            {product.color && (
+              <Box display="flex" alignItems="center" gap={0.5}>
+                <Palette sx={{ fontSize: 16, color: 'black' }} />
+                <Typography variant="caption" color="primary.main">
+                  {product.color}
+                </Typography>
+              </Box>
+            )}
+          </Stack>
+
+        </CardContent>
+      </Card>
+  ))
+
+
+  // Skeleton cards for loading state
+  const SkeletonCard = () => (
+    <Card sx={{ borderRadius: 3 }}>
+      <Skeleton variant="rectangular" height={240} />
+      <CardContent>
+        <Skeleton variant="text" width="80%" height={28} />
+        <Skeleton variant="text" width="60%" height={24} sx={{ mb: 2 }} />
+        <Skeleton variant="text" width="40%" />
+        <Skeleton variant="rectangular" width="100%" height={36} sx={{ mt: 2, borderRadius: 2 }} />
+      </CardContent>
+    </Card>
+  )
+
+  // Filter skeleton for loading state
+  const FilterSkeleton = () => (
+    <Card sx={{ mb: 3 }}>
+      <CardContent>
+        {/* Header skeleton */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Skeleton variant="text" width="140px" height={32} />
+          <Skeleton variant="rectangular" width="80px" height={24} sx={{ borderRadius: 3 }} />
+        </Box>
+        
+        {/* Price range section skeleton */}
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="text" width="100px" height={20} sx={{ mb: 2 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Skeleton variant="rectangular" width={90} height={40} sx={{ borderRadius: 1 }} />
+            <Box sx={{ flex: 1, px: 1 }}>
+              <Skeleton variant="rectangular" width="100%" height={20} sx={{ borderRadius: 10 }} />
+            </Box>
+            <Skeleton variant="rectangular" width={90} height={40} sx={{ borderRadius: 1 }} />
+          </Box>
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Color filter section skeleton */}
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="text" width="80px" height={20} sx={{ mb: 2 }} />
+          <Skeleton variant="rectangular" width="100%" height={40} sx={{ borderRadius: 1 }} />
+        </Box>
+
+        <Divider sx={{ my: 3 }} />
+
+        {/* Custom filters skeleton */}
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="text" width="120px" height={20} sx={{ mb: 2 }} />
+          <Skeleton variant="rectangular" width="100%" height={40} sx={{ borderRadius: 1 }} />
+        </Box>
+      </CardContent>
+    </Card>
+  )
+
+  return (
+    <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+      {/* Breadcrumbs - Absolute top-left positioning */}
+      <Box 
+        sx={{ 
+          position: 'absolute',
+          top: 16,
+          left: 24,
+          zIndex: (theme) => theme.zIndex.overlay
+        }}
+      >
+        <Breadcrumbs>
+          <Link 
+            component="button" 
+            color="inherit" 
+            onClick={() => navigate('/')}
+            sx={{ textDecoration: 'none', background: 'none', border: 'none', cursor: 'pointer' }}
+          >
+            Acasă
+          </Link>
+          {currentCategory && (
+            <Typography color="text.primary">{currentCategory.name}</Typography>
+          )}
+        </Breadcrumbs>
+      </Box>
+
+      {/* Main content with top padding for breadcrumbs */}
+      <Container maxWidth="xl" sx={{ py: 4, pt: 10 }}>
+
+      {/* Header with Filter and Sort Buttons */}
+      <Box mb={4}>
+        <Box display="flex" justifyContent="flex-end" alignItems="center" gap={2} mb={2}>
+          {/* Filter Button - Mobile Only */}
+          {isMobile && products.length > 0 && (
+            <Button
+              variant="outlined"
+              onClick={() => {/* TODO: implement mobile filter */}}
+              sx={{
+                height: 'fit-content',
+                textTransform: 'none'
+              }}
+            >
+              Filtrează produsele
+            </Button>
+          )}
+
+          {/* Sort Button */}
+          {products.length > 0 && (
+            <Button
+              variant="outlined"
+              onClick={handleSortClick}
+              sx={{
+                minWidth: 'auto',
+                height: 'fit-content',
+                textTransform: 'none',
+                px: 2
+              }}
+            >
+              <FilterList />
+            </Button>
+          )}
+        </Box>
+      </Box>
+
+
+      {/* Loading State */}
+      {initialLoading && (
+        <Grid container spacing={3}>
+          {/* Filter skeleton - only show on desktop during loading */}
+          {!isMobile && (
+            <Grid size={{ xs: 12, md: 4 }}>
+              <FilterSkeleton />
+            </Grid>
+          )}
+          
+          {/* Products skeleton grid */}
+          <Grid size={{ xs: 12, md: isMobile ? 12 : 8 }}>
+            <Grid container spacing={2}>
+              {[...Array(8)].map((_, index) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
+                  <SkeletonCard />
+                </Grid>
+              ))}
+            </Grid>
+          </Grid>
+        </Grid>
+      )}
+
+      {/* Empty State - No products in category at all */}
+      {!initialLoading && products.length === 0 && (
+        <Box 
+          display="flex" 
+          flexDirection="column" 
+          alignItems="center" 
+          justifyContent="center" 
+          sx={{ 
+            minHeight: '400px',
+            textAlign: 'center',
+            py: 8,
+            px: 4
+          }}
+        >
+          <Category sx={{ fontSize: '5rem', color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h4" gutterBottom color="text.secondary">
+            {currentCategory 
+              ? `Nu sunt produse în categoria ${currentCategory.name}` 
+              : 'Nu sunt produse disponibile'
+            }
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 500 }}>
+            Ne pare rău, momentan nu avem produse în această categorie. 
+            Vă rugăm să reveniți mai târziu sau să explorați alte categorii.
+          </Typography>
+        </Box>
+      )}
+
+      {/* Main Content Grid with Sidebar - Always show when category exists */}
+      {!initialLoading && currentCategory && (
+        <Grid container spacing={3}>
+          {/* Filter Sidebar - Always visible when category exists */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <ProductFilter
+              products={allCategoryProducts}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              customFilters={customFilters}
+              loading={false}
+            />
+          </Grid>
+
+          {/* Products Grid - Show products or filtered empty state */}
+          <Grid size={{ xs: 12, md: 8 }}>
+            {sortedProducts.length > 0 ? (
+              <>
+                {/* Results count and pagination info */}
+                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    {pagination.totalCount} {pagination.totalCount === 1 ? 'produs găsit' : 'produse găsite'}
+                    {pagination.totalPages > 1 && (
+                      <span> • Pagina {pagination.page} din {pagination.totalPages}</span>
+                    )}
+                  </Typography>
+                </Box>
+                
+                <Grid container spacing={2}>
+                  {sortedProducts.map((product) => (
+                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.id}>
+                      <ProductCard product={product} />
+                    </Grid>
+                  ))}
+                </Grid>
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <Box display="flex" justifyContent="center" sx={{ mt: 4 }}>
+                    <Pagination
+                      count={pagination.totalPages}
+                      page={pagination.page}
+                      onChange={handlePageChange}
+                      color="primary"
+                      size={isMobile ? 'medium' : 'large'}
+                      showFirstButton
+                      showLastButton
+                      sx={{
+                        '& .MuiPagination-ul': {
+                          justifyContent: 'center'
+                        }
+                      }}
+                    />
+                  </Box>
+                )}
+              </>
+            ) : (
+              <Box 
+                display="flex" 
+                flexDirection="column" 
+                alignItems="center" 
+                justifyContent="center" 
+                sx={{ 
+                  minHeight: '400px',
+                  textAlign: 'center',
+                  py: 8 
+                }}
+              >
+                <Category sx={{ fontSize: 80, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h5" gutterBottom color="text.secondary">
+                  Nu au fost găsite produse
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 400 }}>
+                  Nu există produse în categoria "{currentCategory.name}" care să corespundă filtrelor selectate.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleFiltersChange({ priceRange: [0, 0], colors: [] })}
+                  size="large"
+                >
+                  Șterge toate filtrele
+                </Button>
+              </Box>
+            )}
+          </Grid>
+        </Grid>
+      )}
+
+      
+      {/* Sort Menu */}
+      <Menu
+        anchorEl={sortAnchorEl}
+        open={Boolean(sortAnchorEl)}
+        onClose={(event, reason) => {
+          handleSortClose()
+          // Force cleanup
+          setTimeout(() => {
+            if (document.activeElement && document.activeElement !== document.body) {
+              (document.activeElement as HTMLElement).blur?.()
+            }
+          }, 100)
+        }}
+        disableScrollLock={true}
+        disableRestoreFocus={true}
+        disableAutoFocus={true}
+        disableEnforceFocus={true}
+        // Force unmount when closed
+        keepMounted={false}
+        // Fast exit transition
+        transitionDuration={{
+          enter: 225,
+          exit: 50,
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        sx={{
+          '& .MuiPaper-root': {
+            minWidth: 200,
+            boxShadow: theme.shadows[8]
+          }
+        }}
+        // Prevent backdrop interference
+        BackdropProps={{
+          invisible: true,
+        }}
+      >
+        <MenuItem 
+          onClick={() => handleSortSelect('name-asc')}
+          selected={sortBy === 'name-asc'}
+        >
+          <ListItemIcon>
+            <SortByAlpha fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>De la A-Z</ListItemText>
+        </MenuItem>
+        <MenuItem 
+          onClick={() => handleSortSelect('name-desc')}
+          selected={sortBy === 'name-desc'}
+        >
+          <ListItemIcon>
+            <SortByAlpha fontSize="small" sx={{ transform: 'rotate(180deg)' }} />
+          </ListItemIcon>
+          <ListItemText>De la Z-A</ListItemText>
+        </MenuItem>
+        <MenuItem 
+          onClick={() => handleSortSelect('price-asc')}
+          selected={sortBy === 'price-asc'}
+        >
+          <ListItemIcon>
+            <TrendingUp fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Preț crescător</ListItemText>
+        </MenuItem>
+        <MenuItem 
+          onClick={() => handleSortSelect('price-desc')}
+          selected={sortBy === 'price-desc'}
+        >
+          <ListItemIcon>
+            <TrendingDown fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Preț descrescător</ListItemText>
+        </MenuItem>
+      </Menu>
+      </Container>
+    </Box>
+  )
+}
+
+export default Products
