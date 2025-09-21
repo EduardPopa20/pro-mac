@@ -103,28 +103,26 @@ const Categories: React.FC = () => {
         </Box>
       </Fade>
 
-      <Grid container spacing={{ xs: 0, sm: 1, md: 3, lg: 4, xl: 5 }} sx={{ justifyContent: 'center', maxWidth: { xs: '100%', md: 800, lg: 900, xl: 1000 }, mx: 'auto' }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr', // Forțează exact 2 coloane
+          gap: { xs: 0, sm: 1, md: 2, lg: 3, xl: 4 },
+          maxWidth: { xs: '100%', sm: 600, md: 700, lg: 800, xl: 900 },
+          mx: 'auto',
+          justifyItems: 'center'
+        }}
+      >
         {mainCategories.map((category, index) => {
           const categoryConfig = categoryIcons[category.slug as keyof typeof categoryIcons]
           const IconComponent = categoryConfig?.icon || FaiantaIcon
 
           return (
-            <Grid
-              item
-              xs={6}
-              sm={6}
-              md={6}
-              lg={6}
-              xl={6}
+            <Box
               key={category.id}
               sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: '50%',
-                maxWidth: '50%',
-                flexBasis: '50%',
-                flexGrow: 0,
-                flexShrink: 1
+                width: '100%',
+                maxWidth: { xs: '100%', sm: 280, md: 320, lg: 380, xl: 420 }
               }}
             >
               <Zoom in timeout={600 + index * 200}>
@@ -229,10 +227,10 @@ const Categories: React.FC = () => {
                   </CardActionArea>
                 </Card>
               </Zoom>
-            </Grid>
+            </Box>
           )
         })}
-      </Grid>
+      </Box>
 
       {mainCategories.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
