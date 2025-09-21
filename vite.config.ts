@@ -21,11 +21,10 @@ export default defineConfig({
         manualChunks: (id) => {
           // Core vendor chunks for better caching
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            // Group React ecosystem together (including MUI/Emotion to avoid init order issues)
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom') ||
+                id.includes('@mui') || id.includes('@emotion')) {
               return 'vendor-react';
-            }
-            if (id.includes('@mui') || id.includes('@emotion')) {
-              return 'vendor-mui';
             }
             if (id.includes('zustand') || id.includes('@tanstack/react-query')) {
               return 'vendor-state';
