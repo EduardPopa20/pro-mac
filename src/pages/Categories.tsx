@@ -69,7 +69,7 @@ const Categories: React.FC = () => {
   )
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4, px: { xs: 0.5, sm: 2, md: 3 } }}>
       <Box sx={{ mb: 4 }}>
         <Breadcrumbs>
           <Link href="/" color="inherit" sx={{ textDecoration: 'none' }}>Acasă</Link>
@@ -103,17 +103,35 @@ const Categories: React.FC = () => {
         </Box>
       </Fade>
 
-      <Grid container spacing={{ xs: 2, md: 4 }} sx={{ justifyContent: { xs: 'center', md: 'center' } }}>
+      <Grid container spacing={{ xs: 0, sm: 1, md: 3, lg: 4, xl: 5 }} sx={{ justifyContent: 'center', maxWidth: { xs: '100%', md: 800, lg: 900, xl: 1000 }, mx: 'auto' }}>
         {mainCategories.map((category, index) => {
           const categoryConfig = categoryIcons[category.slug as keyof typeof categoryIcons]
           const IconComponent = categoryConfig?.icon || FaiantaIcon
 
           return (
-            <Grid item xs={6} sm={6} md={3} key={category.id}>
+            <Grid
+              item
+              xs={6}
+              sm={6}
+              md={6}
+              lg={6}
+              xl={6}
+              key={category.id}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '50%',
+                maxWidth: '50%',
+                flexBasis: '50%',
+                flexGrow: 0,
+                flexShrink: 1
+              }}
+            >
               <Zoom in timeout={600 + index * 200}>
                 <Card
                   sx={{
                     height: '100%',
+                    width: '100%',
                     borderRadius: 3,
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     backgroundColor: categoryConfig?.color || '#F5F5F5',
@@ -141,7 +159,7 @@ const Categories: React.FC = () => {
                       flexDirection: 'column',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      minHeight: { xs: 160, sm: 200, md: 250 }
+                      minHeight: { xs: 160, sm: 200, md: 300, lg: 350, xl: 400 }
                     }}
                   >
                     <Box
@@ -150,8 +168,8 @@ const Categories: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        width: { xs: 60, md: 80 },
-                        height: { xs: 60, md: 80 },
+                        width: { xs: 60, sm: 70, md: 90, lg: 110, xl: 130 },
+                        height: { xs: 60, sm: 70, md: 90, lg: 110, xl: 130 },
                         borderRadius: '50%',
                         backgroundColor: 'rgba(255, 255, 255, 0.8)',
                         transition: 'all 0.3s ease'
@@ -167,7 +185,7 @@ const Categories: React.FC = () => {
                         }}
                       >
                         <IconComponent
-                          size={isMobile ? 32 : 40}
+                          size={isMobile ? 32 : 50}
                           color={categoryConfig?.iconColor || theme.palette.primary.main}
                         />
                       </Box>
