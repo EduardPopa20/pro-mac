@@ -96,6 +96,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   },
 
   fetchShowrooms: async () => {
+    set({ loading: true })
     try {
       // First try to get all showrooms (for admins)
       let { data, error } = await supabase
@@ -110,17 +111,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
           .select('*')
           .eq('is_active', true)
           .order('name', { ascending: true })
-        
+
         data = result.data
         error = result.error
       }
 
       if (error) throw error
-      set({ showrooms: data || [] })
+      set({ showrooms: data || [], loading: false })
     } catch (error: any) {
       console.error('Error fetching showrooms:', error.message)
       // For public users, don't throw error - just set empty array
-      set({ showrooms: [] })
+      set({ showrooms: [], loading: false })
     }
   },
 

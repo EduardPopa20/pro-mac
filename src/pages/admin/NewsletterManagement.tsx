@@ -45,13 +45,13 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Container
+  Container,
+  ClickAwayListener
 } from '@mui/material'
 import {
   Search as SearchIcon,
   Download as DownloadIcon,
   Email as EmailIcon,
-  Delete as DeleteIcon,
   MoreVert as MoreVertIcon,
   TrendingUp as TrendingUpIcon,
   People as PeopleIcon,
@@ -61,13 +61,11 @@ import {
   Cancel as CancelIcon,
   ErrorOutline as ErrorIcon,
   Send as SendIcon,
-  Dashboard as DashboardIcon,
-  FilterList as FilterListIcon,
   Clear as ClearIcon,
-  CalendarToday as CalendarIcon,
-  PersonAdd as PersonAddIcon,
-  Analytics as AnalyticsIcon
+  PersonAdd as PersonAddIcon
 } from '@mui/icons-material'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 import { useNewsletterStore } from '../../stores/newsletter'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
 import type { NewsletterSubscription } from '../../types'
@@ -178,11 +176,10 @@ const NewsletterManagement: React.FC = () => {
   // Handle export to CSV
   const handleExportCSV = () => {
     const csvContent = [
-      ['Email', 'Status', 'Source', 'Subscribed At', 'Last Email Sent'],
+      ['Email', 'Status', 'Subscribed At', 'Last Email Sent'],
       ...filteredSubscriptions.map(sub => [
         sub.email,
         sub.status,
-        sub.source,
         new Date(sub.subscribed_at).toLocaleDateString('ro-RO'),
         sub.last_email_sent_at ? new Date(sub.last_email_sent_at).toLocaleDateString('ro-RO') : 'Never'
       ])
@@ -211,10 +208,17 @@ const NewsletterManagement: React.FC = () => {
     setEmailContent('')
   }, [])
 
+  // Helper function to check if rich text content is empty
+  const isContentEmpty = useCallback((content: string) => {
+    // Remove HTML tags and check if there's actual content
+    const textContent = content.replace(/<[^>]*>/g, '').trim()
+    return textContent.length === 0
+  }, [])
+
   // Handle send bulk email
   const handleSendBulkEmail = () => {
     showConfirmation({
-      title: 'Trimite email în masă',
+      title: 'Trimite campania newsletter',
       message: `Trimitem email-ul către ${stats.active} abonați activi?`,
       type: 'warning',
       confirmText: 'Trimite',
@@ -276,28 +280,17 @@ const NewsletterManagement: React.FC = () => {
     }
   }
 
-  // Get source display name
-  const getSourceDisplay = (source: NewsletterSubscription['source']) => {
-    switch (source) {
-      case 'modal': return 'Modal popup'
-      case 'footer': return 'Footer'
-      case 'checkout': return 'Finalizare comandă'
-      case 'manual': return 'Manual'
-      default: return source
-    }
-  }
 
-  // Statistics Card Component
+  // Statistics Card Component - 1. Improved square shape with icon+text on same row
   const StatCard: React.FC<{
     title: string;
     value: number;
     icon: React.ReactNode;
     color?: string;
-    trend?: number;
-  }> = ({ title, value, icon, color = 'primary.main', trend }) => (
+  }> = ({ title, value, icon, color = 'primary.main' }) => (
     <Card
       sx={{
-        height: '100%',
+        aspectRatio: '1', // Force square shape
         borderRadius: 3,
         background: theme.palette.mode === 'dark'
           ? 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)'
@@ -310,39 +303,40 @@ const NewsletterManagement: React.FC = () => {
         }
       }}
     >
-      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-        <Box display="flex" alignItems="flex-start" justifyContent="space-between" mb={2}>
-          <Avatar
+      <CardContent
+        sx={{
+          p: { xs: 2, sm: 3 },
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center'
+        }}
+      >
+        {/* Icon and title on same row */}
+        <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={3}>
+          <Box sx={{ color: color, display: 'flex', alignItems: 'center', fontSize: { xs: '2rem', md: '2.5rem' } }}>
+            {icon}
+          </Box>
+          <Typography
+            color="text.secondary"
+            variant="body1"
             sx={{
-              bgcolor: `${color}15`,
-              color: color,
-              width: { xs: 40, sm: 48 },
-              height: { xs: 40, sm: 48 }
+              fontSize: { xs: '1rem', md: '1.125rem' },
+              fontWeight: 600
             }}
           >
-            {icon}
-          </Avatar>
-          {trend !== undefined && (
-            <Chip
-              label={`${trend > 0 ? '+' : ''}${trend}%`}
-              size="small"
-              color={trend > 0 ? 'success' : 'error'}
-              sx={{ fontSize: '0.75rem' }}
-            />
-          )}
+            {title}
+          </Typography>
         </Box>
+
+        {/* Value on center */}
         <Typography
-          color="text.secondary"
-          variant="body2"
-          sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, mb: 1 }}
-        >
-          {title}
-        </Typography>
-        <Typography
-          variant="h4"
+          variant="h3"
           sx={{
             fontWeight: 700,
-            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.25rem' },
+            fontSize: { xs: '2rem', md: '2.75rem' },
             color: color,
             lineHeight: 1
           }}
@@ -374,7 +368,7 @@ const NewsletterManagement: React.FC = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
-      {/* Breadcrumbs */}
+      {/* Breadcrumbs - 2. Remove icons */}
       <Box sx={{ mb: 4 }}>
         <Breadcrumbs aria-label="breadcrumb">
           <Link
@@ -382,16 +376,12 @@ const NewsletterManagement: React.FC = () => {
             href="/admin"
             sx={{
               textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
               '&:hover': { textDecoration: 'underline' }
             }}
           >
-            <DashboardIcon sx={{ mr: 0.5, fontSize: 20 }} />
             Admin
           </Link>
-          <Typography color="text.primary" sx={{ display: 'flex', alignItems: 'center' }}>
-            <EmailIcon sx={{ mr: 0.5, fontSize: 20 }} />
+          <Typography color="text.primary">
             Newsletter
           </Typography>
         </Breadcrumbs>
@@ -413,10 +403,7 @@ const NewsletterManagement: React.FC = () => {
                 sx={{
                   fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem' },
                   fontWeight: 700,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: 'primary.main',
                   mb: 1
                 }}
               >
@@ -440,9 +427,7 @@ const NewsletterManagement: React.FC = () => {
                 borderRadius: 2,
                 borderWidth: 2,
                 '&:hover': {
-                  borderWidth: 2,
-                  transform: 'rotate(-5deg)',
-                  transition: 'transform 0.2s'
+                  borderWidth: 2
                 }
               }}
             >
@@ -450,43 +435,49 @@ const NewsletterManagement: React.FC = () => {
             </Button>
           </Stack>
 
-          {/* Statistics Cards */}
-          <Grid container spacing={{ xs: 2, sm: 3 }} mb={4}>
-            <Grid item xs={6} md={3}>
+          {/* Statistics Cards - 1. Space-between layout */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: { xs: 2, sm: 3 },
+              mb: 4,
+              flexWrap: { xs: 'wrap', md: 'nowrap' }
+            }}
+          >
+            <Box sx={{ width: { xs: 'calc(50% - 8px)', md: 'calc(25% - 12px)' }, minWidth: 140 }}>
               <StatCard
                 title="Total Abonați"
                 value={stats.total}
-                icon={<PeopleIcon />}
+                icon={<PeopleIcon fontSize="inherit" />}
                 color={theme.palette.primary.main}
               />
-            </Grid>
-            <Grid item xs={6} md={3}>
+            </Box>
+            <Box sx={{ width: { xs: 'calc(50% - 8px)', md: 'calc(25% - 12px)' }, minWidth: 140 }}>
               <StatCard
                 title="Abonați Activi"
                 value={stats.active}
-                icon={<TrendingUpIcon />}
+                icon={<TrendingUpIcon fontSize="inherit" />}
                 color={theme.palette.success.main}
-                trend={12}
               />
-            </Grid>
-            <Grid item xs={6} md={3}>
+            </Box>
+            <Box sx={{ width: { xs: 'calc(50% - 8px)', md: 'calc(25% - 12px)' }, minWidth: 140 }}>
               <StatCard
                 title="Dezabonați"
                 value={stats.unsubscribed}
-                icon={<UnsubscribeIcon />}
+                icon={<UnsubscribeIcon fontSize="inherit" />}
                 color={theme.palette.warning.main}
               />
-            </Grid>
-            <Grid item xs={6} md={3}>
+            </Box>
+            <Box sx={{ width: { xs: 'calc(50% - 8px)', md: 'calc(25% - 12px)' }, minWidth: 140 }}>
               <StatCard
                 title="Email-uri Respinse"
                 value={stats.bounced}
-                icon={<ErrorIcon />}
+                icon={<ErrorIcon fontSize="inherit" />}
                 color={theme.palette.error.main}
-                trend={-5}
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
 
           {/* Filters and Actions */}
           <Paper
@@ -529,8 +520,7 @@ const NewsletterManagement: React.FC = () => {
                     ),
                   }}
                   sx={{
-                    flexGrow: 1,
-                    maxWidth: { sm: 350 }
+                    width: '100%'
                   }}
                 />
 
@@ -540,17 +530,9 @@ const NewsletterManagement: React.FC = () => {
                     value={statusFilter}
                     label="Status"
                     onChange={handleStatusFilterChange}
-                    startAdornment={
-                      <InputAdornment position="start">
-                        <FilterListIcon sx={{ fontSize: 20 }} />
-                      </InputAdornment>
-                    }
                   >
-                    <MenuItem value="all">
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <AnalyticsIcon sx={{ fontSize: 18 }} />
-                        <span>Toate ({subscriptions.length})</span>
-                      </Stack>
+                    <MenuItem value="all" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                      <span>Toate ({subscriptions.length})</span>
                     </MenuItem>
                     <MenuItem value="active">
                       <Stack direction="row" alignItems="center" spacing={1}>
@@ -605,12 +587,12 @@ const NewsletterManagement: React.FC = () => {
                         size={isMobile ? 'medium' : 'large'}
                         sx={{
                           borderRadius: 2,
-                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          backgroundColor: 'primary.main',
                           whiteSpace: 'nowrap',
                           width: { xs: '100%', sm: 'auto' }
                         }}
                       >
-                        Email Masiv ({stats.active})
+                        Campanie Newsletter ({stats.active})
                       </Button>
                     </span>
                   </Tooltip>
@@ -662,11 +644,6 @@ const NewsletterManagement: React.FC = () => {
                     {!isMobile && (
                       <TableCell align="center" sx={{ fontWeight: 600, backgroundColor: 'background.paper' }}>
                         Status
-                      </TableCell>
-                    )}
-                    {isDesktop && (
-                      <TableCell align="center" sx={{ fontWeight: 600, backgroundColor: 'background.paper' }}>
-                        Sursă
                       </TableCell>
                     )}
                     {!isMobile && (
@@ -747,15 +724,6 @@ const NewsletterManagement: React.FC = () => {
                                      subscription.status === 'bounced' ? 'Respins' : subscription.status}
                               size="small"
                               color={getStatusColor(subscription.status)}
-                            />
-                          </TableCell>
-                        )}
-                        {isDesktop && (
-                          <TableCell align="center">
-                            <Chip
-                              label={getSourceDisplay(subscription.source)}
-                              size="small"
-                              variant="outlined"
                             />
                           </TableCell>
                         )}
@@ -866,50 +834,32 @@ const NewsletterManagement: React.FC = () => {
       </Fade>
 
       {/* Context Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        PaperProps={{
-          sx: {
-            minWidth: 200,
-            borderRadius: 2,
-            boxShadow: theme.shadows[8]
-          }
-        }}
-      >
-        {selectedRow?.status !== 'active' && (
-          <MenuItem onClick={() => handleStatusChange(selectedRow!.id, 'active')}>
-            <ListItemIcon>
-              <CheckCircleIcon fontSize="small" color="success" />
-            </ListItemIcon>
-            <ListItemText>Marchează ca Activ</ListItemText>
-          </MenuItem>
-        )}
-        {selectedRow?.status !== 'unsubscribed' && (
-          <MenuItem onClick={() => handleStatusChange(selectedRow!.id, 'unsubscribed')}>
-            <ListItemIcon>
-              <UnsubscribeIcon fontSize="small" color="warning" />
-            </ListItemIcon>
-            <ListItemText>Marchează ca Dezabonat</ListItemText>
-          </MenuItem>
-        )}
-        {selectedRow?.status !== 'bounced' && (
-          <MenuItem onClick={() => handleStatusChange(selectedRow!.id, 'bounced')}>
-            <ListItemIcon>
-              <ErrorIcon fontSize="small" color="error" />
-            </ListItemIcon>
-            <ListItemText>Marchează ca Respins</ListItemText>
-          </MenuItem>
-        )}
-        <Divider />
-        <MenuItem onClick={() => handleDeleteSubscription(selectedRow!)}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" color="error" />
-          </ListItemIcon>
-          <ListItemText>Șterge Abonamentul</ListItemText>
-        </MenuItem>
-      </Menu>
+      <ClickAwayListener onClickAway={handleMenuClose}>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+          disableAutoFocus
+          disableEnforceFocus
+          disableRestoreFocus
+          PaperProps={{
+            sx: {
+              minWidth: 200,
+              borderRadius: 2,
+              boxShadow: theme.shadows[8]
+            }
+          }}
+        >
+          {selectedRow?.status !== 'unsubscribed' && (
+            <MenuItem onClick={() => handleStatusChange(selectedRow!.id, 'unsubscribed')}>
+              <ListItemIcon>
+                <UnsubscribeIcon fontSize="small" color="warning" />
+              </ListItemIcon>
+              <ListItemText>Marchează ca Dezabonat</ListItemText>
+            </MenuItem>
+          )}
+        </Menu>
+      </ClickAwayListener>
 
       {/* Bulk Email Dialog */}
       <Dialog
@@ -934,7 +884,7 @@ const NewsletterManagement: React.FC = () => {
             </Avatar>
             <Box>
               <Typography variant="h6" fontWeight={600}>
-                Trimite Email în Masă
+                Campanie Newsletter
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Către {stats.active} abonați activi
@@ -943,22 +893,6 @@ const NewsletterManagement: React.FC = () => {
           </Stack>
         </DialogTitle>
         <DialogContent>
-          <Alert
-            severity="info"
-            sx={{
-              mb: 3,
-              borderRadius: 2,
-              '& .MuiAlert-icon': {
-                fontSize: 28
-              }
-            }}
-          >
-            <Typography variant="body2">
-              Acest email va fi trimis către toți cei <strong>{stats.active}</strong> abonați activi.
-              Asigurați-vă că conținutul este relevant și profesional.
-            </Typography>
-          </Alert>
-
           <Stack spacing={3}>
             <TextField
               fullWidth
@@ -977,17 +911,61 @@ const NewsletterManagement: React.FC = () => {
               inputProps={{ maxLength: 100 }}
             />
 
-            <TextField
-              fullWidth
-              label="Conținut Email"
-              multiline
-              rows={isMobile ? 8 : 12}
-              value={emailContent}
-              onChange={(e) => setEmailContent(e.target.value)}
-              placeholder="Scrieți conținutul email-ului aici..."
-              helperText={`${emailContent.length}/2000 caractere`}
-              inputProps={{ maxLength: 2000 }}
-            />
+            <Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                Conținut Email
+              </Typography>
+              <Box
+                sx={{
+                  '& .ql-editor': {
+                    minHeight: isMobile ? '200px' : '300px',
+                    fontSize: '14px',
+                    fontFamily: 'Arial, sans-serif'
+                  },
+                  '& .ql-toolbar': {
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px 8px 0 0',
+                    backgroundColor: theme.palette.background.paper
+                  },
+                  '& .ql-container': {
+                    border: '1px solid #e0e0e0',
+                    borderTop: 'none',
+                    borderRadius: '0 0 8px 8px',
+                    fontFamily: 'Arial, sans-serif'
+                  },
+                  '& .ql-editor.ql-blank::before': {
+                    color: theme.palette.text.disabled,
+                    fontStyle: 'italic'
+                  }
+                }}
+              >
+                <ReactQuill
+                  value={emailContent}
+                  onChange={setEmailContent}
+                  placeholder="Scrieți conținutul email-ului aici... Folosiți toolbar-ul pentru formatare, imagini și link-uri."
+                  modules={{
+                    toolbar: [
+                      [{ 'header': [1, 2, 3, false] }],
+                      ['bold', 'italic', 'underline'],
+                      [{ 'color': [] }, { 'background': [] }],
+                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                      ['link', 'image'],
+                      [{ 'align': [] }],
+                      ['clean']
+                    ]
+                  }}
+                  formats={[
+                    'header', 'bold', 'italic', 'underline',
+                    'color', 'background', 'list', 'bullet',
+                    'link', 'image', 'align'
+                  ]}
+                  theme="snow"
+                />
+              </Box>
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                Folosiți toolbar-ul pentru formatare, imagini și link-uri
+              </Typography>
+            </Box>
 
             <Paper
               variant="outlined"
@@ -1029,12 +1007,12 @@ const NewsletterManagement: React.FC = () => {
           <Button
             onClick={handleSendBulkEmail}
             variant="contained"
-            disabled={!emailSubject.trim() || !emailContent.trim()}
+            disabled={!emailSubject.trim() || isContentEmpty(emailContent)}
             startIcon={<SendIcon />}
             size="large"
             sx={{
               borderRadius: 2,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              backgroundColor: 'primary.main',
               minWidth: 120
             }}
           >

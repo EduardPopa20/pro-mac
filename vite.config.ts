@@ -35,7 +35,7 @@ export default defineConfig({
             if (id.includes('jspdf') || id.includes('html2canvas')) {
               return 'vendor-pdf';
             }
-            if (id.includes('react-slick') || id.includes('slick-carousel')) {
+            if (id.includes('react-slick') || id.includes('slick-carousel') || id.includes('react-quill') || id.includes('quill')) {
               return 'vendor-media';
             }
             if (id.includes('date-fns') || id.includes('react-hook-form') || id.includes('zod') || id.includes('joi')) {
@@ -78,13 +78,25 @@ export default defineConfig({
       'zustand',
       '@tanstack/react-query',
       '@supabase/supabase-js',
-      'react-slick',  // Include react-slick for proper CommonJS transformation
-      'slick-carousel'
+      'react-quill',   // Include react-quill for rich text editing
+      'jquery',        // Include jQuery for slick-carousel
+      'react-slick',   // Re-add react-slick now that jQuery is available
+      'slick-carousel' // Re-add slick-carousel
     ],
     exclude: [
       // Exclude large libraries that benefit from dynamic imports
       'jspdf',
       'html2canvas'
     ]
+  },
+  // Define external dependencies
+  define: {
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      // Provide jQuery as a global for slick-carousel
+      jquery: 'jquery/dist/jquery.min.js'
+    }
   }
 })
