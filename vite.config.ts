@@ -35,7 +35,7 @@ export default defineConfig({
             if (id.includes('jspdf') || id.includes('html2canvas')) {
               return 'vendor-pdf';
             }
-            if (id.includes('react-slick') || id.includes('slick-carousel') || id.includes('react-quill') || id.includes('quill')) {
+            if (id.includes('react-slick') || id.includes('slick-carousel') || id.includes('@uiw/react-md-editor')) {
               return 'vendor-media';
             }
             if (id.includes('date-fns') || id.includes('react-hook-form') || id.includes('zod') || id.includes('joi')) {
@@ -78,7 +78,7 @@ export default defineConfig({
       'zustand',
       '@tanstack/react-query',
       '@supabase/supabase-js',
-      'react-quill',   // Include react-quill for rich text editing
+      '@uiw/react-md-editor',   // Include markdown editor for rich text editing
       'jquery',        // Include jQuery for slick-carousel
       'react-slick',   // Re-add react-slick now that jQuery is available
       'slick-carousel' // Re-add slick-carousel

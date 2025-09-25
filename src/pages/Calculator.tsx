@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Container,
   Box,
@@ -13,7 +13,10 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
+  InputLabel,
+  Skeleton,
+  Stack,
+  CircularProgress
 } from '@mui/material'
 import FaiantaIcon from '../components/icons/FaiantaIcon'
 import GresieIcon from '../components/icons/GresieIcon'
@@ -21,6 +24,7 @@ import ParchetIcon from '../components/icons/ParchetIcon'
 import RiflajeIcon from '../components/icons/RiflajeIcon'
 import type { ProductCalculatorType } from '../types/calculator'
 import SimpleCalculatorForm from '../components/calculator/SimpleCalculatorForm'
+import { useAdminPageLoader } from '../hooks/useAdminPageLoader'
 
 interface CalculatorTab {
   id: ProductCalculatorType
@@ -84,6 +88,13 @@ export default function Calculator() {
   const calculatorTabs = getCalculatorTabs(activeTab)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')) // xs screens (< 600px)
+
+  // Add skeleton loading to prevent content flash
+  const { showLoader } = useAdminPageLoader({
+    minLoadTime: 800,
+    dependencies: [calculatorTabs, activeTab],
+    isLoading: false
+  })
   
   // Handle select change with proper focus management
   const handleSelectChange = (event: { target: { value: string } }) => {
@@ -96,6 +107,66 @@ export default function Calculator() {
         firstInput.focus()
       }
     }, 100)
+  }
+
+  // Show skeleton loading during initial render
+  if (showLoader) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Breadcrumbs Skeleton */}
+        <Box sx={{ mb: 4 }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Skeleton variant="text" width={50} height={20} />
+            <Typography color="text.secondary">›</Typography>
+            <Skeleton variant="text" width={100} height={20} />
+          </Stack>
+        </Box>
+
+        {/* Title Skeleton */}
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Skeleton variant="text" width={400} height={48} sx={{ mx: 'auto', mb: 2 }} />
+          <Skeleton variant="text" width={600} height={24} sx={{ mx: 'auto' }} />
+        </Box>
+
+        {/* Calculator Paper Skeleton */}
+        <Paper sx={{
+          width: '100%',
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          border: '1px solid',
+          borderColor: 'grey.200',
+          p: 3
+        }}>
+          {/* Tabs/Select Skeleton */}
+          <Box sx={{ mb: 3 }}>
+            {isMobile ? (
+              <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+            ) : (
+              <Stack direction="row" spacing={1}>
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton
+                    key={i}
+                    variant="rectangular"
+                    width={120}
+                    height={48}
+                    sx={{ borderRadius: 2 }}
+                  />
+                ))}
+              </Stack>
+            )}
+          </Box>
+
+          {/* Form Skeleton */}
+          <Stack spacing={3}>
+            <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={56} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={48} sx={{ borderRadius: 1 }} />
+          </Stack>
+        </Paper>
+      </Container>
+    )
   }
 
   return (

@@ -24,6 +24,7 @@ import GoogleIcon from '../components/icons/GoogleIcon'
 import FacebookIcon from '../components/icons/FacebookIcon'
 import { useAuthStore } from '../stores/auth'
 import { useNavigate } from 'react-router-dom'
+import { FEATURES } from '../config/features'
 
 const Conectare: React.FC = () => {
   const theme = useTheme()
@@ -189,70 +190,72 @@ const Conectare: React.FC = () => {
             Conectare
           </Typography>
 
-          {/* OAuth Login Buttons */}
-          <Box sx={{ mb: 2 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GoogleIcon size={18} />}
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              size="medium"
-              sx={{
-                mb: 1,
-                borderColor: '#db4437',
-                color: '#db4437',
-                '&:hover': {
+          {/* OAuth Login Buttons - Only show when e-commerce is enabled */}
+          {FEATURES.ECOMMERCE_ENABLED && (
+            <Box sx={{ mb: 2 }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GoogleIcon size={18} />}
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                size="medium"
+                sx={{
+                  mb: 1,
                   borderColor: '#db4437',
-                  backgroundColor: '#db4437',
-                  color: 'white',
-                  '& .MuiSvgIcon-root': {
-                    color: 'white'
+                  color: '#db4437',
+                  '&:hover': {
+                    borderColor: '#db4437',
+                    backgroundColor: '#db4437',
+                    color: 'white',
+                    '& .MuiSvgIcon-root': {
+                      color: 'white'
+                    }
+                  },
+                  '&:disabled': {
+                    borderColor: '#db4437',
+                    color: '#db4437'
                   }
-                },
-                '&:disabled': {
-                  borderColor: '#db4437',
-                  color: '#db4437'
-                }
-              }}
-            >
-              Conectează-te cu Google
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<FacebookIcon size={18} />}
-              onClick={handleFacebookSignIn}
-              disabled={loading}
-              size="medium"
-              sx={{
-                borderColor: '#1877F2',
-                color: '#1877F2',
-                '&:hover': {
+                }}
+              >
+                Conectează-te cu Google
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<FacebookIcon size={18} />}
+                onClick={handleFacebookSignIn}
+                disabled={loading}
+                size="medium"
+                sx={{
                   borderColor: '#1877F2',
-                  backgroundColor: '#1877F2',
-                  color: 'white',
-                  '& .MuiSvgIcon-root': {
-                    color: 'white'
+                  color: '#1877F2',
+                  '&:hover': {
+                    borderColor: '#1877F2',
+                    backgroundColor: '#1877F2',
+                    color: 'white',
+                    '& .MuiSvgIcon-root': {
+                      color: 'white'
+                    }
+                  },
+                  '&:disabled': {
+                    borderColor: '#1877F2',
+                    color: '#1877F2'
                   }
-                },
-                '&:disabled': {
-                  borderColor: '#1877F2',
-                  color: '#1877F2'
-                }
-              }}
-            >
-              Conectează-te cu Facebook
-            </Button>
-            <Divider sx={{ my: 2 }}>
-              <Typography 
+                }}
+              >
+                Conectează-te cu Facebook
+              </Button>
+              <Divider sx={{ my: 2 }}>
+                <Typography 
                 variant="caption" 
                 color="text.secondary"
               >
                 sau cu email
               </Typography>
             </Divider>
-          </Box>
+            </Box>
+          )}
 
           {/* Sign In Form */}
           <Box component="form" onSubmit={handleSignIn} noValidate>

@@ -207,10 +207,10 @@ const NewsletterManagement: React.FC = () => {
     setEmailContent('')
   }, [])
 
-  // Helper function to check if rich text content is empty
+  // Helper function to check if markdown content is empty
   const isContentEmpty = useCallback((content: string) => {
-    // Remove HTML tags and check if there's actual content
-    const textContent = content.replace(/<[^>]*>/g, '').trim()
+    // Remove markdown syntax and check if there's actual content
+    const textContent = content.replace(/[#*_`\[\]()]/g, '').trim()
     return textContent.length === 0
   }, [])
 
@@ -955,34 +955,6 @@ const NewsletterManagement: React.FC = () => {
                 Folosiți toolbar-ul pentru formatare, imagini și link-uri
               </Typography>
             </Box>
-
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                borderStyle: 'dashed',
-                backgroundColor: 'action.hover'
-              }}
-            >
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                <strong>Sfaturi pentru un email eficient:</strong>
-              </Typography>
-              <Stack spacing={1} sx={{ mt: 1 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                  • Folosiți un subiect clar și atractiv
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                  • Personalizați mesajul pentru audiența dvs.
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                  • Includeți un call-to-action clar
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                  • Verificați ortografia și gramatica
-                </Typography>
-              </Stack>
-            </Paper>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 3, pt: 0 }}>

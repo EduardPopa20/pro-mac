@@ -28,6 +28,7 @@ import { useAuthStore } from '../stores/auth'
 import { useNavigate } from 'react-router-dom'
 import { useReCaptchaV2 } from '../hooks/useReCaptchaV2'
 import '../styles/recaptcha-fix.css'
+import { FEATURES } from '../config/features'
 
 const CreeazaCont: React.FC = () => {
   const theme = useTheme()
@@ -352,70 +353,72 @@ const CreeazaCont: React.FC = () => {
             Cont Nou
           </Typography>
 
-          {/* OAuth Login Buttons */}
-          <Box sx={{ mb: 2 }}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GoogleIcon size={18} />}
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              size="medium"
-              sx={{
-                mb: 1,
-                borderColor: '#db4437',
-                color: '#db4437',
-                '&:hover': {
+          {/* OAuth Login Buttons - Only show when e-commerce is enabled */}
+          {FEATURES.ECOMMERCE_ENABLED && (
+            <Box sx={{ mb: 2 }}>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<GoogleIcon size={18} />}
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                size="medium"
+                sx={{
+                  mb: 1,
                   borderColor: '#db4437',
-                  backgroundColor: '#db4437',
-                  color: 'white',
-                  '& .MuiSvgIcon-root': {
-                    color: 'white'
+                  color: '#db4437',
+                  '&:hover': {
+                    borderColor: '#db4437',
+                    backgroundColor: '#db4437',
+                    color: 'white',
+                    '& .MuiSvgIcon-root': {
+                      color: 'white'
+                    }
+                  },
+                  '&:disabled': {
+                    borderColor: '#db4437',
+                    color: '#db4437'
                   }
-                },
-                '&:disabled': {
-                  borderColor: '#db4437',
-                  color: '#db4437'
-                }
-              }}
-            >
-              Înscrie-te cu Google
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<FacebookIcon size={18} />}
-              onClick={handleFacebookSignIn}
-              disabled={loading}
-              size="medium"
-              sx={{
-                borderColor: '#1877F2',
-                color: '#1877F2',
-                '&:hover': {
-                  borderColor: '#1877F2',
-                  backgroundColor: '#1877F2',
-                  color: 'white',
-                  '& .MuiSvgIcon-root': {
-                    color: 'white'
-                  }
-                },
-                '&:disabled': {
-                  borderColor: '#1877F2',
-                  color: '#1877F2'
-                }
-              }}
-            >
-              Înscrie-te cu Facebook
-            </Button>
-            <Divider sx={{ my: 2 }}>
-              <Typography 
-                variant="caption" 
-                color="text.secondary"
+                }}
               >
-                sau cu email
-              </Typography>
-            </Divider>
-          </Box>
+                Înscrie-te cu Google
+              </Button>
+              <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<FacebookIcon size={18} />}
+                onClick={handleFacebookSignIn}
+                disabled={loading}
+                size="medium"
+                sx={{
+                  borderColor: '#1877F2',
+                  color: '#1877F2',
+                  '&:hover': {
+                    borderColor: '#1877F2',
+                    backgroundColor: '#1877F2',
+                    color: 'white',
+                    '& .MuiSvgIcon-root': {
+                      color: 'white'
+                    }
+                  },
+                  '&:disabled': {
+                    borderColor: '#1877F2',
+                    color: '#1877F2'
+                  }
+                }}
+              >
+                Înscrie-te cu Facebook
+              </Button>
+              <Divider sx={{ my: 2 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                >
+                  sau cu email
+                </Typography>
+              </Divider>
+            </Box>
+          )}
 
           {/* Success Message */}
           {success && (

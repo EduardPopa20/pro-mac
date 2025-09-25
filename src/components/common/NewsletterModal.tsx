@@ -190,22 +190,121 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onClose, onSubs
               Primește oferte exclusive, noutăți despre produse și sfaturi de amenajare direct în emailul tău.
             </Typography>
             
-            {/* Benefits List */}
-            <Box sx={{ mb: 3, textAlign: 'left' }}>
-              <Typography variant="caption" sx={{ display: 'block', mb: 1, fontWeight: 600, color: 'primary.main' }}>
-                Ce vei primi:
-              </Typography>
-              <Box component="ul" sx={{ 
-                fontSize: isSmallMobile ? '0.75rem' : '0.8rem',
-                color: 'text.secondary',
-                pl: 2,
-                m: 0,
-                '& li': { mb: 0.5 }
+            {/* Benefits List - Modern Design */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="caption" sx={{
+                display: 'block',
+                mb: 2,
+                fontWeight: 600,
+                color: 'primary.main',
+                textAlign: 'center',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                <li>🏷️ Reduceri exclusive pentru abonați</li>
-                <li>📦 Primul la noutățile din gama Pro-Mac</li>
-                <li>💡 Idei și tendințe în amenajări</li>
-                <li>📧 Maxim 2 emailuri pe lună</li>
+                Ce vei primi
+              </Typography>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1.5,
+                px: isSmallMobile ? 1 : 2
+              }}>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 1,
+                  borderRadius: 1.5,
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                  border: '1px solid rgba(25, 118, 210, 0.08)'
+                }}>
+                  <Box sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: 'primary.main',
+                    flexShrink: 0
+                  }} />
+                  <Typography variant="body2" sx={{
+                    color: 'text.primary',
+                    fontSize: isSmallMobile ? '0.8rem' : '0.875rem',
+                    lineHeight: 1.4
+                  }}>
+                    Reduceri exclusive pentru abonați
+                  </Typography>
+                </Box>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 1,
+                  borderRadius: 1.5,
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                  border: '1px solid rgba(25, 118, 210, 0.08)'
+                }}>
+                  <Box sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: 'primary.main',
+                    flexShrink: 0
+                  }} />
+                  <Typography variant="body2" sx={{
+                    color: 'text.primary',
+                    fontSize: isSmallMobile ? '0.8rem' : '0.875rem',
+                    lineHeight: 1.4
+                  }}>
+                    Primul la noutățile din gama Pro-Mac
+                  </Typography>
+                </Box>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 1,
+                  borderRadius: 1.5,
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                  border: '1px solid rgba(25, 118, 210, 0.08)'
+                }}>
+                  <Box sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: 'primary.main',
+                    flexShrink: 0
+                  }} />
+                  <Typography variant="body2" sx={{
+                    color: 'text.primary',
+                    fontSize: isSmallMobile ? '0.8rem' : '0.875rem',
+                    lineHeight: 1.4
+                  }}>
+                    Idei și tendințe în amenajări
+                  </Typography>
+                </Box>
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  p: 1,
+                  borderRadius: 1.5,
+                  backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                  border: '1px solid rgba(25, 118, 210, 0.08)'
+                }}>
+                  <Box sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: 'success.main',
+                    flexShrink: 0
+                  }} />
+                  <Typography variant="body2" sx={{
+                    color: 'text.primary',
+                    fontSize: isSmallMobile ? '0.8rem' : '0.875rem',
+                    lineHeight: 1.4
+                  }}>
+                    Maxim 2 emailuri pe lună
+                  </Typography>
+                </Box>
               </Box>
             </Box>
 
