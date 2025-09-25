@@ -1,4 +1,4 @@
-# Deployment Strategy for Pro-Mac Tiles E-commerce
+# Deployment Strategy for Pro-Mac E-commerce
 
 ## 🎯 Current Situation
 - **Existing site**: promac.ro (old version, currently live)
@@ -11,7 +11,7 @@
 ### Option 1: Vercel (Recommended)
 - **Hobby Plan**: FREE forever
 - **Includes**: 100GB bandwidth, global CDN, automatic HTTPS
-- **Perfect for**: Pro-Mac Tiles traffic volume
+- **Perfect for**: Pro-Mac traffic volume
 - **Monthly cost**: $0
 
 ### Option 2: CPanel (Cost-conscious)

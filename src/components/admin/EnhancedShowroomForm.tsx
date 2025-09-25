@@ -50,6 +50,7 @@ interface EnhancedShowroomFormProps {
   onSave: (data: ShowroomFormData) => void
   onCancel: () => void
   onPreview: (data: ShowroomFormData) => void
+  onDelete?: () => void
   isCreate: boolean
   saving?: boolean
 }
@@ -119,6 +120,7 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
   onSave,
   onCancel,
   onPreview,
+  onDelete,
   isCreate,
   saving = false
 }) => {
@@ -236,7 +238,7 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
                 startIcon={<Save />}
                 onClick={() => onSave(localFormData)}
                 disabled={saving || !isFormValid}
-                sx={{ 
+                sx={{
                   minHeight: 48,
                   fontWeight: 600,
                   minWidth: { xs: '100%', sm: 160 }
@@ -246,6 +248,33 @@ const EnhancedShowroomForm: React.FC<EnhancedShowroomFormProps> = ({
               </Button>
             </span>
           </Tooltip>
+
+          {/* Delete Button - Only show in edit mode */}
+          {!isCreate && onDelete && (
+            <Tooltip title="Șterge showroom-ul">
+              <Button
+                variant="outlined"
+                color="error"
+                size="large"
+                startIcon={<Delete />}
+                onClick={onDelete}
+                disabled={saving}
+                sx={{
+                  minHeight: 48,
+                  fontWeight: 600,
+                  minWidth: { xs: '100%', sm: 140 },
+                  borderColor: 'error.main',
+                  color: 'error.main',
+                  '&:hover': {
+                    borderColor: 'error.dark',
+                    backgroundColor: 'error.50'
+                  }
+                }}
+              >
+                Șterge
+              </Button>
+            </Tooltip>
+          )}
         </Stack>
       </Box>
 

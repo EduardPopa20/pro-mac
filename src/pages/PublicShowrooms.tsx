@@ -617,7 +617,8 @@ const PublicShowrooms: React.FC = () => {
                                       />
                                     )}
                                   </Box>
-                                ))}
+                                );
+                                })}
                               </Paper>
                             </Box>
                           </Box>

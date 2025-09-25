@@ -635,7 +635,7 @@ const AppContent: React.FC = () => {
             <Route path="produse/parchet/:productSlug/editare" element={<Suspense fallback={<AdminLoadingSpinner />}><ParchetEdit /></Suspense>} />
             <Route path="produse/riflaje/:productSlug/editare" element={<Suspense fallback={<AdminLoadingSpinner />}><RiflajeEdit /></Suspense>} />
             <Route path="showroom-uri" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomManagement /></Suspense>} />
-            <Route path="showroom-uri/create" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomCreate /></Suspense>} />
+            <Route path="showroom-uri/creeaza" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomCreate /></Suspense>} />
             <Route path="showroom-uri/:id/edit" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomEdit /></Suspense>} />
             <Route path="showroom-uri/:id/preview" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomPreview /></Suspense>} />
             <Route path="showroom-uri/preview" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomPreview /></Suspense>} />

@@ -64,8 +64,7 @@ import {
   Clear as ClearIcon,
   PersonAdd as PersonAddIcon
 } from '@mui/icons-material'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+import MDEditor from '@uiw/react-md-editor'
 import { useNewsletterStore } from '../../stores/newsletter'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
 import type { NewsletterSubscription } from '../../types'
@@ -939,27 +938,17 @@ const NewsletterManagement: React.FC = () => {
                   }
                 }}
               >
-                <ReactQuill
+<MDEditor
                   value={emailContent}
-                  onChange={setEmailContent}
-                  placeholder="Scrieți conținutul email-ului aici... Folosiți toolbar-ul pentru formatare, imagini și link-uri."
-                  modules={{
-                    toolbar: [
-                      [{ 'header': [1, 2, 3, false] }],
-                      ['bold', 'italic', 'underline'],
-                      [{ 'color': [] }, { 'background': [] }],
-                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                      ['link', 'image'],
-                      [{ 'align': [] }],
-                      ['clean']
-                    ]
+                  onChange={(val) => setEmailContent(val || '')}
+                  data-color-mode="light"
+                  preview="edit"
+                  hideToolbar={false}
+                  visibleDragBar={false}
+                  height={300}
+                  style={{
+                    backgroundColor: 'transparent'
                   }}
-                  formats={[
-                    'header', 'bold', 'italic', 'underline',
-                    'color', 'background', 'list', 'bullet',
-                    'link', 'image', 'align'
-                  ]}
-                  theme="snow"
                 />
               </Box>
               <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>

@@ -6,7 +6,6 @@ import {
   Typography,
   Breadcrumbs,
   Link,
-  CircularProgress,
   Alert,
   Button,
   Stack,
@@ -17,8 +16,10 @@ import {
 } from '@mui/material'
 import { Save } from '@mui/icons-material'
 import EnhancedProductForm from '../../../components/admin/EnhancedProductFormFixed'
+import AdminPageLoader from '../../../components/admin/AdminPageLoader'
 import { useProductStore } from '../../../stores/products'
 import { showSuccessAlert, showErrorAlert } from '../../../stores/globalAlert'
+import { useAdminEditLoader } from '../../../hooks/useAdminPageLoader'
 import { supabase } from '../../../lib/supabase'
 import type { Product } from '../../../types'
 
@@ -279,27 +280,22 @@ const FaiantaEdit: React.FC = () => {
     }
   }
 
-  if (loading && !product) {
+  // Use the admin loader to prevent content flashing
+  const { showLoader } = useAdminEditLoader(
+    loading,
+    product,
+    productForm,
+    1200 // Longer load time for edit pages
+  )
+
+  if (showLoader) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        sx={{ 
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100%',
-          height: '100%'
-        }}
-      >
-        <Stack alignItems="center" spacing={2}>
-          <CircularProgress size={50} />
-          <Typography color="text.secondary">Se încarcă produsul...</Typography>
-        </Stack>
-      </Box>
+      <AdminPageLoader
+        title="Se încarcă produsul pentru editare..."
+        showSkeletons={true}
+        skeletonCount={2}
+        showBreadcrumb={true}
+      />
     )
   }
 

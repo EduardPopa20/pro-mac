@@ -16,7 +16,7 @@ const EMAIL_TIMING = {
 // Email templates
 const emailTemplates = {
   1: {
-    getSubject: () => "Ați uitat ceva în coșul dvs. la Pro-Mac Tiles",
+    getSubject: () => "Ați uitat ceva în coșul dvs. la Pro-Mac",
     getHtml: (cart: any, recoveryUrl: string) => `
       <!DOCTYPE html>
       <html>
@@ -37,7 +37,7 @@ const emailTemplates = {
       <body>
         <div class="container">
           <div class="header">
-            <h1>Pro-Mac Tiles</h1>
+            <h1>Pro-Mac</h1>
           </div>
           <div class="content">
             <h2>Bună ${cart.profiles?.full_name || 'Client Pro-Mac'},</h2>
@@ -72,7 +72,7 @@ const emailTemplates = {
             </p>
           </div>
           <div class="footer">
-            <p>© 2024 Pro-Mac Tiles. Toate drepturile rezervate.</p>
+            <p>© 2024 Pro-Mac. Toate drepturile rezervate.</p>
             <p>Nu mai doriți să primiți aceste notificări? <a href="${SITE_URL}/unsubscribe">Dezabonați-vă aici</a></p>
           </div>
         </div>
@@ -81,7 +81,7 @@ const emailTemplates = {
     `
   },
   2: {
-    getSubject: () => "Produsele dvs. vă așteaptă încă - Pro-Mac Tiles",
+    getSubject: () => "Produsele dvs. vă așteaptă încă - Pro-Mac",
     getHtml: (cart: any, recoveryUrl: string) => `
       <!DOCTYPE html>
       <html>
@@ -101,7 +101,7 @@ const emailTemplates = {
       <body>
         <div class="container">
           <div class="header">
-            <h1>Pro-Mac Tiles</h1>
+            <h1>Pro-Mac</h1>
           </div>
           <div class="content">
             <h2>Produsele selectate sunt încă disponibile!</h2>
@@ -113,7 +113,7 @@ const emailTemplates = {
               <p><strong>- Ion Popescu, Client Pro-Mac</strong></p>
             </div>
             
-            <h3>De ce să alegeți Pro-Mac Tiles?</h3>
+            <h3>De ce să alegeți Pro-Mac?</h3>
             <ul>
               <li>✓ Produse de calitate superioară</li>
               <li>✓ Livrare rapidă în toată țara</li>
@@ -137,7 +137,7 @@ const emailTemplates = {
     `
   },
   3: {
-    getSubject: () => "Ultimă șansă + 10% reducere - Pro-Mac Tiles",
+    getSubject: () => "Ultimă șansă + 10% reducere - Pro-Mac",
     getHtml: (cart: any, recoveryUrl: string, discountCode: string) => `
       <!DOCTYPE html>
       <html>
@@ -334,7 +334,7 @@ serve(async (req) => {
               'Authorization': `Bearer ${RESEND_API_KEY}`,
             },
             body: JSON.stringify({
-              from: 'Pro-Mac Tiles <noreply@promac.ro>',
+              from: 'Pro-Mac <noreply@promac.ro>',
               to: cart.profiles.email,
               subject,
               html,

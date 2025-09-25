@@ -120,7 +120,7 @@ class NetopiaService {
       
       // Order details
       order_id: orderRef,
-      order_desc: request.description || `Comandă Pro-Mac Tiles #${request.orderId}`,
+      order_desc: request.description || `Comandă Pro-Mac #${request.orderId}`,
       amount: formatAmountForNetopia(request.amount).toString(),
       currency: request.currency || this.config.currency,
       

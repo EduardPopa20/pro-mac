@@ -86,7 +86,7 @@ const PasswordProtection: React.FC<PasswordProtectionProps> = ({ children }) => 
         </Box>
 
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 3, textAlign: 'center' }}>
-          © 2024 Pro-Mac Tiles. Toate drepturile rezervate.
+          © 2024 Pro-Mac. Toate drepturile rezervate.
         </Typography>
       </Paper>
     </Container>

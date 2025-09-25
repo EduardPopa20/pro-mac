@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import {
   Box,
   Typography,
-  Alert,
   Breadcrumbs,
   Link,
   Container
 } from '@mui/material'
 import { useSettingsStore } from '../../stores/settings'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
+import { showSuccessAlert, showErrorAlert } from '../../stores/globalAlert'
 import EnhancedShowroomForm from '../../components/admin/EnhancedShowroomForm'
 
 const ShowroomCreate: React.FC = () => {
@@ -17,8 +17,6 @@ const ShowroomCreate: React.FC = () => {
   const { createShowroom } = useSettingsStore()
   const { showConfirmation } = useConfirmation()
   
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -41,8 +39,7 @@ const ShowroomCreate: React.FC = () => {
 
   const handleSave = async (data: typeof formData) => {
     if (!data.name.trim() || !data.city.trim() || !data.address.trim()) {
-      setError('Vă rugăm să completați toate câmpurile obligatorii')
-      setTimeout(() => setError(''), 5000)
+      showErrorAlert('Vă rugăm să completați toate câmpurile obligatorii', 'Error')
       return
     }
     
@@ -55,19 +52,16 @@ const ShowroomCreate: React.FC = () => {
     if (!confirmed) return
 
     setSaving(true)
-    setError('')
-    setSuccess('')
 
     try {
       await createShowroom(data)
-      setSuccess('Showroom creat cu succes!')
+      showSuccessAlert('Showroom creat cu succes!', 'Success')
       
       setTimeout(() => {
         navigate('/admin/showroom-uri')
       }, 2000)
     } catch (error: any) {
-      setError(error.message || 'Eroare la crearea showroom-ului')
-      setTimeout(() => setError(''), 5000)
+      showErrorAlert(error.message || 'Eroare la crearea showroom-ului', 'Error')
     } finally {
       setSaving(false)
     }
@@ -93,21 +87,11 @@ const ShowroomCreate: React.FC = () => {
           <Link color="inherit" href="/admin/showroom-uri" sx={{ textDecoration: 'none' }}>
             Showroom-uri
           </Link>
-          <Typography color="text.primary">Adaugă nou</Typography>
+          <Typography color="text.primary">Adaugă</Typography>
         </Breadcrumbs>
       </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          {error}
-        </Alert>
-      )}
-      
-      {success && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
-          {success}
-        </Alert>
-      )}
+      {/* Removed Alert components - using global notification system */}
 
       <EnhancedShowroomForm
         key="create"

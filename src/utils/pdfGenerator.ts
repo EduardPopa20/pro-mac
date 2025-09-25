@@ -19,7 +19,7 @@ interface PDFGenerationOptions {
 
 // Default company information
 const DEFAULT_COMPANY_INFO = {
-  name: 'Pro-Mac Tiles',
+  name: 'Pro-Mac',
   address: 'București, România',
   phone: '+40 XXX XXX XXX',
   email: 'contact@promac.ro',

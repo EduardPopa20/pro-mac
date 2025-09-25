@@ -286,7 +286,7 @@ export default function Checkout() {
             postalCode: checkoutData.billingAddress.postalCode,
             country: checkoutData.billingAddress.country,
           },
-          description: `Comandă Pro-Mac Tiles #${order.order_number}`,
+          description: `Comandă Pro-Mac #${order.order_number}`,
         })
         
         if (paymentResponse.success && paymentResponse.paymentUrl) {

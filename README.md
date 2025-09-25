@@ -1,4 +1,4 @@
-# Pro-Mac Tiles E-commerce Platform
+# Pro-Mac E-commerce Platform
 
 A modern, full-stack e-commerce platform for tiles and ceramics built with React, TypeScript, and Supabase.
 
@@ -205,7 +205,7 @@ src/
 
 ## 📄 License
 
-This project is proprietary software for Pro-Mac tiles and ceramics company.
+This project is proprietary software for Pro-Mac and ceramics company.
 
 ## 🤝 Contributing
 
@@ -213,4 +213,4 @@ This is a private project. Contact the development team for contribution guideli
 
 ---
 
-**Pro-Mac Tiles E-commerce Platform** - Built with ❤️ using modern web technologies
+**Pro-Mac E-commerce Platform** - Built with ❤️ using modern web technologies

@@ -14,7 +14,6 @@ import {
   Card,
   CardContent,
   Stack,
-  Alert,
   CircularProgress,
   Breadcrumbs,
   Link,
@@ -49,6 +48,9 @@ import {
 } from '@mui/icons-material'
 import { useAdminProductStore } from '../../stores/products'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
+import { showSuccessAlert, showErrorAlert } from '../../stores/globalAlert'
+import { useAdminDataLoader } from '../../hooks/useAdminPageLoader'
+import AdminPageLoader from '../../components/admin/AdminPageLoader'
 import ImageUpload from '../../components/common/ImageUpload'
 import type { Category, Product } from '../../types'
 import EnhancedProductForm from '../../components/admin/EnhancedProductFormFixed'
@@ -84,8 +86,6 @@ const ProductManagement: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [saving, setSaving] = useState(false)
-  const [success, setSuccess] = useState('')
-  const [error, setError] = useState('')
   const [currentImagePath, setCurrentImagePath] = useState<string>('')
 
   // Form states
@@ -221,6 +221,9 @@ const ProductManagement: React.FC = () => {
       products_count: products.filter(p => p.category_id === cat.id).length
     }))
   }, [categories, products])
+
+  // Use admin loader to prevent content flashing - wait for both categories and products to load
+  const { showLoader } = useAdminDataLoader(loading, [categories, products], undefined, 1000)
 
   const handleViewCategoryProducts = async (category: Category) => {
     navigate(`/admin/categorii_produse/${category.slug}`)
@@ -390,12 +393,11 @@ const ProductManagement: React.FC = () => {
 
   const handleSaveCategory = async () => {
     if (!categoryForm.name.trim()) {
-      setError('Numele categoriei este obligatoriu')
+      showErrorAlert('Numele categoriei este obligatoriu', 'Error')
       return
     }
 
     setSaving(true)
-    setError('')
 
     const confirmed = await showConfirmation({
       title: 'Confirmare Creare',
@@ -410,13 +412,12 @@ const ProductManagement: React.FC = () => {
 
     try {
       await createCategory({ name: categoryForm.name, sort_order: 0 })
-      setSuccess('Categoria a fost creată cu succes!')
+      showSuccessAlert('Categoria a fost creată cu succes!', 'Success')
       setTimeout(() => {
         navigate('/admin/categorii_produse')
-        setSuccess('')
       }, 1500)
     } catch (err) {
-      setError('A apărut o eroare la crearea categoriei')
+      showErrorAlert('A apărut o eroare la crearea categoriei', 'Error')
     } finally {
       setSaving(false)
     }
@@ -424,17 +425,16 @@ const ProductManagement: React.FC = () => {
 
   const handleSaveProduct = async () => {
     if (!productForm.name.trim()) {
-      setError('Numele produsului este obligatoriu')
+      showErrorAlert('Numele produsului este obligatoriu', 'Error')
       return
     }
 
     if (!productForm.price || parseFloat(productForm.price) <= 0) {
-      setError('Prețul trebuie să fie un număr pozitiv')
+      showErrorAlert('Prețul trebuie să fie un număr pozitiv', 'Error')
       return
     }
 
     setSaving(true)
-    setError('')
 
     const confirmed = await showConfirmation({
       title: editingProduct ? 'Confirmare Actualizare' : 'Confirmare Creare',
@@ -548,10 +548,10 @@ const ProductManagement: React.FC = () => {
 
       if (editingProduct) {
         await updateProduct(editingProduct.id, productData)
-        setSuccess('Produsul a fost actualizat cu succes!')
+        showSuccessAlert('Produsul a fost actualizat cu succes!', 'Success')
       } else {
         await createProduct(productData)
-        setSuccess('Produsul a fost creat cu succes!')
+        showSuccessAlert('Produsul a fost creat cu succes!', 'Success')
       }
       
       // Refresh products after save
@@ -563,10 +563,9 @@ const ProductManagement: React.FC = () => {
         if (selectedCategory) {
           navigate(`/admin/categorii_produse/${selectedCategory.slug}`)
         }
-        setSuccess('')
       }, 1500)
     } catch (err) {
-      setError('A apărut o eroare la salvarea produsului')
+      showErrorAlert('A apărut o eroare la salvarea produsului', 'Error')
     } finally {
       setSaving(false)
     }
@@ -582,10 +581,9 @@ const ProductManagement: React.FC = () => {
     if (confirmed) {
       try {
         await deleteCategory(category.id)
-        setSuccess('Categoria a fost ștearsă cu succes!')
-        setTimeout(() => setSuccess(''), 3000)
+        showSuccessAlert('Categoria a fost ștearsă cu succes!', 'Success')
       } catch (err) {
-        setError('A apărut o eroare la ștergerea categoriei')
+        showErrorAlert('A apărut o eroare la ștergerea categoriei', 'Error')
       }
     }
   }
@@ -600,36 +598,21 @@ const ProductManagement: React.FC = () => {
     if (confirmed) {
       try {
         await deleteProduct(product.id)
-        setSuccess('Produsul a fost șters cu succes!')
-        setTimeout(() => setSuccess(''), 3000)
+        showSuccessAlert('Produsul a fost șters cu succes!', 'Success')
       } catch (err) {
-        setError('A apărut o eroare la ștergerea produsului')
+        showErrorAlert('A apărut o eroare la ștergerea produsului', 'Error')
       }
     }
   }
 
-  if (loading && categories.length === 0) {
+  if (showLoader) {
     return (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        sx={{ 
-          minHeight: 'calc(100vh - 200px)',
-          width: '100%',
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)'
-        }}
-      >
-        <Stack alignItems="center" spacing={2}>
-          <CircularProgress size={50} />
-          <Typography variant="body1" color="text.secondary">
-            Se încarcă categoriile...
-          </Typography>
-        </Stack>
-      </Box>
+      <AdminPageLoader
+        title="Se încarcă categoriile și produsele..."
+        showSkeletons={true}
+        skeletonCount={1}
+        showBreadcrumb={true}
+      />
     )
   }
 
@@ -686,18 +669,7 @@ const ProductManagement: React.FC = () => {
         {viewMode === 'edit-product' && <Typography color="text.primary">Editare Produs</Typography>}
       </Breadcrumbs>
 
-      {/* Success/Error Alerts */}
-      {success && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          {success}
-        </Alert>
-      )}
-
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
+      {/* Removed Alert components - using global notification system */}
 
       {/* Categories List View */}
       {viewMode === 'categories' && (

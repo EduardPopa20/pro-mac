@@ -41,15 +41,119 @@ import {
   Refresh as RefreshIcon,
   TrendingUp,
   TrendingDown,
-  Inventory as InventoryIcon
+  Inventory as InventoryIcon,
+  Construction as ConstructionIcon,
+  Schedule as ScheduleIcon
 } from '@mui/icons-material'
 import { useInventoryStore } from '../../stores/inventory'
 import { useProductStore } from '../../stores/products'
 import { supabase } from '../../lib/supabase'
+import { FEATURES, isPresentationMode } from '../../config/features'
 import StockAdjustmentDialog from '../../components/admin/StockAdjustmentDialog'
 import StockMovementHistory from '../../components/admin/StockMovementHistory'
 
 export default function InventoryDashboard() {
+  // Check if we're in presentation mode (e-commerce disabled)
+  if (isPresentationMode()) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Breadcrumbs */}
+        <Box sx={{ mb: 4 }}>
+          <Breadcrumbs>
+            <Link href="/admin" color="inherit" sx={{ textDecoration: 'none' }}>
+              Admin
+            </Link>
+            <Typography color="text.primary">Inventar</Typography>
+          </Breadcrumbs>
+        </Box>
+
+        {/* Presentation Mode Message */}
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          sx={{
+            minHeight: 'calc(100vh - 300px)',
+            textAlign: 'center',
+            py: 8
+          }}
+        >
+          <Card
+            sx={{
+              maxWidth: 600,
+              p: 4,
+              borderRadius: 3,
+              boxShadow: 4,
+              background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+            }}
+          >
+            <CardContent>
+              <Stack spacing={3} alignItems="center">
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2
+                  }}
+                >
+                  <ConstructionIcon sx={{ fontSize: 40, color: 'white' }} />
+                </Box>
+
+                <Typography variant="h4" fontWeight={700} gutterBottom>
+                  Inventar în Dezvoltare
+                </Typography>
+
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Funcționalitatea se va implementa în viitor
+                </Typography>
+
+                <Box
+                  sx={{
+                    p: 3,
+                    borderRadius: 2,
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    width: '100%'
+                  }}
+                >
+                  <Stack spacing={2}>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <ScheduleIcon color="primary" />
+                      <Typography variant="body1">
+                        <strong>Implementare viitoare:</strong> Odată ce integrarea cu stocurile va fi posibilă
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="body2" color="text.secondary">
+                      Sistemul de inventar va include:
+                    </Typography>
+
+                    <Box component="ul" sx={{ textAlign: 'left', pl: 2 }}>
+                      <li><Typography variant="body2">Gestionarea stocurilor în timp real</Typography></li>
+                      <li><Typography variant="body2">Urmărirea mișcărilor de inventar</Typography></li>
+                      <li><Typography variant="body2">Alerte pentru stoc scăzut</Typography></li>
+                      <li><Typography variant="body2">Rapoarte detaliate de inventar</Typography></li>
+                      <li><Typography variant="body2">Integrare cu sistemul ERP</Typography></li>
+                    </Box>
+                  </Stack>
+                </Box>
+
+                <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                  Pentru moment, platforma funcționează în modul de prezentare.
+                </Typography>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Box>
+      </Container>
+    )
+  }
+
   const [searchQuery, setSearchQuery] = useState('')
   const [adjustmentDialogOpen, setAdjustmentDialogOpen] = useState(false)
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false)

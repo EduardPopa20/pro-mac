@@ -1,7 +1,7 @@
 # Supabase Email Customization Guide
 
 ## Overview
-This guide explains how to customize Supabase authentication emails (registration, password recovery, etc.) to match the Pro-Mac Tiles brand identity and remove default Supabase branding.
+This guide explains how to customize Supabase authentication emails (registration, password recovery, etc.) to match the Pro-Mac brand identity and remove default Supabase branding.
 
 ---
 
@@ -49,7 +49,7 @@ This guide explains how to customize Supabase authentication emails (registratio
      "smtp_user": "resend",
      "smtp_pass": "YOUR_RESEND_API_KEY",
      "smtp_sender_email": "noreply@promac.ro",
-     "smtp_sender_name": "Pro-Mac Tiles"
+     "smtp_sender_name": "Pro-Mac"
    }'::jsonb;
    ```
 
@@ -65,7 +65,7 @@ This guide explains how to customize Supabase authentication emails (registratio
    
    Enable Custom SMTP: ✓
    Sender email: contact@promac.ro
-   Sender name: Pro-Mac Tiles
+   Sender name: Pro-Mac
    Host: smtp.gmail.com
    Port: 587
    Username: your-email@gmail.com
@@ -81,7 +81,7 @@ const sendgridConfig = {
   smtp_user: "apikey",
   smtp_pass: "YOUR_SENDGRID_API_KEY",
   smtp_sender_email: "contact@promac.ro",
-  smtp_sender_name: "Pro-Mac Tiles"
+  smtp_sender_name: "Pro-Mac"
 }
 ```
 
@@ -95,7 +95,7 @@ const sendgridConfig = {
 ### 2.2 Confirmation Email (Sign Up)
 ```html
 <!-- Subject Line -->
-Confirmați contul Pro-Mac Tiles
+Confirmați contul Pro-Mac
 
 <!-- Email Body -->
 <!DOCTYPE html>
@@ -175,11 +175,11 @@ Confirmați contul Pro-Mac Tiles
 <body>
   <div class="container">
     <div class="header">
-      <img src="{{ .SiteURL }}/logo-white.png" alt="Pro-Mac Tiles" class="logo">
+      <img src="{{ .SiteURL }}/logo-white.png" alt="Pro-Mac" class="logo">
     </div>
     
     <div class="content">
-      <h1>Bine ați venit la Pro-Mac Tiles!</h1>
+      <h1>Bine ați venit la Pro-Mac!</h1>
       
       <p>Salut {{ .Email }},</p>
       
@@ -221,13 +221,13 @@ Confirmați contul Pro-Mac Tiles
       </div>
       
       <p>
-        Pro-Mac Tiles SRL | București, România<br>
+        Pro-Mac SRL | București, România<br>
         Tel: 0721 234 567 | Email: contact@promac.ro<br>
         <a href="{{ .SiteURL }}/termeni" style="color: #999;">Termeni și Condiții</a> | 
         <a href="{{ .SiteURL }}/confidentialitate" style="color: #999;">Politica de Confidențialitate</a>
       </p>
       
-      <p>© 2025 Pro-Mac Tiles. Toate drepturile rezervate.</p>
+      <p>© 2025 Pro-Mac. Toate drepturile rezervate.</p>
     </div>
   </div>
 </body>
@@ -237,7 +237,7 @@ Confirmați contul Pro-Mac Tiles
 ### 2.3 Password Recovery Email
 ```html
 <!-- Subject Line -->
-Resetare parolă - Pro-Mac Tiles
+Resetare parolă - Pro-Mac
 
 <!-- Email Body -->
 <!DOCTYPE html>
@@ -251,7 +251,7 @@ Resetare parolă - Pro-Mac Tiles
 <body>
   <div class="container">
     <div class="header">
-      <img src="{{ .SiteURL }}/logo-white.png" alt="Pro-Mac Tiles" class="logo">
+      <img src="{{ .SiteURL }}/logo-white.png" alt="Pro-Mac" class="logo">
     </div>
     
     <div class="content">
@@ -259,7 +259,7 @@ Resetare parolă - Pro-Mac Tiles
       
       <p>Bună {{ .Email }},</p>
       
-      <p>Am primit o cerere de resetare a parolei pentru contul dumneavoastră Pro-Mac Tiles. Pentru a continua, apăsați butonul de mai jos:</p>
+      <p>Am primit o cerere de resetare a parolei pentru contul dumneavoastră Pro-Mac. Pentru a continua, apăsați butonul de mai jos:</p>
       
       <center>
         <a href="{{ .ConfirmationURL }}" class="button">Resetați Parola</a>
@@ -298,7 +298,7 @@ Resetare parolă - Pro-Mac Tiles
 ### 2.4 Magic Link Email
 ```html
 <!-- Subject Line -->
-Conectare rapidă - Pro-Mac Tiles
+Conectare rapidă - Pro-Mac
 
 <!-- Email Body -->
 <!DOCTYPE html>
@@ -312,7 +312,7 @@ Conectare rapidă - Pro-Mac Tiles
 <body>
   <div class="container">
     <div class="header">
-      <img src="{{ .SiteURL }}/logo-white.png" alt="Pro-Mac Tiles" class="logo">
+      <img src="{{ .SiteURL }}/logo-white.png" alt="Pro-Mac" class="logo">
     </div>
     
     <div class="content">
@@ -320,7 +320,7 @@ Conectare rapidă - Pro-Mac Tiles
       
       <p>Bună {{ .Email }},</p>
       
-      <p>Apăsați butonul de mai jos pentru a vă conecta instant la contul Pro-Mac Tiles:</p>
+      <p>Apăsați butonul de mai jos pentru a vă conecta instant la contul Pro-Mac:</p>
       
       <center>
         <a href="{{ .ConfirmationURL }}" class="button">Conectare Automată</a>
@@ -342,7 +342,7 @@ Conectare rapidă - Pro-Mac Tiles
 ### 2.5 Email Change Confirmation
 ```html
 <!-- Subject Line -->
-Confirmare schimbare email - Pro-Mac Tiles
+Confirmare schimbare email - Pro-Mac
 
 <!-- Similar template structure with appropriate content -->
 ```
@@ -401,11 +401,11 @@ serve(async (req) => {
   switch(type) {
     case 'signup':
       template = getSignupTemplate(user, redirect_to)
-      subject = 'Bine ați venit la Pro-Mac Tiles!'
+      subject = 'Bine ați venit la Pro-Mac!'
       break
     case 'recovery':
       template = getRecoveryTemplate(user, redirect_to)
-      subject = 'Resetare parolă - Pro-Mac Tiles'
+      subject = 'Resetare parolă - Pro-Mac'
       break
     case 'abandoned_cart':
       template = getAbandonedCartTemplate(user)
@@ -414,7 +414,7 @@ serve(async (req) => {
   }
   
   const { data, error } = await resend.emails.send({
-    from: 'Pro-Mac Tiles <noreply@promac.ro>',
+    from: 'Pro-Mac <noreply@promac.ro>',
     to: user.email,
     subject: subject,
     html: template,
@@ -468,7 +468,7 @@ SET config = config || '{"hook_custom_email_function_url": "https://your-project
 1. **Enable Custom SMTP:** ✓
 2. **Sender Settings:**
    - From Email: `noreply@promac.ro`
-   - From Name: `Pro-Mac Tiles`
+   - From Name: `Pro-Mac`
    - Reply-To: `support@promac.ro`
 
 3. **Rate Limiting:**
@@ -509,7 +509,7 @@ async function testEmail() {
     console.log('✅ SMTP connection successful')
     
     const info = await transporter.sendMail({
-      from: 'Pro-Mac Tiles <noreply@promac.ro>',
+      from: 'Pro-Mac <noreply@promac.ro>',
       to: 'test@example.com',
       subject: 'Test Email',
       html: '<h1>Test successful!</h1>'
@@ -684,7 +684,7 @@ SMTP_PASS=app-specific-password
 
 # Email Configuration
 EMAIL_FROM=noreply@promac.ro
-EMAIL_FROM_NAME=Pro-Mac Tiles
+EMAIL_FROM_NAME=Pro-Mac
 EMAIL_REPLY_TO=support@promac.ro
 
 # URLs

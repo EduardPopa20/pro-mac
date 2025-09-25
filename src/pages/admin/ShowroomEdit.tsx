@@ -4,10 +4,10 @@ import {
   Box,
   Container,
   Typography,
-  Alert,
   Breadcrumbs,
   Link,
-  CircularProgress
+  CircularProgress,
+  Alert
 } from '@mui/material'
 import { useSettingsStore } from '../../stores/settings'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
@@ -18,12 +18,11 @@ import type { Showroom } from '../../types'
 const ShowroomEdit: React.FC = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const { showrooms, loading, fetchShowrooms, updateShowroom } = useSettingsStore()
+  const { showrooms, loading, fetchShowrooms, updateShowroom, deleteShowroom } = useSettingsStore()
   const { showConfirmation } = useConfirmation()
   
   const [editingShowroom, setEditingShowroom] = useState<Showroom | null>(null)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -72,7 +71,7 @@ const ShowroomEdit: React.FC = () => {
 
   const handleSave = async (data: typeof formData) => {
     if (!data.name.trim() || !data.city.trim() || !data.address.trim()) {
-      showErrorAlert('Vă rugăm să completați toate câmpurile obligatorii')
+      showErrorAlert('Vă rugăm să completați toate câmpurile obligatorii', 'Error')
       return
     }
     
@@ -86,7 +85,6 @@ const ShowroomEdit: React.FC = () => {
 
     setSaving(true)
     setError('')
-    setSuccess('')
 
     try {
       await updateShowroom(editingShowroom.id, data)
@@ -113,6 +111,29 @@ const ShowroomEdit: React.FC = () => {
     // Update formData so preview can access it
     setFormData(data)
     navigate(`/admin/showroom-uri/${id}/preview`)
+  }
+
+  const handleDelete = async () => {
+    if (!editingShowroom) return
+
+    const confirmed = await showConfirmation({
+      title: 'Confirmă ștergerea',
+      message: `Ești sigur că vrei să ștergi showroom-ul "${editingShowroom.name}"? Această acțiune nu poate fi anulată.`,
+      type: 'error'
+    })
+
+    if (!confirmed) return
+
+    try {
+      await deleteShowroom(editingShowroom.id)
+      showSuccessAlert('Showroom șters cu succes!', 'Operațiune reușită')
+
+      setTimeout(() => {
+        navigate('/admin/showroom-uri')
+      }, 1500)
+    } catch (error: any) {
+      showErrorAlert(error.message || 'Eroare la ștergerea showroom-ului', 'Operațiune eșuată')
+    }
   }
 
   if (loading) {
@@ -191,11 +212,7 @@ const ShowroomEdit: React.FC = () => {
         </Alert>
       )}
       
-      {success && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
-          {success}
-        </Alert>
-      )}
+      {/* Removed Alert components - using global notification system */}
 
       <EnhancedShowroomForm
         formData={formData}
@@ -203,6 +220,7 @@ const ShowroomEdit: React.FC = () => {
         onSave={handleSave}
         onCancel={handleCancel}
         onPreview={handlePreview}
+        onDelete={handleDelete}
         isCreate={false}
         saving={saving}
       />
