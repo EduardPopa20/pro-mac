@@ -22,6 +22,7 @@ interface Product {
   slug: string;
   price: number;
   special_price?: number;
+  is_on_sale?: boolean;
   images?: string;
   image_url?: string;
   dimensions?: string;
@@ -50,7 +51,7 @@ const generateProductUrl = (product: Product): string => {
 };
 
 // Memoized price display component
-const PriceDisplay = memo(({ price, specialPrice }: { price: number; specialPrice?: number }) => {
+const PriceDisplay = memo(({ price, specialPrice, isOnSale }: { price: number; specialPrice?: number; isOnSale?: boolean }) => {
   if (!FEATURES.SHOW_PRICES) {
     return (
       <Typography variant="h5" color="primary.main" sx={{ fontWeight: 700 }}>
@@ -59,19 +60,26 @@ const PriceDisplay = memo(({ price, specialPrice }: { price: number; specialPric
     );
   }
 
-  if (specialPrice && specialPrice < price) {
+  if ((specialPrice && specialPrice < price) || isOnSale) {
+    const discountPrice = specialPrice || price;
+    const discountPercentage = specialPrice && price > specialPrice
+      ? Math.round(((price - specialPrice) / price) * 100)
+      : 0;
+
     return (
       <Box>
-        <Typography variant="h5" color="error.main" sx={{ fontWeight: 700 }}>
-          {specialPrice.toFixed(2)} RON
-          <Chip label="OFERTĂ" color="error" size="small" sx={{ ml: 1 }} />
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#d32f2f' }}>
+          {discountPrice.toFixed(2)} RON
         </Typography>
         <Typography
           variant="body2"
-          color="text.secondary"
-          sx={{ textDecoration: 'line-through' }}
+          sx={{
+            textDecoration: 'line-through',
+            color: 'text.disabled',
+            mt: 0.5
+          }}
         >
-          {price.toFixed(2)} RON
+          Preț original: {price.toFixed(2)} RON
         </Typography>
       </Box>
     );
@@ -210,20 +218,31 @@ const OptimizedProductCard: React.FC<OptimizedProductCardProps> = memo(({
           </Box>
         )}
 
-        {/* Featured badge */}
-        {product.is_featured && (
-          <Chip
-            label="RECOMANDAT"
-            color="secondary"
-            size="small"
-            sx={{
-              position: 'absolute',
-              top: 8,
-              right: 8,
-              fontWeight: 600,
-            }}
-          />
-        )}
+        {/* Badges */}
+        <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1, flexDirection: 'column' }}>
+          {product.is_on_sale && product.special_price && product.special_price < product.price && (
+            <Chip
+              label={`-${Math.round(((product.price - product.special_price) / product.price) * 100)}%`}
+              sx={{
+                bgcolor: '#d32f2f',
+                color: 'white',
+                fontWeight: 700,
+                fontSize: '0.875rem',
+              }}
+              size="small"
+            />
+          )}
+          {product.is_featured && (
+            <Chip
+              label="RECOMANDAT"
+              color="secondary"
+              size="small"
+              sx={{
+                fontWeight: 600,
+              }}
+            />
+          )}
+        </Box>
       </Box>
 
       {/* Product Content */}
@@ -246,7 +265,7 @@ const OptimizedProductCard: React.FC<OptimizedProductCardProps> = memo(({
 
         {/* Price */}
         <Box mb={2}>
-          <PriceDisplay price={product.price} specialPrice={product.special_price} />
+          <PriceDisplay price={product.price} specialPrice={product.special_price} isOnSale={product.is_on_sale} />
         </Box>
 
         {/* Product Specifications */}
@@ -289,6 +308,7 @@ const arePropsEqual = (
     prevProduct.name === nextProduct.name &&
     prevProduct.price === nextProduct.price &&
     prevProduct.special_price === nextProduct.special_price &&
+    prevProduct.is_on_sale === nextProduct.is_on_sale &&
     prevProduct.images === nextProduct.images &&
     prevProduct.image_url === nextProduct.image_url &&
     prevProduct.is_featured === nextProduct.is_featured &&

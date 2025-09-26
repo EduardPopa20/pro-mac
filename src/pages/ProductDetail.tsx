@@ -379,7 +379,6 @@ const ProductDetail: React.FC = () => {
                         sx={{ fontWeight: 700 }}
                       >
                         {product.special_price.toFixed(0)} RON / m²
-                        <Chip label="OFERTĂ" color="error" size="small" sx={{ ml: 2 }} />
                       </Typography>
                       <Typography
                         variant="body1"

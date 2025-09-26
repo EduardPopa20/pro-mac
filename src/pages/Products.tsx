@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { useNavigateWithScroll } from '../hooks/useNavigateWithScroll'
 import { FEATURES, PRESENTATION_MESSAGES } from '../config/features'
 import {
@@ -43,15 +43,18 @@ import ProductFilter, { type ProductFilters } from '../components/product/Produc
 import { getCategoryFilters } from '../components/product/CategoryFilters'
 import { sortProducts, type SortOption } from '../utils/productFilters'
 import { generateProductSlug } from '../utils/slugUtils'
+import { useCategorySpecs } from '../hooks/useCategorySpecs'
+import OptimizedProductCard from '../components/product/OptimizedProductCard'
 
 const Products: React.FC = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>()
   const navigate = useNavigateWithScroll()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  
-  const { 
-    products, 
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const {
+    products,
     categories,
     allCategoryProducts,
     loading,
@@ -60,15 +63,51 @@ const Products: React.FC = () => {
     fetchProductsByCategory,
     fetchAllCategoryProducts
   } = useProductStore()
-  
+
   const [sortBy, setSortBy] = useState<SortOption>('name-asc')
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null)
-  const [filters, setFilters] = useState<ProductFilters>({
-    priceRange: [0, 0],
-    colors: []
-  })
-  const [currentPage, setCurrentPage] = useState(1)
   const [initialLoading, setInitialLoading] = useState(true)
+  const [productsLoading, setProductsLoading] = useState(false)
+  const [filtersLoading, setFiltersLoading] = useState(false)
+  const [previousCategorySlug, setPreviousCategorySlug] = useState<string | undefined>()
+
+  // Parse filters from URL params
+  const filters: ProductFilters = React.useMemo(() => {
+    const priceMin = searchParams.get('priceMin')
+    const priceMax = searchParams.get('priceMax')
+    const colors = searchParams.get('colors')
+    const isOnSale = searchParams.get('is_on_sale')
+
+    const parsedFilters: ProductFilters = {
+      priceRange: [
+        priceMin ? parseInt(priceMin) : 0,
+        priceMax ? parseInt(priceMax) : 0
+      ],
+      colors: colors ? colors.split(',').filter(Boolean) : []
+    }
+
+    // Add any custom filters from URL params
+    Object.keys(Object.fromEntries(searchParams)).forEach(key => {
+      if (!['priceMin', 'priceMax', 'colors', 'page'].includes(key)) {
+        (parsedFilters as any)[key] = searchParams.get(key)
+      }
+    })
+
+    return parsedFilters
+  }, [searchParams])
+
+  const currentPage = parseInt(searchParams.get('page') || '1')
+
+  // Helper to check if any filters are active
+  const hasActiveFilters = React.useMemo(() => {
+    return (
+      (filters.priceRange[0] > 0 || filters.priceRange[1] > 0) ||
+      filters.colors.length > 0 ||
+      Object.keys(filters).some(key =>
+        !['priceRange', 'colors'].includes(key) && (filters as any)[key]
+      )
+    )
+  }, [filters])
 
   // Load categories on mount
   useEffect(() => {
@@ -97,13 +136,31 @@ const Products: React.FC = () => {
 
     const loadProducts = async () => {
       try {
-        setInitialLoading(true)
+        // Detect if category changed (navigation between categories)
+        const categoryChanged = previousCategorySlug && previousCategorySlug !== categorySlug
+
+        if (initialLoading) {
+          setInitialLoading(true)
+        } else if (categoryChanged) {
+          // When navigating between categories, show skeleton for both products and filters
+          setProductsLoading(true)
+          setFiltersLoading(true)
+        } else {
+          // When applying filters or pagination, only show skeleton for products
+          setProductsLoading(true)
+        }
+
         await Promise.all([
           fetchProductsByCategory(category.id, currentPage, 12, filters),
           fetchAllCategoryProducts(category.id)
         ])
+
+        // Update previous category for next comparison
+        setPreviousCategorySlug(categorySlug)
       } finally {
         setInitialLoading(false)
+        setProductsLoading(false)
+        setFiltersLoading(false)
       }
     }
 
@@ -112,24 +169,48 @@ const Products: React.FC = () => {
 
   // Handle filters change
   const handleFiltersChange = (newFilters: ProductFilters) => {
-    setFilters(newFilters)
-    setCurrentPage(1) // Reset to first page when filters change
-    // The useEffect will handle re-fetching products
+    const newSearchParams = new URLSearchParams()
+
+    // Set price range
+    if (newFilters.priceRange[0] > 0) newSearchParams.set('priceMin', newFilters.priceRange[0].toString())
+    if (newFilters.priceRange[1] > 0) newSearchParams.set('priceMax', newFilters.priceRange[1].toString())
+
+    // Set colors
+    if (newFilters.colors.length > 0) newSearchParams.set('colors', newFilters.colors.join(','))
+
+    // Set custom filters
+    Object.keys(newFilters).forEach(key => {
+      if (!['priceRange', 'colors'].includes(key)) {
+        const value = (newFilters as any)[key]
+        if (value) newSearchParams.set(key, value.toString())
+      }
+    })
+
+    // Reset to first page when filters change
+    newSearchParams.set('page', '1')
+
+    setSearchParams(newSearchParams)
   }
 
   // Handle page change
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page)
-    // The useEffect will handle re-fetching products
+    const newSearchParams = new URLSearchParams(searchParams)
+    newSearchParams.set('page', page.toString())
+    setSearchParams(newSearchParams)
   }
 
   const currentCategory = categories.find(cat => cat.slug === categorySlug)
 
-  // Get category-specific filter options
+  // Get visibility configuration for the category
+  const { isSpecVisible } = useCategorySpecs(categorySlug)
+
+  // Get category-specific filter options with visibility configuration
   const customFilters = React.useMemo(() => {
     if (!categorySlug || allCategoryProducts.length === 0) return []
-    return getCategoryFilters(categorySlug, allCategoryProducts)
-  }, [categorySlug, allCategoryProducts])
+    // Always use allCategoryProducts for filter counts since they should show total availability
+    // The filtering logic handles what gets displayed, but users need to see total potential
+    return getCategoryFilters(categorySlug, allCategoryProducts, isSpecVisible, allCategoryProducts)
+  }, [categorySlug, allCategoryProducts, isSpecVisible])
 
   // Products are already filtered and paginated from backend
   // Just apply sorting on the current page results
@@ -159,108 +240,16 @@ const Products: React.FC = () => {
     return `/${category.slug}/${productSlug}/${product.id}`
   }
 
-  const ProductCard: React.FC<{ product: Product }> = React.memo(({ product }) => (
-    <Card
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        '&:hover': {
-          transform: 'translateY(-2px)',
-          boxShadow: theme.shadows[8],
-          cursor: 'pointer'
-        },
-        borderRadius: 3,
-        overflow: 'hidden'
-      }}
-      onClick={() => navigate(generateProductUrl(product))}
-    >
-        {/* Product Image */}
-        <Box sx={{ position: 'relative', paddingBottom: '60%' }}>
-          {product.image_url ? (
-            <CardMedia
-              component="img"
-              image={product.image_url}
-              alt={product.name}
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover'
-              }}
-            />
-          ) : (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                bgcolor: 'grey.100'
-              }}
-            >
-              <Image sx={{ fontSize: 48, color: 'grey.400' }} />
-            </Box>
-          )}
-          
-        </Box>
+  // Use OptimizedProductCard with discount functionality
+  const ProductCard: React.FC<{ product: Product }> = React.memo(({ product }) => {
+    // Add categories property for OptimizedProductCard compatibility
+    const productWithCategory = {
+      ...product,
+      categories: categories.find(c => c.id === product.category_id)
+    }
 
-        {/* Product Info */}
-        <CardContent sx={{ flexGrow: 1, p: 2 }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 600, 
-              mb: 1,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden'
-            }}
-          >
-            {product.name}
-          </Typography>
-          
-          <Box display="flex" alignItems="center" mb={2}>
-            <Typography
-              variant="h5"
-              color="primary.main"
-              sx={{ fontWeight: 700 }}
-            >
-              {FEATURES.SHOW_PRICES ? `${product.price.toFixed(2)} RON` : PRESENTATION_MESSAGES.PRICE_REQUEST}
-            </Typography>
-          </Box>
-
-          {/* Quick specs */}
-          <Stack spacing={0.5} mb={2}>
-            {product.dimensions && (
-              <Box display="flex" alignItems="center" gap={0.5}>
-                <AspectRatio sx={{ fontSize: 16, color: 'black' }} />
-                <Typography variant="caption" color="primary.main">
-                  {product.dimensions}
-                </Typography>
-              </Box>
-            )}
-            {product.color && (
-              <Box display="flex" alignItems="center" gap={0.5}>
-                <Palette sx={{ fontSize: 16, color: 'black' }} />
-                <Typography variant="caption" color="primary.main">
-                  {product.color}
-                </Typography>
-              </Box>
-            )}
-          </Stack>
-
-        </CardContent>
-      </Card>
-  ))
+    return <OptimizedProductCard product={productWithCategory} />
+  })
 
 
   // Skeleton cards for loading state
@@ -382,16 +371,16 @@ const Products: React.FC = () => {
       </Box>
 
 
-      {/* Loading State */}
+      {/* Initial Loading State - Show full skeleton */}
       {initialLoading && (
         <Grid container spacing={3}>
-          {/* Filter skeleton - only show on desktop during loading */}
+          {/* Filter skeleton - only show on desktop during initial loading */}
           {!isMobile && (
             <Grid size={{ xs: 12, md: 4 }}>
               <FilterSkeleton />
             </Grid>
           )}
-          
+
           {/* Products skeleton grid */}
           <Grid size={{ xs: 12, md: isMobile ? 12 : 8 }}>
             <Grid container spacing={2}>
@@ -405,8 +394,8 @@ const Products: React.FC = () => {
         </Grid>
       )}
 
-      {/* Empty State - No products in category at all */}
-      {!initialLoading && products.length === 0 && (
+      {/* Empty State - No products in category at all (only when no filters applied) */}
+      {!initialLoading && products.length === 0 && !hasActiveFilters && (
         <Box 
           display="flex" 
           flexDirection="column" 
@@ -438,18 +427,31 @@ const Products: React.FC = () => {
         <Grid container spacing={3}>
           {/* Filter Sidebar - Always visible when category exists */}
           <Grid size={{ xs: 12, md: 4 }}>
-            <ProductFilter
-              products={allCategoryProducts}
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              customFilters={customFilters}
-              loading={false}
-            />
+            {filtersLoading ? (
+              <FilterSkeleton />
+            ) : (
+              <ProductFilter
+                products={allCategoryProducts}
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                customFilters={customFilters}
+                loading={false}
+              />
+            )}
           </Grid>
 
           {/* Products Grid - Show products or filtered empty state */}
           <Grid size={{ xs: 12, md: 8 }}>
-            {sortedProducts.length > 0 ? (
+            {productsLoading ? (
+              /* Products loading skeleton when filters change */
+              <Grid container spacing={2}>
+                {[...Array(8)].map((_, index) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
+                    <SkeletonCard />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : sortedProducts.length > 0 ? (
               <>
                 {/* Results count and pagination info */}
                 <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -460,7 +462,7 @@ const Products: React.FC = () => {
                     )}
                   </Typography>
                 </Box>
-                
+
                 <Grid container spacing={2}>
                   {sortedProducts.map((product) => (
                     <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.id}>

@@ -26,12 +26,14 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Checkbox,
   type SelectChangeEvent,
 } from '@mui/material'
 import {
   FilterList,
   Clear,
-  Close
+  Close,
+  LocalOffer
 } from '@mui/icons-material'
 import type { Product } from '../../types'
 
@@ -50,6 +52,7 @@ export interface FilterOption {
   id: string
   label: string
   type: 'select' | 'multiselect' | 'range' | 'checkbox'
+  icon?: React.ComponentType<any> // Optional icon component
   options?: Array<{
     value: string
     label: string
@@ -305,8 +308,12 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
     }
 
     filters.forEach(filter => {
+      // Skip sale/discount filter - it's rendered separately at the top
+      if (filter.id === 'is_on_sale') {
+        return // Don't add to any group, it's rendered separately
+      }
       // Core filters (dimensions, materials, finishes)
-      if (['dimensions', 'finish', 'surface_finish', 'material', 'texture', 'usage_area'].includes(filter.id)) {
+      else if (['dimensions', 'finish', 'surface_finish', 'material', 'texture', 'usage_area'].includes(filter.id)) {
         groups.core.push(filter)
       }
       // Brand and quality
@@ -456,9 +463,9 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
                 {(selected as string[]).map((value) => {
                   const option = filter.options?.find(opt => opt.value === value)
                   return (
-                    <Chip 
-                      key={value} 
-                      label={option?.label || value} 
+                    <Chip
+                      key={value}
+                      label={option?.label || value}
                       size="small"
                       onMouseDown={(event) => {
                         event.stopPropagation()
@@ -490,13 +497,92 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
       )
     }
 
+    if (filter.type === 'checkbox' && filter.options) {
+      return (
+        <Box sx={{ mb: 1.5 }}>
+          {filter.options.map((option) => (
+            <FormControlLabel
+              key={option.value}
+              control={
+                <Checkbox
+                  checked={pendingFilters[filter.id] === option.value}
+                  onChange={(e) => {
+                    e.stopPropagation()
+                    handleCustomFilterChange(filter.id, e.target.checked ? option.value : '')
+                  }}
+                  color="primary"
+                />
+              }
+              label={
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  {option.label}
+                </Typography>
+              }
+              sx={{
+                display: 'block',
+                mb: 0.5,
+                '& .MuiFormControlLabel-label': {
+                  fontSize: '0.875rem'
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          ))}
+        </Box>
+      )
+    }
+
     return null
   }
 
   // Filter content component - always visible sections
-  const FilterContent: React.FC = () => (
-    <Stack spacing={2}>
-      {/* Price Range - Always visible */}
+  const FilterContent: React.FC = () => {
+    // Find discount filter from customFilters
+    const discountFilter = customFilters.find(filter => filter.id === 'is_on_sale')
+
+    return (
+      <Stack spacing={2}>
+        {/* Sale/Discount Filter - Prominent position at top */}
+        {discountFilter && (
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 2,
+              bgcolor: 'rgba(211, 47, 47, 0.04)', // Light red background
+              borderColor: 'error.main',
+              borderWidth: 2,
+            }}
+          >
+            {discountFilter.options?.map((option) => (
+              <Box key={option.value} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <LocalOffer sx={{ color: 'error.main', fontSize: '1.25rem' }} />
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 600,
+                      color: 'error.main',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    {option.label}
+                  </Typography>
+                </Box>
+                <Checkbox
+                  checked={pendingFilters[discountFilter.id] === option.value}
+                  onChange={(e) => {
+                    e.stopPropagation()
+                    handleCustomFilterChange(discountFilter.id, e.target.checked ? option.value : '')
+                  }}
+                  color="error"
+                  size="medium"
+                />
+              </Box>
+            ))}
+          </Paper>
+        )}
+
+        {/* Price Range - Always visible */}
       <Paper variant="outlined" sx={{ p: 2 }}>
         <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
           Interval preț
@@ -748,7 +834,8 @@ const ProductFilter: React.FC<ProductFilterProps> = ({
         </Box>
       )}
     </Stack>
-  )
+    )
+  }
 
   if (loading || products.length === 0) {
     return (
