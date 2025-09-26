@@ -4,12 +4,13 @@ import {
   Typography,
   TextField,
   Button,
-  Grid,
   CircularProgress,
   Divider,
   Container,
   Breadcrumbs,
-  Link
+  Link,
+  Paper,
+  Grid
 } from '@mui/material'
 import {
   Save as SaveIcon,
@@ -143,17 +144,45 @@ const Settings: React.FC = () => {
         </Breadcrumbs>
       </Box>
 
-      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-        Setări Site
-      </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Gestionați setările generale ale site-ului
-      </Typography>
+      {/* Header with Save Button */}
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={4}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+            Setări Site
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Gestionați setările generale ale site-ului
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
+          onClick={handleSaveAllSettings}
+          disabled={saving}
+          size="large"
+          sx={{
+            minWidth: 200,
+            fontWeight: 600,
+            py: 1.5
+          }}
+        >
+          {saving ? 'Se salvează...' : 'Salvează Modificările'}
+        </Button>
+      </Box>
 
       {/* Removed Alert components - using global notification system */}
 
-      {/* General Settings Section - No Card */}
-      <Box sx={{ mb: 6 }}>
+      {/* General Settings Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2, sm: 3, md: 4 },
+          mb: 4,
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 2
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <BusinessIcon sx={{ fontSize: 28, color: 'primary.main', mr: 2 }} />
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -161,7 +190,7 @@ const Settings: React.FC = () => {
           </Typography>
         </Box>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Număr Telefon WhatsApp"
@@ -175,7 +204,7 @@ const Settings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Numele Companiei"
@@ -187,7 +216,7 @@ const Settings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Email Oficial"
@@ -200,7 +229,7 @@ const Settings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Adresa Principală"
@@ -212,10 +241,18 @@ const Settings: React.FC = () => {
             />
           </Grid>
         </Grid>
-      </Box>
+      </Paper>
 
-      {/* Social Media Settings Section - No Card */}
-      <Box sx={{ mb: 6 }}>
+      {/* Social Media Settings Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2, sm: 3, md: 4 },
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 2
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <ShareIcon sx={{ fontSize: 28, color: 'primary.main', mr: 2 }} />
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -223,7 +260,7 @@ const Settings: React.FC = () => {
           </Typography>
         </Box>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Link Facebook"
@@ -237,7 +274,7 @@ const Settings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Link Instagram"
@@ -251,7 +288,7 @@ const Settings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Link TikTok"
@@ -265,7 +302,7 @@ const Settings: React.FC = () => {
             />
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Link YouTube"
@@ -279,28 +316,8 @@ const Settings: React.FC = () => {
             />
           </Grid>
         </Grid>
-      </Box>
+      </Paper>
 
-      {/* Unified Save Button */}
-      <Divider sx={{ my: 4 }} />
-
-      <Box display="flex" justifyContent="center" sx={{ pb: 4 }}>
-        <Button
-          variant="contained"
-          startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
-          onClick={handleSaveAllSettings}
-          disabled={saving}
-          size="large"
-          sx={{
-            minWidth: 200,
-            fontWeight: 600,
-            fontSize: '1.1rem',
-            py: 1.5
-          }}
-        >
-          {saving ? 'Se salvează...' : 'Salvează Modificările'}
-        </Button>
-      </Box>
     </Container>
   )
 }

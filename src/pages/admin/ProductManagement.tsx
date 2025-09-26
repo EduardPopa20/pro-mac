@@ -58,7 +58,7 @@ import EnhancedParchetForm from '../../components/admin/EnhancedParchetFormFixed
 import EnhancedRiflajForm from '../../components/admin/EnhancedRiflajForm'
 import { generateProductSlug } from '../../utils/slugUtils'
 
-type ViewMode = 'categories' | 'category-products' | 'add-category' | 'edit-product' | 'add-product'
+type ViewMode = 'categories' | 'category-products' | 'edit-product' | 'add-product'
 
 const ProductManagement: React.FC = () => {
   const { 
@@ -89,7 +89,6 @@ const ProductManagement: React.FC = () => {
   const [currentImagePath, setCurrentImagePath] = useState<string>('')
 
   // Form states
-  const [categoryForm, setCategoryForm] = useState({ name: '' })
   const [productForm, setProductForm] = useState({
     // Basic info
     name: '',
@@ -229,10 +228,6 @@ const ProductManagement: React.FC = () => {
     navigate(`/admin/categorii_produse/${category.slug}`)
   }
 
-  const handleAddCategory = () => {
-    setCategoryForm({ name: '' })
-    setViewMode('add-category')
-  }
 
   const handleAddProduct = () => {
     setEditingProduct(null)
@@ -391,37 +386,6 @@ const ProductManagement: React.FC = () => {
     setCurrentImagePath(imagePath)
   }
 
-  const handleSaveCategory = async () => {
-    if (!categoryForm.name.trim()) {
-      showErrorAlert('Numele categoriei este obligatoriu', 'Error')
-      return
-    }
-
-    setSaving(true)
-
-    const confirmed = await showConfirmation({
-      title: 'Confirmare Creare',
-      message: `Creați categoria "${categoryForm.name}"?`,
-      type: 'warning'
-    })
-
-    if (!confirmed) {
-      setSaving(false)
-      return
-    }
-
-    try {
-      await createCategory({ name: categoryForm.name, sort_order: 0 })
-      showSuccessAlert('Categoria a fost creată cu succes!', 'Success')
-      setTimeout(() => {
-        navigate('/admin/categorii_produse')
-      }, 1500)
-    } catch (err) {
-      showErrorAlert('A apărut o eroare la crearea categoriei', 'Error')
-    } finally {
-      setSaving(false)
-    }
-  }
 
   const handleSaveProduct = async () => {
     if (!productForm.name.trim()) {
@@ -675,14 +639,6 @@ const ProductManagement: React.FC = () => {
       {viewMode === 'categories' && (
         <Box>
           <Stack direction="row" justifyContent="flex-end" sx={{ mb: 3 }}>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
-              onClick={handleAddCategory}
-              size={isMobile ? 'small' : 'medium'}
-            >
-              Adaugă Categorie
-            </Button>
           </Stack>
 
 {categoriesWithCount.length === 0 ? (
@@ -704,14 +660,6 @@ const ProductManagement: React.FC = () => {
               <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 400 }}>
                 Nu există categorii în sistem. Creați prima categorie pentru a începe organizarea produselor.
               </Typography>
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={handleAddCategory}
-                size="large"
-              >
-                Adaugă Prima Categorie
-              </Button>
             </Box>
           ) : (
             <TableContainer component={Paper}>
@@ -782,37 +730,6 @@ const ProductManagement: React.FC = () => {
         </Box>
       )}
 
-      {/* Add Category Form */}
-      {viewMode === 'add-category' && (
-        <Card>
-          <CardContent>
-            <Stack spacing={3}>
-              <TextField
-                label="Nume Categorie"
-                value={categoryForm.name}
-                onChange={(e) => setCategoryForm({ name: e.target.value })}
-                fullWidth
-                required
-                placeholder="ex: Faianță, Gresie, Parchet"
-              />
-
-              <Stack direction="row" spacing={2} justifyContent="flex-end">
-                <Button onClick={() => setViewMode('categories')} disabled={saving}>
-                  Anulează
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={handleSaveCategory}
-                  disabled={saving || !categoryForm.name.trim()}
-                  startIcon={saving ? <CircularProgress size={20} /> : undefined}
-                >
-                  {saving ? 'Se salvează...' : 'Salvează'}
-                </Button>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Category Products View */}
       {viewMode === 'category-products' && selectedCategory && (

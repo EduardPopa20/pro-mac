@@ -23,6 +23,7 @@ import {
   Info
 } from '@mui/icons-material'
 import type { Product } from '../../types'
+import { useCategorySpecs } from '../../hooks/useCategorySpecs'
 
 interface ProductSpecsProps {
   product: Product
@@ -41,13 +42,14 @@ const ProductSpecs: React.FC<ProductSpecsProps> = ({ product, categorySlug }) =>
   const [expanded, setExpanded] = useState(false)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const { isSpecVisible, loading: specsLoading } = useCategorySpecs(categorySlug)
 
   // Map product data to specifications based on category
   const getSpecifications = (): SpecItem[] => {
     const specs: SpecItem[] = []
 
-    // Add brand (always high priority)
-    if (product.brand) {
+    // Add brand (always high priority) - brand is always visible
+    if (product.brand && (isSpecVisible('brand') !== false)) {
       specs.push({ label: 'Brand', value: product.brand, priority: 'high', type: 'text' })
     }
 
@@ -55,64 +57,64 @@ const ProductSpecs: React.FC<ProductSpecsProps> = ({ product, categorySlug }) =>
     switch (categorySlug) {
       case 'faianta':
       case 'gresie':
-        // Tiles specifications
-        if (product.thickness) {
+        // Tiles specifications - check visibility for each spec
+        if (product.thickness && isSpecVisible('thickness')) {
           specs.push({ label: 'Grosime', value: product.thickness, unit: 'mm', priority: 'high', type: 'number' })
         }
-        if (product.surface_finish) {
+        if (product.surface_finish && isSpecVisible('surface_finish')) {
           specs.push({ label: 'Finisaj suprafață', value: product.surface_finish, priority: 'high', type: 'text' })
         }
-        if (product.dimensions) {
+        if (product.dimensions && isSpecVisible('dimensions')) {
           specs.push({ label: 'Dimensiuni', value: product.dimensions, priority: 'medium', type: 'text' })
         }
-        if (product.texture) {
+        if (product.texture && isSpecVisible('texture')) {
           specs.push({ label: 'Textură', value: product.texture, priority: 'medium', type: 'text' })
         }
-        if (product.quality_grade) {
+        if (product.quality_grade && isSpecVisible('quality_grade')) {
           specs.push({ label: 'Clasa de calitate', value: `Clasa ${product.quality_grade}`, priority: 'medium', type: 'text' })
         }
-        if (product.suitable_for_walls !== undefined) {
+        if (product.suitable_for_walls !== undefined && isSpecVisible('suitable_for_walls')) {
           specs.push({ label: 'Potrivit pentru pereți', value: product.suitable_for_walls, priority: 'low', type: 'boolean' })
         }
-        if (product.suitable_for_floors !== undefined) {
+        if (product.suitable_for_floors !== undefined && isSpecVisible('suitable_for_floors')) {
           specs.push({ label: 'Potrivit pentru podele', value: product.suitable_for_floors, priority: 'low', type: 'boolean' })
         }
-        if (product.is_frost_resistant !== undefined) {
+        if (product.is_frost_resistant !== undefined && isSpecVisible('is_frost_resistant')) {
           specs.push({ label: 'Rezistent la îngheț', value: product.is_frost_resistant, priority: 'low', type: 'boolean' })
         }
-        if (product.is_rectified !== undefined) {
+        if (product.is_rectified !== undefined && isSpecVisible('is_rectified')) {
           specs.push({ label: 'Rectificat', value: product.is_rectified, priority: 'low', type: 'boolean' })
         }
         break
 
       case 'parchet':
-        // Flooring specifications  
-        if (product.thickness) {
+        // Flooring specifications - check visibility for each spec
+        if (product.thickness && isSpecVisible('thickness_mm')) {
           specs.push({ label: 'Grosime', value: product.thickness, unit: 'mm', priority: 'high', type: 'number' })
         }
-        if (product.material) {
+        if (product.material && isSpecVisible('core_material')) {
           specs.push({ label: 'Material', value: product.material, priority: 'high', type: 'text' })
         }
-        if (product.dimensions) {
+        if (product.dimensions && isSpecVisible('plank_dimensions')) {
           specs.push({ label: 'Dimensiuni', value: product.dimensions, priority: 'medium', type: 'text' })
         }
-        if (product.finish) {
+        if (product.finish && isSpecVisible('surface_treatment')) {
           specs.push({ label: 'Finisaj', value: product.finish, priority: 'medium', type: 'text' })
         }
-        if (product.is_floor_heating_compatible !== undefined) {
+        if (product.is_floor_heating_compatible !== undefined && isSpecVisible('underfloor_heating_compatible')) {
           specs.push({ label: 'Compatibil încălzire în pardoseală', value: product.is_floor_heating_compatible, priority: 'low', type: 'boolean' })
         }
         break
 
-      case 'riflaj':
-        // Molding/trim specifications
-        if (product.dimensions) {
+      case 'riflaje':
+        // Molding/trim specifications - check visibility for each spec
+        if (product.dimensions && isSpecVisible('panel_dimensions')) {
           specs.push({ label: 'Dimensiuni', value: product.dimensions, priority: 'high', type: 'text' })
         }
-        if (product.material) {
+        if (product.material && isSpecVisible('material')) {
           specs.push({ label: 'Material', value: product.material, priority: 'high', type: 'text' })
         }
-        if (product.finish) {
+        if (product.finish && isSpecVisible('finish_type')) {
           specs.push({ label: 'Finisaj', value: product.finish, priority: 'medium', type: 'text' })
         }
         break
@@ -130,23 +132,24 @@ const ProductSpecs: React.FC<ProductSpecsProps> = ({ product, categorySlug }) =>
         }
     }
 
-    // Common specifications for all categories
-    if (product.color) {
+    // Common specifications for all categories - check visibility for each
+    if (product.color && isSpecVisible('color')) {
       specs.push({ label: 'Culoare', value: product.color, priority: 'medium', type: 'text' })
     }
-    if (product.origin_country) {
+    if (product.origin_country && (isSpecVisible('origin_country') || isSpecVisible('country_of_origin'))) {
       specs.push({ label: 'Țara de origine', value: product.origin_country, priority: 'low', type: 'text' })
     }
-    if (product.area_per_box) {
+    if (product.area_per_box && isSpecVisible('area_per_box')) {
       specs.push({ label: 'Suprafață per cutie', value: product.area_per_box, unit: 'm²', priority: 'low', type: 'number' })
     }
-    if (product.tiles_per_box) {
+    if (product.tiles_per_box && isSpecVisible('tiles_per_box')) {
       specs.push({ label: 'Bucăți per cutie', value: product.tiles_per_box, priority: 'low', type: 'number' })
     }
-    if (product.weight_per_box) {
+    if (product.weight_per_box && isSpecVisible('weight_per_box')) {
       specs.push({ label: 'Greutate per cutie', value: product.weight_per_box, unit: 'kg', priority: 'low', type: 'number' })
     }
     if (product.product_code) {
+      // Product code is always visible - not controlled by specs visibility
       specs.push({ label: 'Cod produs', value: product.product_code, priority: 'low', type: 'text' })
     }
 
@@ -173,7 +176,8 @@ const ProductSpecs: React.FC<ProductSpecsProps> = ({ product, categorySlug }) =>
     return spec.value
   }
 
-  if (specifications.length === 0) {
+  // Don't render if no specifications or still loading specs config
+  if (specifications.length === 0 || specsLoading) {
     return null
   }
 

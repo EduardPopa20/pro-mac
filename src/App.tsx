@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useNavigateWithScroll } from './hooks/useNavigateWithScroll'
 import HomeIcon from './components/icons/HomeIcon'
 import ContactIcon from './components/icons/ContactIcon'
@@ -348,12 +348,12 @@ const HamburgerMenu: React.FC = () => {
           {/* Header */}
           <Box sx={{ p: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img 
-                src="/pro-mac-logo.png" 
-                alt="Pro-Mac" 
-                style={{ height: 36, marginRight: 12 }}
+              <img
+                src="/pro-mac-logo.png"
+                alt="Pro-Mac"
+                style={{ height: 36, marginRight: 8 }}
               />
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, fontSize: '1.35rem' }}>
                 Pro-Mac
               </Typography>
             </Box>
@@ -640,7 +640,9 @@ const AppContent: React.FC = () => {
             <Route path="showroom-uri/:id/preview" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomPreview /></Suspense>} />
             <Route path="showroom-uri/preview" element={<Suspense fallback={<AdminLoadingSpinner />}><ShowroomPreview /></Suspense>} />
             <Route path="newsletter" element={<Suspense fallback={<AdminLoadingSpinner />}><NewsletterManagement /></Suspense>} />
-            <Route path="category-specs" element={<Suspense fallback={<AdminLoadingSpinner />}><CategorySpecsManager /></Suspense>} />
+            <Route path="specificatii_categorii" element={<Suspense fallback={<AdminLoadingSpinner />}><CategorySpecsManager /></Suspense>} />
+            {/* Redirect from old URL to new URL */}
+            <Route path="configurare_specificatii" element={<Navigate to="/admin/specificatii_categorii" replace />} />
             <Route path="setari" element={<Suspense fallback={<AdminLoadingSpinner />}><Settings /></Suspense>} />
           </Route>
           
@@ -824,17 +826,18 @@ const NormalUserLayout: React.FC<NormalUserLayoutProps> = ({
                   navigate('/homepage')
                 }}
               >
-                <img 
-                  src="/pro-mac-logo.png" 
-                  alt="Pro-Mac" 
-                  style={{ height: 48, marginRight: isMobile ? 0 : 16 }} // Remove all margin on mobile
+                <img
+                  src="/pro-mac-logo.png"
+                  alt="Pro-Mac"
+                  style={{ height: 48, marginRight: isMobile ? 0 : 12 }} // Reduced margin
                 />
                 {/* Hide company name on mobile */}
-                <Typography 
-                  variant="h6" 
-                  component="h1" 
-                  sx={{ 
-                    fontWeight: 600,
+                <Typography
+                  variant="h5"
+                  component="h1"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: '1.5rem',
                     display: { xs: 'none', md: 'block' }
                   }}
                 >

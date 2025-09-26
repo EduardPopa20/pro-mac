@@ -28,16 +28,12 @@ import {
   Snackbar,
   FormControlLabel,
   Checkbox,
+  Skeleton,
 } from '@mui/material';
 import {
   ExpandMore,
   Save,
-  Visibility,
-  VisibilityOff,
-  FilterList,
   Info,
-  Settings,
-  RestoreOutlined,
 } from '@mui/icons-material';
 import { supabase } from '../../lib/supabase';
 import type {
@@ -53,7 +49,7 @@ import { useAuthStore } from '../../stores/auth';
 
 export default function CategorySpecsManager() {
   const navigate = useNavigate();
-  const { user, isAdmin, loading: authLoading } = useAuthStore();
+  const { user, loading: authLoading } = useAuthStore();
 
   const [categories, setCategories] = useState<CategorySpecConfig[]>([]);
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -65,10 +61,10 @@ export default function CategorySpecsManager() {
 
   // Redirect if not admin (but only after auth is loaded)
   useEffect(() => {
-    if (!authLoading && user && !isAdmin) {
+    if (!authLoading && user && user.role !== 'admin') {
       navigate('/admin/dashboard');
     }
-  }, [authLoading, user, isAdmin, navigate]);
+  }, [authLoading, user, navigate]);
 
   // Fetch categories
   useEffect(() => {
@@ -104,19 +100,17 @@ export default function CategorySpecsManager() {
 
   const getDefaultVisibility = (categorySlug: string): SpecificationVisibility => {
     const specs = CATEGORY_SPECIFICATIONS[categorySlug] || [];
-    const filters: Record<string, boolean> = {};
-    const details: Record<string, boolean> = {};
+    const visible: Record<string, boolean> = {};
 
     specs.forEach(spec => {
-      // By default, show basic specs in filters, all specs in details
-      filters[spec.key] = spec.category === 'basic';
-      details[spec.key] = true;
+      // By default, show basic specs and important technical specs
+      visible[spec.key] = spec.category === 'basic' || spec.category === 'technical';
     });
 
-    return { filters, details };
+    return { visible };
   };
 
-  const handleSpecToggle = useCallback((specKey: string, type: 'filters' | 'details') => {
+  const handleSpecToggle = useCallback((specKey: string) => {
     const category = categories[selectedCategory];
     if (!category) return;
 
@@ -124,9 +118,9 @@ export default function CategorySpecsManager() {
 
     const newSpecs = {
       ...currentSpecs,
-      [type]: {
-        ...currentSpecs[type],
-        [specKey]: !currentSpecs[type][specKey],
+      visible: {
+        ...currentSpecs.visible,
+        [specKey]: !currentSpecs.visible[specKey],
       },
     };
 
@@ -136,28 +130,6 @@ export default function CategorySpecsManager() {
     }));
   }, [categories, selectedCategory, modifiedSpecs]);
 
-  const handleToggleAll = useCallback((type: 'filters' | 'details', value: boolean) => {
-    const category = categories[selectedCategory];
-    if (!category) return;
-
-    const specs = CATEGORY_SPECIFICATIONS[category.slug] || [];
-    const currentSpecs = modifiedSpecs[category.id] || category.visible_specifications || getDefaultVisibility(category.slug);
-
-    const newTypeSpecs: Record<string, boolean> = {};
-    specs.forEach(spec => {
-      newTypeSpecs[spec.key] = value;
-    });
-
-    const newSpecs = {
-      ...currentSpecs,
-      [type]: newTypeSpecs,
-    };
-
-    setModifiedSpecs(prev => ({
-      ...prev,
-      [category.id]: newSpecs,
-    }));
-  }, [categories, selectedCategory, modifiedSpecs]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -188,22 +160,40 @@ export default function CategorySpecsManager() {
     }
   };
 
-  const handleResetDefaults = useCallback(() => {
-    const category = categories[selectedCategory];
-    if (!category) return;
 
-    const defaultSpecs = getDefaultVisibility(category.slug);
-    setModifiedSpecs(prev => ({
-      ...prev,
-      [category.id]: defaultSpecs,
-    }));
-  }, [categories, selectedCategory]);
+  // Helper function to convert old format {filters: {}, details: {}} to new format {visible: {}}
+  const convertToNewFormat = (oldSpecs: any, categorySlug: string): SpecificationVisibility => {
+    // If it's already in new format, return as is
+    if (oldSpecs.visible) {
+      return oldSpecs;
+    }
+
+    // If it's old format, convert it
+    if (oldSpecs.filters || oldSpecs.details) {
+      const specs = CATEGORY_SPECIFICATIONS[categorySlug] || [];
+      const visible: Record<string, boolean> = {};
+
+      specs.forEach(spec => {
+        // Show spec if it was visible in either filters or details in old format
+        visible[spec.key] = Boolean(oldSpecs.filters?.[spec.key] || oldSpecs.details?.[spec.key]);
+      });
+
+      return { visible };
+    }
+
+    // Fallback to default
+    return getDefaultVisibility(categorySlug);
+  };
 
   const hasChanges = Object.keys(modifiedSpecs).length > 0;
 
   const currentCategory = categories[selectedCategory];
   const currentSpecs = currentCategory
-    ? (modifiedSpecs[currentCategory.id] || currentCategory.visible_specifications || getDefaultVisibility(currentCategory.slug))
+    ? (modifiedSpecs[currentCategory.id] ||
+       // Convert old format to new format if needed
+       (currentCategory.visible_specifications ?
+         convertToNewFormat(currentCategory.visible_specifications, currentCategory.slug) :
+         getDefaultVisibility(currentCategory.slug)))
     : null;
 
   const groupedSpecs = currentCategory ? getGroupedSpecifications(currentCategory.slug) : {};
@@ -218,9 +208,61 @@ export default function CategorySpecsManager() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Breadcrumbs skeleton */}
+        <Box sx={{ mb: 4 }}>
+          <Skeleton variant="text" width={300} height={24} />
+        </Box>
+
+        {/* Header skeleton */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Skeleton variant="text" width={400} height={40} />
+          {hasChanges && (
+            <Skeleton variant="rectangular" width={180} height={40} sx={{ borderRadius: 1 }} />
+          )}
+        </Box>
+
+        {/* Info alert skeleton */}
+        <Skeleton variant="rectangular" width="100%" height={80} sx={{ mb: 3, borderRadius: 1 }} />
+
+        {/* Card with tabs and content skeleton */}
+        <Card
+          sx={{
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'grey.300'
+          }}
+        >
+          {/* Tabs skeleton */}
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 2 }}>
+            <Box display="flex" gap={2}>
+              <Skeleton variant="text" width={80} height={40} />
+              <Skeleton variant="text" width={80} height={40} />
+              <Skeleton variant="text" width={80} height={40} />
+              <Skeleton variant="text" width={80} height={40} />
+            </Box>
+          </Box>
+
+          <CardContent>
+            {/* Accordion sections skeleton */}
+            {[1, 2, 3].map(index => (
+              <Box key={index} sx={{ mb: 2 }}>
+                <Skeleton variant="rectangular" width="100%" height={48} sx={{ mb: 1 }} />
+                <Box sx={{ pl: 2 }}>
+                  {/* Table rows skeleton */}
+                  {[1, 2, 3, 4].map(rowIndex => (
+                    <Box key={rowIndex} display="flex" alignItems="center" sx={{ py: 1 }} gap={2}>
+                      <Skeleton variant="text" width="40%" height={24} />
+                      <Skeleton variant="rectangular" width={48} height={24} />
+                      <Skeleton variant="rectangular" width={60} height={20} />
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            ))}
+          </CardContent>
+        </Card>
+      </Container>
     );
   }
 
@@ -268,15 +310,16 @@ export default function CategorySpecsManager() {
       {/* Info Alert */}
       <Alert severity="info" sx={{ mb: 3 }}>
         <Typography variant="body2">
-          Configurați care specificații sunt vizibile în <strong>filtre</strong> și în <strong>detaliile produsului</strong> pentru fiecare categorie.
-          Acest lucru permite ascunderea specificațiilor care nu sunt disponibile pentru anumite produse.
+          Configurați care specificații sunt vizibile în interfața publică pentru fiecare categorie.
+          Specificațiile ascunse nu vor apărea în filtrele de căutare și nici în detaliile produselor.
         </Typography>
       </Alert>
 
-      {/* Category Tabs */}
+      {/* Category Tabs - unified with accordion */}
+
+      {/* Unified Specification Management */}
       <Card
         sx={{
-          mb: 3,
           borderRadius: 3,
           border: '1px solid',
           borderColor: 'grey.300',
@@ -288,12 +331,13 @@ export default function CategorySpecsManager() {
           }
         }}
       >
+        {/* Category Tabs integrated into card */}
         <Tabs
           value={selectedCategory}
           onChange={(_, value) => setSelectedCategory(value)}
           variant="scrollable"
           scrollButtons="auto"
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
+          sx={{ borderBottom: 1, borderColor: 'divider', px: 2, pt: 2 }}
         >
           {categories.map((category, index) => (
             <Tab
@@ -310,72 +354,9 @@ export default function CategorySpecsManager() {
             />
           ))}
         </Tabs>
-      </Card>
 
-      {/* Specification Management */}
-      {currentCategory && currentSpecs && (
-        <Card
-          sx={{
-            borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'grey.300',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              borderColor: 'primary.light',
-              boxShadow: (theme) => theme.shadows[6],
-              transform: 'translateY(-2px)'
-            }
-          }}
-        >
+        {currentCategory && currentSpecs && (
           <CardContent>
-            {/* Actions */}
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-              <Box display="flex" gap={2}>
-                <Tooltip title="Afișează toate specificațiile în secțiunea de filtre">
-                  <Button
-                    size="small"
-                    startIcon={<Visibility />}
-                    onClick={() => handleToggleAll('filters', true)}
-                    sx={{
-                      minHeight: { xs: 44, md: 32 },
-                      px: { xs: 2, md: 1 },
-                      fontSize: { xs: '0.875rem', md: '0.875rem' }
-                    }}
-                  >
-                    Afișează toate în filtre
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Ascunde toate specificațiile din secțiunea de filtre">
-                  <Button
-                    size="small"
-                    startIcon={<VisibilityOff />}
-                    onClick={() => handleToggleAll('filters', false)}
-                    sx={{
-                      minHeight: { xs: 44, md: 32 },
-                      px: { xs: 2, md: 1 },
-                      fontSize: { xs: '0.875rem', md: '0.875rem' }
-                    }}
-                  >
-                    Ascunde toate din filtre
-                  </Button>
-                </Tooltip>
-              </Box>
-              <Tooltip title="Resetează la configurația implicită pentru această categorie">
-                <Button
-                  size="small"
-                  startIcon={<RestoreOutlined />}
-                  onClick={handleResetDefaults}
-                  color="secondary"
-                  sx={{
-                    minHeight: { xs: 44, md: 32 },
-                    px: { xs: 2, md: 1 },
-                    fontSize: { xs: '0.875rem', md: '0.875rem' }
-                  }}
-                >
-                  Resetare la implicit
-                </Button>
-              </Tooltip>
-            </Box>
 
             {/* Specifications by Category */}
             {Object.entries(groupedSpecs).map(([category, specs]) => (
@@ -396,8 +377,7 @@ export default function CategorySpecsManager() {
                       <TableHead>
                         <TableRow>
                           <TableCell>Specificație</TableCell>
-                          <TableCell align="center">Vizibil în Filtre</TableCell>
-                          <TableCell align="center">Vizibil în Detalii Produs</TableCell>
+                          <TableCell align="center">Vizibil</TableCell>
                           <TableCell width={50}></TableCell>
                         </TableRow>
                       </TableHead>
@@ -415,28 +395,11 @@ export default function CategorySpecsManager() {
                                   </Tooltip>
                                 )}
                               </Box>
-                              <Typography variant="caption" color="text.secondary">
-                                {spec.key}
-                              </Typography>
                             </TableCell>
                             <TableCell align="center">
                               <Switch
-                                checked={currentSpecs.filters[spec.key] || false}
-                                onChange={() => handleSpecToggle(spec.key, 'filters')}
-                                size="small"
-                                color="primary"
-                                sx={{
-                                  '& .MuiSwitch-switchBase': {
-                                    minWidth: { xs: 44, md: 'auto' },
-                                    minHeight: { xs: 44, md: 'auto' }
-                                  }
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell align="center">
-                              <Switch
-                                checked={currentSpecs.details[spec.key] || false}
-                                onChange={() => handleSpecToggle(spec.key, 'details')}
+                                checked={currentSpecs?.visible?.[spec.key] || false}
+                                onChange={() => handleSpecToggle(spec.key)}
                                 size="small"
                                 color="primary"
                                 sx={{
@@ -467,8 +430,8 @@ export default function CategorySpecsManager() {
               </Accordion>
             ))}
           </CardContent>
-        </Card>
-      )}
+        )}
+      </Card>
 
       {/* Success/Error Messages */}
       <Snackbar

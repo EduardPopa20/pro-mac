@@ -1,8 +1,7 @@
 // Category Specification Visibility Types
 
 export interface SpecificationVisibility {
-  filters: Record<string, boolean>;
-  details: Record<string, boolean>;
+  visible: Record<string, boolean>;
 }
 
 export interface CategorySpecConfig {

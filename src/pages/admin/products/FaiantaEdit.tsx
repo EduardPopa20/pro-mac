@@ -82,7 +82,7 @@ const FaiantaEdit: React.FC = () => {
         if (error) {
           console.warn('Could not delete old image:', error)
         } else {
-          console.log('Successfully deleted old image:', storagePath)
+          // Successfully deleted old image
         }
       }
     } catch (error) {
@@ -137,7 +137,8 @@ const FaiantaEdit: React.FC = () => {
     // Status
     stock_status: 'available' as const,
     is_featured: false,
-    
+    is_on_sale: false,
+
     // Images
     image_url: ''
   })
@@ -173,7 +174,6 @@ const FaiantaEdit: React.FC = () => {
 
       // If not found in products array, fetch directly from database
       try {
-        console.log('Fetching product by slug:', productSlug)
         
         const { data: productData, error } = await supabase
           .from('products')
@@ -190,7 +190,6 @@ const FaiantaEdit: React.FC = () => {
         }
 
         if (productData) {
-          console.log('Found product:', productData)
           
           // Validate it's a faianta product
           if (productData.category?.slug !== 'faianta') {
@@ -244,6 +243,7 @@ const FaiantaEdit: React.FC = () => {
         price_unit: product.price_unit || 'mp',
         stock_status: product.stock_status || 'available',
         is_featured: product.is_featured || false,
+        is_on_sale: product.is_on_sale || false,
         image_url: product.image_url || ''
       })
     }

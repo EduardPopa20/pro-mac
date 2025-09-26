@@ -311,27 +311,6 @@ const WorkingHoursEditor: React.FC<WorkingHoursEditorProps> = ({ value, onChange
         </Stack>
 
         <Divider sx={{ my: 1.5 }} />
-        
-        {/* Preview */}
-        <Box>
-          <Typography variant="caption" color="text.secondary" gutterBottom>
-            Preview program:
-          </Typography>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              p: 1.5, 
-              backgroundColor: 'grey.50', 
-              borderRadius: 1.5,
-              border: 1,
-              borderColor: 'grey.200',
-              fontFamily: 'monospace',
-              fontSize: '0.875rem'
-            }}
-          >
-            {generateWorkingHoursString()}
-          </Typography>
-        </Box>
       </Box>
     </LocalizationProvider>
   )

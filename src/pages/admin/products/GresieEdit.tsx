@@ -77,7 +77,7 @@ const GresieEdit: React.FC = () => {
         if (error) {
           console.warn('Could not delete old image:', error)
         } else {
-          console.log('Successfully deleted old image:', storagePath)
+          // Successfully deleted old image
         }
       }
     } catch (error) {
@@ -132,6 +132,7 @@ const GresieEdit: React.FC = () => {
     // Status
     stock_status: 'available' as const,
     is_featured: false,
+    is_on_sale: false,
     
     // Images
     image_url: ''
@@ -181,6 +182,7 @@ const GresieEdit: React.FC = () => {
           price_unit: foundProduct.price_unit || 'mp',
           stock_status: foundProduct.stock_status || 'available',
           is_featured: foundProduct.is_featured || false,
+          is_on_sale: foundProduct.is_on_sale || false,
           image_url: foundProduct.image_url || ''
         })
       }

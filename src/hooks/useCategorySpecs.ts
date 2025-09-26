@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { SpecificationVisibility, CATEGORY_SPECIFICATIONS } from '../types/category-specs';
+import { type SpecificationVisibility, CATEGORY_SPECIFICATIONS } from '../types/category-specs';
 
 interface UseCategorySpecsReturn {
   visibleSpecs: SpecificationVisibility | null;
   loading: boolean;
   error: string | null;
-  isSpecVisible: (specKey: string, type: 'filters' | 'details') => boolean;
+  isSpecVisible: (specKey: string) => boolean;
 }
 
 /**
@@ -63,25 +63,23 @@ export function useCategorySpecs(categorySlug: string | undefined): UseCategoryS
 
   const getDefaultVisibility = (slug: string): SpecificationVisibility => {
     const specs = CATEGORY_SPECIFICATIONS[slug] || [];
-    const filters: Record<string, boolean> = {};
-    const details: Record<string, boolean> = {};
+    const visible: Record<string, boolean> = {};
 
-    // Default: show basic specs in filters, all specs in details
+    // Default: show basic specs and important technical specs
     specs.forEach(spec => {
-      filters[spec.key] = spec.category === 'basic';
-      details[spec.key] = true;
+      visible[spec.key] = spec.category === 'basic' || spec.category === 'technical';
     });
 
-    return { filters, details };
+    return { visible };
   };
 
-  const isSpecVisible = (specKey: string, type: 'filters' | 'details'): boolean => {
+  const isSpecVisible = (specKey: string): boolean => {
     if (!visibleSpecs) {
       // If no config loaded yet, default to showing everything
       return true;
     }
 
-    return visibleSpecs[type]?.[specKey] ?? false;
+    return visibleSpecs.visible?.[specKey] ?? false;
   };
 
   return {
@@ -96,13 +94,11 @@ export function useCategorySpecs(categorySlug: string | undefined): UseCategoryS
  * Helper function to filter an object based on visibility settings
  * @param data - The data object to filter
  * @param visibilityConfig - The visibility configuration
- * @param type - Whether to use filter or details visibility
  * @returns Filtered object with only visible properties
  */
 export function filterVisibleSpecs<T extends Record<string, any>>(
   data: T,
-  visibilityConfig: SpecificationVisibility | null,
-  type: 'filters' | 'details'
+  visibilityConfig: SpecificationVisibility | null
 ): Partial<T> {
   if (!visibilityConfig) {
     // If no config, return all data
@@ -110,7 +106,7 @@ export function filterVisibleSpecs<T extends Record<string, any>>(
   }
 
   const filtered: Partial<T> = {};
-  const visibility = visibilityConfig[type];
+  const visibility = visibilityConfig.visible;
 
   Object.keys(data).forEach(key => {
     // Always include basic fields like id, name, etc.

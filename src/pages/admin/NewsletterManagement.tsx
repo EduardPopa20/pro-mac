@@ -62,12 +62,16 @@ import {
   ErrorOutline as ErrorIcon,
   Send as SendIcon,
   Clear as ClearIcon,
-  PersonAdd as PersonAddIcon
+  PersonAdd as PersonAddIcon,
+  CloudUpload as UploadIcon
 } from '@mui/icons-material'
-import MDEditor from '@uiw/react-md-editor'
 import { useNewsletterStore } from '../../stores/newsletter'
 import { useConfirmation } from '../../components/common/ConfirmationDialog'
 import type { NewsletterSubscription } from '../../types'
+import { supabase } from '../../lib/supabase'
+import NewsletterEditor from '../../components/email/NewsletterEditor'
+import type { NewsletterTemplateProps } from '../../components/email/NewsletterTemplate'
+import { sendNewsletter, validateRecipients } from '../../services/emailService'
 
 const NewsletterManagement: React.FC = () => {
   const { subscriptions, loading, fetchSubscriptions, updateSubscription, deleteSubscription, sendBulkEmail } = useNewsletterStore()
@@ -88,8 +92,7 @@ const NewsletterManagement: React.FC = () => {
 
   // State for bulk email dialog
   const [bulkEmailDialog, setBulkEmailDialog] = useState(false)
-  const [emailSubject, setEmailSubject] = useState('')
-  const [emailContent, setEmailContent] = useState('')
+  const [emailLoading, setEmailLoading] = useState(false)
 
   // Load subscriptions on component mount
   useEffect(() => {
@@ -203,61 +206,109 @@ const NewsletterManagement: React.FC = () => {
   // Handle bulk email dialog close
   const handleCloseBulkDialog = useCallback(() => {
     setBulkEmailDialog(false)
-    setEmailSubject('')
-    setEmailContent('')
   }, [])
 
-  // Helper function to check if markdown content is empty
-  const isContentEmpty = useCallback((content: string) => {
-    // Remove markdown syntax and check if there's actual content
-    const textContent = content.replace(/[#*_`\[\]()]/g, '').trim()
-    return textContent.length === 0
-  }, [])
 
-  // Handle send bulk email
-  const handleSendBulkEmail = () => {
-    showConfirmation({
-      title: 'Trimite campania newsletter',
-      message: `Trimitem email-ul către ${stats.active} abonați activi?`,
-      type: 'warning',
-      confirmText: 'Trimite',
-      onConfirm: async () => {
-        try {
-          const result = await sendBulkEmail(emailSubject, emailContent)
-
-          if (result.success) {
-            showConfirmation({
-              title: 'Email trimis cu succes!',
-              message: result.message,
-              type: 'success',
-              confirmText: 'OK',
-              onConfirm: () => {
-                handleCloseBulkDialog()
-                fetchSubscriptions()
-              }
-            })
-          } else {
-            showConfirmation({
-              title: 'Eroare la trimiterea email-ului',
-              message: result.message,
-              type: 'error',
-              confirmText: 'OK',
-              onConfirm: () => {}
-            })
-          }
-        } catch (error: any) {
-          console.error('Error sending bulk email:', error)
-          showConfirmation({
-            title: 'Eroare neașteptată',
-            message: 'A apărut o eroare neașteptată la trimiterea email-ului.',
-            type: 'error',
-            confirmText: 'OK',
-            onConfirm: () => {}
-          })
-        }
-      }
-    })
+  // Handle save newsletter draft
+  const handleSaveNewsletter = async (emailData: NewsletterTemplateProps) => {
+    try {
+      // Aici poți implementa salvarea draft-ului în baza de date dacă este necesar
+      showConfirmation({
+        title: 'Draft salvat',
+        message: 'Draft-ul newsletter-ului a fost salvat cu succes.',
+        type: 'success',
+        confirmText: 'OK'
+      })
+    } catch (error) {
+      showConfirmation({
+        title: 'Eroare',
+        message: 'Eroare la salvarea draft-ului.',
+        type: 'error',
+        confirmText: 'OK'
+      })
+    }
   }
+
+  // Handle send newsletter with React Email + Resend
+  const handleSendNewsletter = async (emailData: NewsletterTemplateProps) => {
+    setEmailLoading(true)
+
+    try {
+      // Prepare recipients from active subscriptions
+      const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active')
+      const recipients = activeSubscriptions.map(sub => ({
+        email: sub.email,
+        name: sub.full_name || undefined
+      }))
+
+      if (recipients.length === 0) {
+        showConfirmation({
+          title: 'Niciun destinatar',
+          message: 'Nu există abonați activi pentru trimiterea newsletter-ului.',
+          type: 'warning',
+          confirmText: 'OK'
+        })
+        return
+      }
+
+      // Validate recipients
+      const { valid, invalid } = validateRecipients(recipients)
+
+      if (invalid.length > 0) {
+        console.warn('Invalid email addresses found:', invalid)
+      }
+
+      if (valid.length === 0) {
+        showConfirmation({
+          title: 'Eroare validare',
+          message: 'Nu există adrese de email valide pentru trimitere.',
+          type: 'error',
+          confirmText: 'OK'
+        })
+        return
+      }
+
+      // Send newsletter
+      const result = await sendNewsletter({
+        ...emailData,
+        recipients: valid,
+        unsubscribeUrl: `${window.location.origin}/unsubscribe`,
+        websiteUrl: window.location.origin
+      })
+
+      if (result.success) {
+        showConfirmation({
+          title: 'Newsletter trimis cu succes!',
+          message: result.message,
+          type: 'success',
+          confirmText: 'OK',
+          onConfirm: () => {
+            handleCloseBulkDialog()
+            fetchSubscriptions()
+          }
+        })
+      } else {
+        showConfirmation({
+          title: 'Eroare la trimitere',
+          message: result.message,
+          type: 'error',
+          confirmText: 'OK'
+        })
+      }
+
+    } catch (error) {
+      console.error('Newsletter send error:', error)
+      showConfirmation({
+        title: 'Eroare',
+        message: 'Eroare la pregătirea newsletter-ului pentru trimitere.',
+        type: 'error',
+        confirmText: 'OK'
+      })
+    } finally {
+      setEmailLoading(false)
+    }
+  }
+
 
   // Get status color
   const getStatusColor = (status: NewsletterSubscription['status']) => {
@@ -860,11 +911,11 @@ const NewsletterManagement: React.FC = () => {
         </Menu>
       </ClickAwayListener>
 
-      {/* Bulk Email Dialog */}
+      {/* Newsletter Visual Editor Dialog */}
       <Dialog
         open={bulkEmailDialog}
         onClose={handleCloseBulkDialog}
-        maxWidth="md"
+        maxWidth="lg"
         fullWidth
         fullScreen={isMobile}
         PaperProps={{
@@ -872,112 +923,28 @@ const NewsletterManagement: React.FC = () => {
             borderRadius: isMobile ? 0 : 3,
             background: theme.palette.mode === 'dark'
               ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+            height: isMobile ? '100vh' : 'auto',
+            maxHeight: '95vh'
           }
         }}
       >
-        <DialogTitle sx={{ pb: 1 }}>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar sx={{ bgcolor: 'primary.main' }}>
-              <SendIcon />
-            </Avatar>
-            <Box>
-              <Typography variant="h6" fontWeight={600}>
-                Campanie Newsletter
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Către {stats.active} abonați activi
-              </Typography>
-            </Box>
-          </Stack>
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={3}>
-            <TextField
-              fullWidth
-              label="Subiect"
-              value={emailSubject}
-              onChange={(e) => setEmailSubject(e.target.value)}
-              placeholder="Ex: Reduceri de sezon la gresie și faianță"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailIcon />
-                  </InputAdornment>
-                ),
-              }}
-              helperText={`${emailSubject.length}/100 caractere`}
-              inputProps={{ maxLength: 100 }}
-            />
-
-            <Box>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
-                Conținut Email
-              </Typography>
-              <Box
-                sx={{
-                  '& .ql-editor': {
-                    minHeight: isMobile ? '200px' : '300px',
-                    fontSize: '14px',
-                    fontFamily: 'Arial, sans-serif'
-                  },
-                  '& .ql-toolbar': {
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px 8px 0 0',
-                    backgroundColor: theme.palette.background.paper
-                  },
-                  '& .ql-container': {
-                    border: '1px solid #e0e0e0',
-                    borderTop: 'none',
-                    borderRadius: '0 0 8px 8px',
-                    fontFamily: 'Arial, sans-serif'
-                  },
-                  '& .ql-editor.ql-blank::before': {
-                    color: theme.palette.text.disabled,
-                    fontStyle: 'italic'
-                  }
-                }}
-              >
-<MDEditor
-                  value={emailContent}
-                  onChange={(val) => setEmailContent(val || '')}
-                  data-color-mode="light"
-                  preview="edit"
-                  hideToolbar={false}
-                  visibleDragBar={false}
-                  height={300}
-                  style={{
-                    backgroundColor: 'transparent'
-                  }}
-                />
-              </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                Folosiți toolbar-ul pentru formatare, imagini și link-uri
-              </Typography>
-            </Box>
-          </Stack>
+        <DialogContent sx={{ pt: 2 }}>
+          <NewsletterEditor
+            onSave={handleSaveNewsletter}
+            onSend={handleSendNewsletter}
+            loading={emailLoading}
+          />
         </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 0 }}>
+
+        <DialogActions sx={{ p: 3, pt: 1 }}>
           <Button
             onClick={handleCloseBulkDialog}
             size="large"
+            variant="outlined"
             sx={{ borderRadius: 2 }}
           >
-            Anulează
-          </Button>
-          <Button
-            onClick={handleSendBulkEmail}
-            variant="contained"
-            disabled={!emailSubject.trim() || isContentEmpty(emailContent)}
-            startIcon={<SendIcon />}
-            size="large"
-            sx={{
-              borderRadius: 2,
-              backgroundColor: 'primary.main',
-              minWidth: 120
-            }}
-          >
-            Trimite Email
+            Închide
           </Button>
         </DialogActions>
       </Dialog>

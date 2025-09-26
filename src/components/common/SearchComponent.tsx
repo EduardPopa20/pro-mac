@@ -152,7 +152,6 @@ const SearchComponent: React.FC<SearchComponentProps> = ({
   }
 
   const handleClick = (event: React.MouseEvent<HTMLInputElement>) => {
-    console.log('Search input clicked') // Debug log
     // Don't stop propagation to allow normal input behavior
     // event.stopPropagation()
   }

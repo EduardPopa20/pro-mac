@@ -77,7 +77,7 @@ const AdminLayout: React.FC = () => {
     {
       text: 'Configurare Specificații',
       icon: <TuneIcon />,
-      path: '/admin/category-specs'
+      path: '/admin/specificatii_categorii'
     },
     {
       text: 'Setări',

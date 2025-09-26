@@ -129,17 +129,9 @@ export default function InventoryDashboard() {
                       </Typography>
                     </Box>
 
-                    <Typography variant="body2" color="text.secondary">
-                      Sistemul de inventar va include:
+                    <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
+                      Sistemul de inventar va include gestionarea stocurilor în timp real, urmărirea mișcărilor, alerte pentru stoc scăzut și integrare cu sistemul ERP.
                     </Typography>
-
-                    <Box component="ul" sx={{ textAlign: 'left', pl: 2 }}>
-                      <li><Typography variant="body2">Gestionarea stocurilor în timp real</Typography></li>
-                      <li><Typography variant="body2">Urmărirea mișcărilor de inventar</Typography></li>
-                      <li><Typography variant="body2">Alerte pentru stoc scăzut</Typography></li>
-                      <li><Typography variant="body2">Rapoarte detaliate de inventar</Typography></li>
-                      <li><Typography variant="body2">Integrare cu sistemul ERP</Typography></li>
-                    </Box>
                   </Stack>
                 </Box>
 

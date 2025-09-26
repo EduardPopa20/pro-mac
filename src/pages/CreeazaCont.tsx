@@ -253,10 +253,13 @@ const CreeazaCont: React.FC = () => {
     
     try {
       const result = await signUp(signUpData.email, signUpData.password, signUpData.fullName, recaptchaToken)
-      
+
       if (result.needsConfirmation) {
         setSuccess('Contul a fost creat cu succes! Vă rugăm să verificați email-ul pentru a confirma adresa.')
-        navigate('/auth/verify-email')
+        // Only navigate to verify-email after a short delay to show the success message
+        setTimeout(() => {
+          navigate('/auth/verify-email')
+        }, 2000)
       } else {
         setSuccess('Cont creat și activat cu succes! Te poți autentifica acum.')
         setTimeout(() => {
@@ -264,26 +267,19 @@ const CreeazaCont: React.FC = () => {
         }, 2000)
       }
     } catch (err: any) {
-      // Ensure we never show technical error details to users
-      let userMessage = 'Eroare la crearea contului. Încercați din nou.'
-      
-      if (err?.message && typeof err.message === 'string') {
-        // Only show the error if it seems like a user-friendly message (in Romanian)
-        if (err.message.includes('cont cu acest') || 
-            err.message.includes('email') ||
-            err.message.includes('parolă') ||
-            err.message.includes('cerințele') ||
-            err.message.includes('conexiune')) {
-          userMessage = err.message
-        }
-      }
-      
+      // Show the error message as-is if it's from our auth store
+      let userMessage = err?.message || 'Eroare la crearea contului. Încercați din nou.'
+
       setError(userMessage)
+
       // Reset reCAPTCHA on error
       if (recaptchaRef.current) {
         recaptchaRef.current.reset()
         setRecaptchaToken(null)
       }
+
+      // Do NOT navigate away when there's an error
+      // The user should see the error and be able to try again
     } finally {
       setLoading(false)
     }

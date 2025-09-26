@@ -119,20 +119,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signUp: async (email: string, password: string, fullName?: string, recaptchaToken?: string) => {
     set({ loading: true })
-    
+
     try {
-      // Check if email already exists
-      const { data: existingUsers } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', email.toLowerCase().trim())
-        .limit(1)
-
-      if (existingUsers && existingUsers.length > 0) {
-        set({ loading: false })
-        throw new Error('Un cont cu acest email există deja')
-      }
-
       const { data, error } = await supabase.auth.signUp({
         email: email.toLowerCase().trim(),
         password,
@@ -148,9 +136,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ loading: false })
         // Handle signup-specific errors with user-friendly messages
         let userMessage = 'Eroare la crearea contului. Încercați din nou.'
-        
-        if (error.message.includes('already registered') || error.message.includes('already_exists')) {
-          userMessage = 'Un cont cu acest email există deja'
+
+        if (error.message.includes('already registered') ||
+            error.message.includes('already_exists') ||
+            error.message.includes('User already registered')) {
+          userMessage = 'Un cont cu acest email există deja. Folosiți opțiunea de autentificare.'
         } else if (error.message.includes('Invalid email') || error.message.includes('invalid_email')) {
           userMessage = 'Adresa de email nu este validă'
         } else if (error.message.includes('Password') || error.message.includes('password')) {
@@ -158,40 +148,73 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } else if (error.message.includes('Network') || error.message.includes('network')) {
           userMessage = 'Problemă de conexiune. Verificați internetul și încercați din nou'
         }
-        
+
         throw new Error(userMessage)
       }
 
-      const needsConfirmation = !data.session && !!data.user && !data.user.email_confirmed_at
-      
+      // Check if this is actually a new user or an existing unconfirmed user
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        // This means user already exists but hasn't confirmed email
+        set({ loading: false })
+        throw new Error('Un cont cu acest email există deja dar nu a fost confirmat. Verificați email-ul pentru linkul de confirmare.')
+      }
+
+      // For new users, we'll create the profile after email confirmation
+      // This avoids RLS issues and foreign key constraints
+      if (data.user) {
+        console.log('User created successfully, profile will be created after email confirmation')
+      }
+
+      const needsConfirmation = !data.session
+
       if (needsConfirmation) {
         set({ emailConfirmationPending: email.toLowerCase().trim(), loading: false })
-      } else if (data.session) {
-        // Auto-signed in, create profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              email: email.toLowerCase().trim(),
-              full_name: fullName,
-              role: 'customer'
-            }
-          ])
-          .select()
-          .single()
+      } else if (data.session && data.user) {
+        // Auto-signed in (email confirmation not required)
+        // Create profile now since user is confirmed
+        try {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert([
+              {
+                id: data.user.id,
+                email: email.toLowerCase().trim(),
+                full_name: fullName || '',
+                role: 'customer'
+              }
+            ], {
+              onConflict: 'id'
+            })
 
-        if (profile) {
-          set({ 
-            user: {
-              id: profile.id,
-              email: profile.email,
-              full_name: profile.full_name,
-              role: profile.role,
-              created_at: profile.created_at
-            },
-            loading: false 
-          })
+          if (!profileError) {
+            // Get the created/updated profile
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', data.user.id)
+              .single()
+
+            if (profile) {
+              set({
+                user: {
+                  id: profile.id,
+                  email: profile.email,
+                  full_name: profile.full_name,
+                  role: profile.role,
+                  created_at: profile.created_at
+                },
+                loading: false
+              })
+            } else {
+              set({ loading: false })
+            }
+          } else {
+            console.error('Profile creation error:', profileError)
+            set({ loading: false })
+          }
+        } catch (err) {
+          console.error('Error creating profile:', err)
+          set({ loading: false })
         }
       } else {
         set({ loading: false })
@@ -403,7 +426,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   verifyEmail: async (token: string, type: string) => {
     set({ loading: true })
-    
+
     const { data, error } = await supabase.auth.verifyOtp({
       token_hash: token,
       type: type as any
@@ -415,35 +438,54 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 
     if (data.user) {
-      // Create profile after email verification
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: data.user.id,
-            email: data.user.email!,
-            full_name: data.user.user_metadata?.full_name,
-            role: 'customer'
-          }
-        ])
-        .select()
-        .single()
+      // Create or update profile after email verification
+      try {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert([
+            {
+              id: data.user.id,
+              email: data.user.email!,
+              full_name: data.user.user_metadata?.full_name || '',
+              role: 'customer'
+            }
+          ], {
+            onConflict: 'id'
+          })
 
-      if (profile && !profileError) {
-        set({ 
-          user: {
-            id: profile.id,
-            email: profile.email,
-            full_name: profile.full_name,
-            role: profile.role,
-            created_at: profile.created_at
-          },
-          loading: false,
-          emailConfirmationPending: null 
-        })
-      } else {
+        if (!profileError) {
+          // Get the profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single()
+
+          if (profile) {
+            set({
+              user: {
+                id: profile.id,
+                email: profile.email,
+                full_name: profile.full_name,
+                role: profile.role,
+                created_at: profile.created_at
+              },
+              loading: false,
+              emailConfirmationPending: null
+            })
+          } else {
+            set({ loading: false })
+            throw new Error('Eroare la accesarea profilului')
+          }
+        } else {
+          console.error('Profile upsert error:', profileError)
+          set({ loading: false })
+          throw new Error('Eroare la crearea profilului')
+        }
+      } catch (err) {
+        console.error('Error in verifyEmail:', err)
         set({ loading: false })
-        throw new Error('Eroare la crearea profilului')
+        throw new Error('Eroare la verificarea email-ului')
       }
     } else {
       set({ loading: false })

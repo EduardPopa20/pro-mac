@@ -677,9 +677,42 @@ const EnhancedProductForm: React.FC<EnhancedProductFormProps> = ({
                 fullWidth
                 inputProps={{ min: 0, step: 0.01 }}
                 error={!!fieldErrors.special_price}
-                helperText={fieldErrors.special_price}
+                helperText={fieldErrors.special_price || 'Preț redus pentru oferte speciale'}
               />
             </FormFieldWithIcon>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={!!productForm.is_on_sale}
+                  onChange={handleCheckboxChange('is_on_sale')}
+                  color="error"
+                />
+              }
+              label={
+                <Box>
+                  <Typography fontWeight={500} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    🔥 Produs la Reducere
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Marchează produsul ca fiind la reducere
+                  </Typography>
+                </Box>
+              }
+              sx={{
+                mt: 1,
+                p: 2,
+                border: productForm.is_on_sale ? '2px solid' : '1px solid',
+                borderColor: productForm.is_on_sale ? 'error.main' : 'divider',
+                borderRadius: 2,
+                backgroundColor: productForm.is_on_sale ? 'error.light' : 'transparent',
+                '& .MuiFormControlLabel-label': {
+                  width: '100%'
+                }
+              }}
+            />
           </Grid>
 
           <Grid item xs={12} sm={6}>

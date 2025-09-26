@@ -221,7 +221,12 @@ export const useProductStore = create<ProductState>((set, get) => ({
               if (Array.isArray(value)) {
                 query = query.in(key, value)
               } else {
-                query = query.eq(key, value)
+                // Handle boolean fields specifically
+                if (key === 'is_on_sale' && value === 'true') {
+                  query = query.eq(key, true)
+                } else {
+                  query = query.eq(key, value)
+                }
               }
             }
           }

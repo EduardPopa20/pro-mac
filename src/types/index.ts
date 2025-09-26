@@ -81,6 +81,9 @@ export interface Product {
   standard_price?: number
   special_price?: number
   price_unit?: string // mp, buc, cutie
+
+  // Sale/Discount status
+  is_on_sale?: boolean // flag for sale status (uses special_price for discounted price)
   
   // Additional details
   estimated_delivery_days?: number
