@@ -4,6 +4,7 @@
  */
 import { Resend } from 'resend'
 import { render } from '@react-email/render'
+import { supabase } from '../lib/supabase'
 import NewsletterTemplate, { type NewsletterTemplateProps } from '../components/email/NewsletterTemplate'
 
 // Inițializarea Resend cu API key din environment
@@ -38,8 +39,7 @@ export const sendNewsletter = async (emailData: NewsletterEmailData): Promise<{
   failedCount?: number
 }> => {
   try {
-    // Import Supabase client
-    const { supabase } = await import('../lib/supabase')
+    // Use statically imported Supabase client
 
     // Validare date
     if (!emailData.subject || !emailData.mainTitle) {
